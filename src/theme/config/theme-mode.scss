@@ -1,0 +1,11 @@
+@use '@angular/material' as mat;
+
+@mixin theme-mode() {
+  .theme-mode-light {
+    color-scheme: light;
+  }
+
+  .theme-mode-dark {
+    color-scheme: dark;
+  }
+}

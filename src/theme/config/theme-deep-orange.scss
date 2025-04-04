@@ -1,0 +1,18 @@
+@use '@angular/material' as mat;
+@use "typography" as custom-typography;
+@use "theme-deep-orange-colors" as theme-deep-orange;
+
+@mixin theme-deep-orange {
+  .theme-color-deep-orange {
+    @include mat.theme((
+      color: (
+        primary: theme-deep-orange.$primary-palette,
+        tertiary: theme-deep-orange.$tertiary-palette,
+      ),
+      typography: custom-typography.$typography-config,
+      density: (scale: 0),
+    ));
+
+    --swiper-navigation-color: var(--mat-sys-primary);
+  }
+}
