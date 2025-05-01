@@ -1,0 +1,101 @@
+<form class="form" [formGroup]="form" #formDirective="ngForm" (ngSubmit)="onSubmitForm()">
+
+  <!-- Select X01 -->
+  <div class="container-vertical no-gap">
+    <label>Select x01</label>
+    <mat-radio-group formControlName="x01">
+      <mat-radio-button *ngFor="let x01 of x01Options" [value]="x01">{{ x01 }}</mat-radio-button>
+    </mat-radio-group>
+  </div>
+
+  <!-- Select the best of sets/legs to be played -->
+  <div class="container-vertical" formGroupName="bestOf">
+    <div class="container-vertical no-gap">
+      <label>Select best of type</label>
+      <mat-radio-group formControlName="type">
+        <mat-radio-button [value]="BestOfType.SETS">Sets</mat-radio-button>
+        <mat-radio-button [value]="BestOfType.LEGS">Legs</mat-radio-button>
+      </mat-radio-group>
+    </div>
+
+    <div class="container-horizontal" style="margin-bottom: 12px">
+      <mat-form-field class="number-form-field" appearance="outline">
+        <mat-label>Sets</mat-label>
+        <input matInput formControlName="sets" type="number" placeholder="1">
+        <mat-error matFormError [control]="bestOfFormGroup.controls.sets"></mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="number-form-field" appearance="outline">
+        <mat-label>Legs</mat-label>
+        <input matInput formControlName="legs" type="number" placeholder="1">
+      </mat-form-field>
+    </div>
+  </div>
+
+  <!-- Track checkout percentage option -->
+  <div class="container-vertical no-gap">
+    <mat-slide-toggle formControlName="trackCheckouts">Track Checkout Percentage</mat-slide-toggle>
+  </div>
+
+  <!-- Add Player -->
+  <div class="container-vertical" cdkDropList (cdkDropListDropped)="onDropPlayerCard($event)">
+    <div class="container-horizontal no-gap">
+      <label style="align-self: center">Players</label>
+      <button mat-icon-button type="button" aria-label="Add Player" (click)="addPlayer()"
+              [disabled]="isMaxPlayersReached()">
+        <mat-icon>add_circle</mat-icon>
+      </button>
+      <mat-error matFormError [control]="playersFormArray"></mat-error>
+    </div>
+
+    <!-- Player Cards -->
+    <mat-card cdkDrag [formGroup]="$any(player)" *ngFor="let player of playersFormArray.controls; let i = index"
+              appearance="outlined">
+      <mat-card-content>
+        <div class="container-vertical">
+          <!-- Select player type -->
+          <div class="container-horizontal no-gap">
+            <mat-radio-group formControlName="type">
+              <mat-radio-button [value]="PlayerType.HUMAN">Human</mat-radio-button>
+              <mat-radio-button [value]="PlayerType.DART_BOT">Bot</mat-radio-button>
+            </mat-radio-group>
+          </div>
+
+          <div class="container-horizontal" style="flex-wrap: wrap">
+            <!-- Create player name -->
+            <mat-form-field class="player-name-field" appearance="outline">
+              <mat-label>Name</mat-label>
+              <input matInput type="name" formControlName="name">
+              <mat-icon matPrefix matTooltip="Human Player">account_circle</mat-icon>
+              <mat-error matFormError [control]="player.controls.name"></mat-error>
+            </mat-form-field>
+
+            <!-- Set Bot Average -->
+            <mat-form-field class="number-form-field" appearance="outline">
+              <mat-label>Avg</mat-label>
+              <input matInput type="number" formControlName="avg">
+              <mat-error matFormError [control]="player.controls.avg"></mat-error>
+            </mat-form-field>
+
+            <!-- Rearrange player order and remove player -->
+            <div class="container-horizontal" style="justify-content: space-between; align-self: flex-start">
+              <button mat-icon-button cdkDragHandle aria-label="Rearrange Player" type="button"
+                      [disabled]="isMinPlayersReached()">
+                <mat-icon>drag_indicator</mat-icon>
+              </button>
+
+              <button mat-icon-button matTooltip="Remove Player" aria-label="Rearrange Player" (click)="removePlayer(i)"
+                      type="button"
+                      [disabled]="isMinPlayersReached()">
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Submit form button -->
+  <button mat-flat-button type="submit">Create Match</button>
+</form>

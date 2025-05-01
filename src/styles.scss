@@ -3,7 +3,6 @@ html, body, app-root {
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  width: 100%;
 }
 
 * {
@@ -11,7 +10,57 @@ html, body, app-root {
 }
 
 body {
+  overflow-y: scroll;
   font-family: var(--mat-sys-body-medium-font), serif;
   background-color: var(--mat-sys-background);
   color: var(--mat-sys-on-background);
 }
+
+/* Chrome, Safari, Edge, Opera */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 575px;
+  border-radius: var(--mat-sys-corner-small);
+  border: 1px solid var(--mat-sys-outline);
+  padding: 20px;
+}
+
+.container-horizontal, .container-vertical {
+  display: flex;
+  gap: 12px;
+
+  &.no-gap {
+    gap: 0;
+  }
+}
+
+.container-horizontal {
+  flex-direction: row;
+  align-items: center;
+}
+
+.container-vertical {
+  flex-direction: column;
+}
+
+.gap-12 {
+  gap: 12px;
+}
+
+.number-form-field {
+  max-width: 120px;
+}
+

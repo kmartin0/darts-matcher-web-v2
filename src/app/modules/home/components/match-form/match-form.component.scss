@@ -1,0 +1,19 @@
+@use "@angular/material" as mat;
+
+.rearrange-player-icon {
+  order: 1
+}
+
+.delete-player-icon {
+  order: 2;
+  margin-left: auto;
+}
+
+/* Angular drag and drop animation */
+.cdk-drop-list-dragging .cdk-drag, .cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.cdk-drag-placeholder {
+  opacity: 0;
+}

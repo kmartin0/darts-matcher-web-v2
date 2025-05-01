@@ -1,0 +1,7 @@
+@use "helpers";
+
+.home-page-component-container {
+  @include helpers.module-page();
+  display: flex;
+  flex-direction: column;
+}

@@ -5,7 +5,12 @@
   "projects": {
     "darts-matcher-web-v2": {
       "projectType": "application",
-      "schematics": {},
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss",
+          "standalone": true
+        }
+      },
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
@@ -27,8 +32,8 @@
               }
             ],
             "styles": [
-              "src/styles.scss",
-              "src/theme/app-theme.scss"
+              "src/theme/app-theme.scss",
+              "src/styles.scss"
             ],
             "stylePreprocessorOptions": {
               "includePaths": [
@@ -93,8 +98,8 @@
               }
             ],
             "styles": [
-              "src/styles.scss",
-              "src/theme/app-theme.scss"
+              "src/theme/app-theme.scss",
+              "src/styles.scss"
             ],
             "stylePreprocessorOptions": {
               "includePaths": [
