@@ -1,0 +1,11 @@
+import {X01MatchSettings} from './x01-match-settings';
+import {X01Set} from './x01-set';
+import {X01MatchProgress} from './x01-match-progress';
+import {BaseMatch} from '../basematch/base-match';
+import {X01MatchPlayer} from './x01-match-player';
+
+export interface X01Match extends BaseMatch<X01MatchPlayer> {
+  x01MatchSettings: X01MatchSettings;
+  sets: X01Set[];
+  matchProgress: X01MatchProgress;
+}
