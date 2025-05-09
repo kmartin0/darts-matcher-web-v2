@@ -1,10 +1,9 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {MatRadioButton, MatRadioGroup} from '@angular/material/radio';
 import {BaseFormComponent} from '../../../../shared/components/base-form/base-form.component';
-import {FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {AbstractControl, FormArray, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {MatError, MatLabel, MatPrefix} from '@angular/material/form-field';
 import {NgForOf} from '@angular/common';
-import {CustomValidators} from '../../../../shared/validators/custom-validators';
 import {MatSlideToggle} from '@angular/material/slide-toggle';
 import {MatCard, MatCardContent} from '@angular/material/card';
 import {MatIcon} from '@angular/material/icon';
@@ -13,10 +12,16 @@ import {CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList, moveItemInArray} from 
 import {MatButton, MatIconButton} from '@angular/material/button';
 import {MatFormField, MatInput} from '@angular/material/input'
 import {BestOfType} from '../../../../models/best-of-type';
-import {PlayerType} from '../../../../models/player-type';
+import {PlayerType} from '../../../../models/basematch/player-type';
 import {BestOfGroup, MatchForm, MatchFormResult, PlayerGroup} from './match-form';
 import {startWith, Subscription} from 'rxjs';
-import {MatFormErrorDirective} from '../../../../shared/directives/mat-form-error-directive/mat-form-error.directive';
+import {ApiErrorEnum} from '../../../../api/error/api-error-enum';
+import {ApiErrorBody} from '../../../../api/error/api-error-body';
+import {ErrorComponent} from '../../../../shared/components/error/error.component';
+import {FormErrorComponent} from '../../../../shared/components/form-error/form-error.component';
+import {MatchFormFactory} from './match-form.factory';
+import {TargetErrors} from '../../../../api/error/target-errors';
+import {ErrorMessageUtil} from '../../../../shared/utils/validator-error-message.utils';
 
 @Component({
   selector: 'app-match-form',
@@ -39,8 +44,9 @@ import {MatFormErrorDirective} from '../../../../shared/directives/mat-form-erro
     MatPrefix,
     MatIconButton,
     CdkDragHandle,
-    MatFormErrorDirective,
-    MatError
+    MatError,
+    FormErrorComponent,
+    ErrorComponent
   ],
   templateUrl: './match-form.component.html',
   styleUrl: './match-form.component.scss',
@@ -53,23 +59,20 @@ export class MatchFormComponent extends BaseFormComponent<MatchFormResult> imple
 
   protected readonly PlayerType = PlayerType;
   protected readonly BestOfType = BestOfType;
-  protected readonly x01Options = [301, 501];
-  protected readonly minPlayerSize = 1;
-  protected readonly maxPlayerSize = 4;
 
-  matchForm = this.fb.nonNullable.group<MatchForm>({
-    x01: this.fb.nonNullable.control(501, [Validators.min(101), Validators.max(1001), Validators.required]),
-    bestOf: this.fb.nonNullable.group({
-      type: this.fb.nonNullable.control(BestOfType.SETS, [Validators.required]),
-      sets: this.fb.nonNullable.control(1, [Validators.min(1), Validators.required]),
-      legs: this.fb.nonNullable.control(1, [Validators.min(1), Validators.required])
-    }),
-    trackCheckouts: this.fb.nonNullable.control(false, Validators.required),
-    players: this.fb.nonNullable.array([this.createPlayerFormGroup()], [CustomValidators.minLengthArray(this.minPlayerSize, "player(s)"), CustomValidators.maxLengthArray(this.maxPlayerSize, "player(s)")])
-  });
+  matchForm!: FormGroup<MatchForm>;
 
-  constructor(fb: FormBuilder) {
-    super(fb);
+  constructor(errorMessageUtil: ErrorMessageUtil, public matchFormFactory: MatchFormFactory) {
+    super(errorMessageUtil);
+    this.initMatchForm();
+  }
+
+  /**
+   * Create a new form group and initialize the match form with it. Afterward add an empty player to the form.
+   */
+  private initMatchForm() {
+    this.matchForm = this.matchFormFactory.createMatchFormGroup();
+    this.addPlayer();
   }
 
   /**
@@ -114,97 +117,25 @@ export class MatchFormComponent extends BaseFormComponent<MatchFormResult> imple
   }
 
   /**
-   * Subscribes to changes in the best of setting.
-   *
-   * Whenever "LEGS" is selected, the "sets" control is disabled and set to 1 set.
-   * Whenever "SETS" is selected, the "sets" control is enabled.
-   */
-  subscribeBestOfListener() {
-    const bestOfControl = this.form.controls.bestOf.controls;
-    const bestOfTypeChange$ = bestOfControl.type.valueChanges.pipe(
-      startWith(bestOfControl.type.value)
-    );
-
-    const subscription = bestOfTypeChange$.subscribe(bestOfType => {
-      switch (bestOfType) {
-        case BestOfType.LEGS: {
-          bestOfControl.sets.setValue(1);
-          bestOfControl.sets.disable();
-          break;
-        }
-        case BestOfType.SETS:
-        default: {
-          bestOfControl.sets.enable();
-        }
-      }
-    });
-
-    this.bestOfSubscription.add(subscription);
-  }
-
-  /**
-   * Subscribes to changes in a player form group.
-   *
-   * Whenever the player type "HUMAN" is selected, the "avg" control is disabled, reset and cleared of its validators.
-   * Whenever the player type "DART_BOT" is selected, the "avg" control is enabled and validators are set.
-   */
-  subscribePlayerTypeChanges(playerGroup: FormGroup<PlayerGroup>) {
-    const playerTypeChange$ = playerGroup.controls.type.valueChanges.pipe(
-      startWith(playerGroup.getRawValue().type)
-    );
-
-    const avgControl = playerGroup.controls.avg;
-    const subscription = playerTypeChange$.subscribe(playerType => {
-      switch (playerType) {
-        case PlayerType.DART_BOT: {
-          avgControl.enable();
-          avgControl.setValidators([Validators.required, Validators.min(1), Validators.max(180)]);
-          break;
-        }
-        case PlayerType.HUMAN: {
-          avgControl.setValue(null);
-          avgControl.disable();
-          avgControl.clearValidators();
-        }
-      }
-    });
-    this.playerSubscriptions.set(playerGroup, subscription);
-  }
-
-  /**
    * @returns boolean - true when the maximum number of players has been reached, otherwise false.
    */
   isMaxPlayersReached(): boolean {
-    return this.playersFormArray.getRawValue().length >= this.maxPlayerSize;
+    return this.playersFormArray.getRawValue().length >= this.matchFormFactory.maxPlayerSize;
   }
 
   /**
    * @returns boolean - true when the minimum number of players has been reached, otherwise false.
    */
   isMinPlayersReached(): boolean {
-    return this.playersFormArray.getRawValue().length <= this.minPlayerSize;
-  }
-
-  /**
-   * @returns FormGroup<PlayerGroup> a new player form group the validators for each control.
-   */
-  createPlayerFormGroup(): FormGroup<PlayerGroup> {
-    const playerGroup: FormGroup<PlayerGroup> = this.fb.nonNullable.group({
-      name: this.fb.nonNullable.control('', [Validators.required, Validators.minLength(4), Validators.maxLength(18)]),
-      type: this.fb.nonNullable.control(PlayerType.HUMAN, Validators.required),
-      avg: this.fb.control<number | null>(null)
-    });
-
-    this.subscribePlayerTypeChanges(playerGroup);
-
-    return playerGroup;
+    return this.playersFormArray.getRawValue().length <= this.matchFormFactory.minPlayerSize;
   }
 
   /**
    * Creates a new form group for a player and adds it to the players form array in the match form.
    */
   addPlayer() {
-    const playerGroup = this.createPlayerFormGroup();
+    const playerGroup = this.matchFormFactory.createPlayerFormGroup();
+    this.subscribePlayerTypeChanges(playerGroup);
     this.playersFormArray.push(playerGroup);
   }
 
@@ -245,5 +176,131 @@ export class MatchFormComponent extends BaseFormComponent<MatchFormResult> imple
       this.playerSubscriptions.delete(playerGroup);
       this.playersFormArray.removeAt(0);
     }
+  }
+
+  /**
+   * Maps api errors messages to the related form controls using the error type and field name.
+   * @param apiError - The API error response body.
+   */
+  override handleApiError(apiError?: ApiErrorBody) {
+    super.handleApiError(apiError);
+    if (!apiError) return;
+
+    switch (apiError.error) {
+      case ApiErrorEnum.INVALID_ARGUMENTS: { // Handle invalid arguments
+        this.handleInvalidArguments(apiError.details);
+        break;
+      }
+    }
+  }
+
+  /**
+   * Add each invalid argument to the appropriate form control.
+   *
+   * @param apiTargetErrors - the 'details' from the api error containing the fields and their error message.
+   */
+  private handleInvalidArguments(apiTargetErrors?: TargetErrors) {
+    // If there are no error details. Display an unknown error.
+    if (!apiTargetErrors) {
+      this.setError(this.form, this.errorMessageUtil.getErrorMessage(ErrorMessageUtil.errorKeys.UNKNOWN));
+      return;
+    }
+
+    // Loop over the api errors. For each error use the error map to set the error to the appropriate control.
+    Object.keys(apiTargetErrors).forEach(apiTargetKey => {
+      const errorMsg = apiTargetErrors[apiTargetKey];
+      const control = this.findControlForApiField(apiTargetKey);
+
+      if (errorMsg) this.setError(control, errorMsg);
+    })
+  }
+
+  private findControlForApiField(apiTargetKey: string): AbstractControl | null {
+    // Mapping the static api field keys to the form controls
+    const errorMap: { [apiKey: string]: AbstractControl } = {
+      'matchSettings.x01': this.form.controls.x01,
+      'matchSettings.bestOf.legs': this.bestOfFormGroup.controls.legs,
+      'matchSettings.bestOf.sets': this.bestOfFormGroup.controls.sets,
+      'matchSettings.trackDoubles': this.form.controls.trackDoubles,
+    };
+
+    // Try finding the control using the static error map first.
+    let control: AbstractControl | null = errorMap[apiTargetKey]
+
+    // If the key doesn't match any of the static fields, try mapping to player array items.
+    const playersPrefix = 'players[';
+    if (!control && apiTargetKey.startsWith(playersPrefix)) {
+      const playerErrorMap = (index: number): { [key: string]: AbstractControl | null } => {
+        const playerGroup = this.playersFormArray.at(index);
+        return {
+          [`players[${index}].avg`]: playerGroup?.controls.avg,
+          [`players[${index}].playerName`]: playerGroup?.controls.name,
+        };
+      };
+      const index = Number(apiTargetKey.slice(playersPrefix.length, apiTargetKey.indexOf(']')));
+      control = playerErrorMap(index)?.[apiTargetKey];
+    }
+
+    // return the control (or null if it could not be found)
+    return control;
+  }
+
+  /**
+   * Subscribes to changes in the best of setting.
+   *
+   * Whenever "LEGS" is selected, the "sets" control is disabled and set to 1 set.
+   * Whenever "SETS" is selected, the "sets" control is enabled.
+   */
+  private subscribeBestOfListener() {
+    const bestOfControl = this.form.controls.bestOf.controls;
+    const bestOfTypeChange$ = bestOfControl.type.valueChanges.pipe(
+      startWith(bestOfControl.type.value)
+    );
+
+    const subscription = bestOfTypeChange$.subscribe(bestOfType => {
+      switch (bestOfType) {
+        case BestOfType.LEGS: { // When best of type legs, disable sets control and set the match to 1 set.
+          bestOfControl.sets.setValue(1);
+          bestOfControl.sets.disable();
+          break;
+        }
+        case BestOfType.SETS: // When best of type sets, enable sets control.
+        default: {
+          bestOfControl.sets.enable();
+        }
+      }
+    });
+
+    this.bestOfSubscription.add(subscription);
+  }
+
+  /**
+   * Subscribes to changes in a player form group.
+   *
+   * Whenever the player type "HUMAN" is selected, the "avg" control is disabled, reset and cleared of its validators.
+   * Whenever the player type "DART_BOT" is selected, the "avg" control is enabled and validators are set.
+   */
+  private subscribePlayerTypeChanges(playerGroup: FormGroup<PlayerGroup>) {
+    const playerTypeChange$ = playerGroup.controls.type.valueChanges.pipe(
+      startWith(playerGroup.getRawValue().type)
+    );
+
+    const avgControl = playerGroup.controls.avg;
+    const subscription = playerTypeChange$.subscribe(playerType => {
+      switch (playerType) {
+        case PlayerType.DART_BOT: { // When player type dart bot; enable the control and add validators to it.
+          avgControl.enable();
+          avgControl.setValidators(this.matchFormFactory.createBotValidators());
+          break;
+        }
+        case PlayerType.HUMAN: { // When player type human; disable, reset and clear the validators of the avg control.
+          avgControl.setValue(null);
+          avgControl.disable();
+          avgControl.clearValidators();
+        }
+      }
+    });
+
+    this.playerSubscriptions.set(playerGroup, subscription);
   }
 }

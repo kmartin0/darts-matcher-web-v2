@@ -4,8 +4,9 @@
   <div class="container-vertical no-gap">
     <label>Select x01</label>
     <mat-radio-group formControlName="x01">
-      <mat-radio-button *ngFor="let x01 of x01Options" [value]="x01">{{ x01 }}</mat-radio-button>
+      <mat-radio-button *ngFor="let x01 of matchFormFactory.x01Options" [value]="x01">{{ x01 }}</mat-radio-button>
     </mat-radio-group>
+    <app-form-error [control]="form.controls.x01"/>
   </div>
 
   <!-- Select the best of sets/legs to be played -->
@@ -19,33 +20,42 @@
     </div>
 
     <div class="container-horizontal" style="margin-bottom: 12px">
-      <mat-form-field class="number-form-field" appearance="outline">
-        <mat-label>Sets</mat-label>
-        <input matInput formControlName="sets" type="number" placeholder="1">
-        <mat-error matFormError [control]="bestOfFormGroup.controls.sets"></mat-error>
-      </mat-form-field>
+      <div class="container-vertical no-gap number-form-field">
+        <mat-form-field subscriptSizing="dynamic" appearance="outline">
+          <mat-label>Sets</mat-label>
+          <input matInput formControlName="sets" type="number" placeholder="1">
+        </mat-form-field>
+        <app-form-error [control]="bestOfFormGroup.controls.sets"/>
+      </div>
 
-      <mat-form-field class="number-form-field" appearance="outline">
-        <mat-label>Legs</mat-label>
-        <input matInput formControlName="legs" type="number" placeholder="1">
-      </mat-form-field>
+      <div class="container-vertical no-gap number-form-field">
+        <mat-form-field subscriptSizing="dynamic" appearance="outline">
+          <mat-label>Legs</mat-label>
+          <input matInput formControlName="legs" type="number" placeholder="1">
+        </mat-form-field>
+        <app-form-error [control]="bestOfFormGroup.controls.legs"/>
+      </div>
+
     </div>
   </div>
 
   <!-- Track checkout percentage option -->
   <div class="container-vertical no-gap">
-    <mat-slide-toggle formControlName="trackCheckouts">Track Checkout Percentage</mat-slide-toggle>
+    <mat-slide-toggle formControlName="trackDoubles">Track Checkout Percentage</mat-slide-toggle>
+    <app-form-error [control]="form.controls.trackDoubles"/>
   </div>
 
   <!-- Add Player -->
   <div class="container-vertical" cdkDropList (cdkDropListDropped)="onDropPlayerCard($event)">
-    <div class="container-horizontal no-gap">
-      <label style="align-self: center">Players</label>
-      <button mat-icon-button type="button" aria-label="Add Player" (click)="addPlayer()"
-              [disabled]="isMaxPlayersReached()">
-        <mat-icon>add_circle</mat-icon>
-      </button>
-      <mat-error matFormError [control]="playersFormArray"></mat-error>
+    <div class="container-vertical no-gap">
+      <div class="container-horizontal no-gap">
+        <label style="align-self: center">Players</label>
+        <button mat-icon-button type="button" aria-label="Add Player" (click)="addPlayer()"
+                [disabled]="isMaxPlayersReached()">
+          <mat-icon>add_circle</mat-icon>
+        </button>
+      </div>
+      <app-form-error [control]="playersFormArray"/>
     </div>
 
     <!-- Player Cards -->
@@ -54,31 +64,39 @@
       <mat-card-content>
         <div class="container-vertical">
           <!-- Select player type -->
-          <div class="container-horizontal no-gap">
-            <mat-radio-group formControlName="type">
-              <mat-radio-button [value]="PlayerType.HUMAN">Human</mat-radio-button>
-              <mat-radio-button [value]="PlayerType.DART_BOT">Bot</mat-radio-button>
-            </mat-radio-group>
+          <div class="container-vertical no-gap">
+            <div class="container-horizontal no-gap">
+              <mat-radio-group formControlName="type">
+                <mat-radio-button [value]="PlayerType.HUMAN">Human</mat-radio-button>
+                <mat-radio-button [value]="PlayerType.DART_BOT">Bot</mat-radio-button>
+              </mat-radio-group>
+            </div>
+            <app-form-error [control]="player.controls.type"/>
           </div>
 
-          <div class="container-horizontal" style="flex-wrap: wrap">
+          <div class="container-horizontal">
             <!-- Create player name -->
-            <mat-form-field class="player-name-field" appearance="outline">
-              <mat-label>Name</mat-label>
-              <input matInput type="name" formControlName="name">
-              <mat-icon matPrefix matTooltip="Human Player">account_circle</mat-icon>
-              <mat-error matFormError [control]="player.controls.name"></mat-error>
-            </mat-form-field>
+            <div class="container-vertical no-gap player-name-container">
+              <mat-form-field subscriptSizing="dynamic" appearance="outline">
+                <mat-label>Name</mat-label>
+                <input matInput type="name" formControlName="name">
+                <mat-icon matPrefix matTooltip="Human Player">account_circle</mat-icon>
+              </mat-form-field>
+              <app-form-error [control]="player.controls.name"/>
+            </div>
 
             <!-- Set Bot Average -->
-            <mat-form-field class="number-form-field" appearance="outline">
-              <mat-label>Avg</mat-label>
-              <input matInput type="number" formControlName="avg">
-              <mat-error matFormError [control]="player.controls.avg"></mat-error>
-            </mat-form-field>
+            <div class="player-avg-container container-vertical no-gap">
+              <mat-form-field subscriptSizing="dynamic" class="number-form-field" appearance="outline">
+                <mat-label>Avg</mat-label>
+                <input matInput type="number" formControlName="avg">
+              </mat-form-field>
+              <app-form-error [control]="player.controls.avg"/>
+            </div>
 
             <!-- Rearrange player order and remove player -->
-            <div class="container-horizontal" style="justify-content: space-between; align-self: flex-start">
+            <div class="container-horizontal player-action-container"
+                 style="justify-content: space-between; align-self: flex-start">
               <button mat-icon-button cdkDragHandle aria-label="Rearrange Player" type="button"
                       [disabled]="isMinPlayersReached()">
                 <mat-icon>drag_indicator</mat-icon>
@@ -95,6 +113,8 @@
       </mat-card-content>
     </mat-card>
   </div>
+
+  <app-form-error [control]="form"/>
 
   <!-- Submit form button -->
   <button mat-flat-button type="submit">Create Match</button>

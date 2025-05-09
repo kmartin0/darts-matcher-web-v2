@@ -1,11 +1,11 @@
 import {FormArray, FormControl, FormGroup} from '@angular/forms';
 import {BestOfType} from '../../../../models/best-of-type';
-import {PlayerType} from '../../../../models/player-type';
+import {PlayerType} from '../../../../models/basematch/player-type';
 
 export interface MatchForm {
   x01: FormControl<number>;
   bestOf: FormGroup<BestOfGroup>;
-  trackCheckouts: FormControl<boolean>;
+  trackDoubles: FormControl<boolean>;
   players: FormArray<FormGroup<PlayerGroup>>;
 }
 
@@ -28,7 +28,7 @@ export interface MatchFormResult {
     sets: number;
     legs: number;
   };
-  trackCheckouts: boolean;
+  trackDoubles: boolean;
   players: {
     name: string;
     type: PlayerType;

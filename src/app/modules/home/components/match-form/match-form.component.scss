@@ -9,6 +9,14 @@
   margin-left: auto;
 }
 
+.player-name-container {
+  flex: 2 1 0;
+}
+
+.player-action-container, .player-avg-container {
+  flex: 1 1 0;
+}
+
 /* Angular drag and drop animation */
 .cdk-drop-list-dragging .cdk-drag, .cdk-drag-animating {
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);

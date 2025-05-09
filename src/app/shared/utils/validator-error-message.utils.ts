@@ -14,20 +14,37 @@ interface ErrorValue {
 export class ErrorMessageUtil {
 
   /**
+   * The keys of predefined error keys used in validation error messages (defaultErrors).
+   */
+  static errorKeys = {
+    REQUIRED: 'required',
+    MINLENGTH: 'minlength',
+    MAXLENGTH: 'maxlength',
+    MIN: 'min',
+    MAX: 'max',
+    EMAIL: 'email',
+    CONFIRM_PASSWORD: 'confirmPassword',
+    MIN_LENGTH_ARRAY: 'minLengthArray',
+    MAX_LENGTH_ARRAY: 'maxLengthArray',
+    CUSTOM_ERROR: 'customError',
+    UNKNOWN: 'unknown',
+  };
+
+  /**
    * A map of default error message generators keyed by validation error name.
    */
   private defaultErrors: Record<string, (value?: ErrorValue) => string> = {
-    required: () => 'This field is required.',
-    minlength: (value) => `This field requires a minimum of ${value?.requiredLength} characters.`,
-    maxlength: (value) => `This field requires a maximum of ${value?.requiredLength} characters.`,
-    min: (value) => `Must be at least ${value?.min}`,
-    max: (value) => `Must not exceed ${value?.max}`,
-    email: () => 'This field requires a valid email.',
-    confirmPassword: () => 'Passwords must match.',
-    minLengthArray: (value) => `Must be at least ${value?.min} ${value?.name} `,
-    maxLengthArray: (value) => `Must not be more than ${value?.max} ${value?.name}`,
-    customError: (value) => `${value}`,
-    unknown: () => 'An unknown error has occurred.',
+    [ErrorMessageUtil.errorKeys.REQUIRED]: () => 'This field is required.',
+    [ErrorMessageUtil.errorKeys.MINLENGTH]: (value) => `This field requires a minimum of ${value?.requiredLength} characters.`,
+    [ErrorMessageUtil.errorKeys.MAXLENGTH]: (value) => `This field requires a maximum of ${value?.requiredLength} characters.`,
+    [ErrorMessageUtil.errorKeys.MIN]: (value) => `Must be at least ${value?.min}`,
+    [ErrorMessageUtil.errorKeys.MAX]: (value) => `Must not exceed ${value?.max}`,
+    [ErrorMessageUtil.errorKeys.EMAIL]: () => 'This field requires a valid email.',
+    [ErrorMessageUtil.errorKeys.CONFIRM_PASSWORD]: () => 'Passwords must match.',
+    [ErrorMessageUtil.errorKeys.MIN_LENGTH_ARRAY]: (value) => `Must be at least ${value?.min} ${value?.name}`,
+    [ErrorMessageUtil.errorKeys.MAX_LENGTH_ARRAY]: (value) => `Must not be more than ${value?.max} ${value?.name}`,
+    [ErrorMessageUtil.errorKeys.CUSTOM_ERROR]: (value) => `${value}`,
+    [ErrorMessageUtil.errorKeys.UNKNOWN]: () => 'An unknown error has occurred.',
   };
 
   /**
@@ -36,12 +53,11 @@ export class ErrorMessageUtil {
    * @param errors - A `ValidationErrors` object from a form control.
    * @returns An array of error messages.
    */
-  getAllErrorMessages(errors: ValidationErrors): string[] {
+  getAllErrorMessages(errors: ValidationErrors | null): string[] {
     if (!errors) return [];
 
-    return Object.entries(errors).map(([key, value]) => {
-      const messageFn = this.defaultErrors[key] ?? this.defaultErrors['unknown'];
-      return messageFn(value);
+    return Object.entries(errors).map(([errorKey, errorValue]) => {
+      return this.getErrorMessage(errorKey, errorValue);
     });
   }
 
@@ -51,11 +67,22 @@ export class ErrorMessageUtil {
    * @param errors - A `ValidationErrors` object from a form control.
    * @returns The first error message, or `null` if no errors exist.
    */
-  getFirstErrorMessage(errors: ValidationErrors): string | null {
+  getFirstErrorMessage(errors: ValidationErrors | null): string | null {
     if (!errors) return null;
 
-    const [errorKey, errorValue] = Object.entries(errors)[0] ?? ['unknown', {}];
-    const messageFn = this.defaultErrors[errorKey] ?? this.defaultErrors['unknown'];
+    const [errorKey, errorValue] = Object.entries(errors)[0];
+    return this.getErrorMessage(errorKey, errorValue);
+  }
+
+  /**
+   * Retrieves the appropriate error message based on the provided error key and value.
+   *
+   * @param errorKey - The key that represents the type of error (e.g., 'required', 'minlength').
+   * @param errorValue - The value associated with the error key (e.g. length for 'minLength').
+   * @private A string that contains the error message for the provided error key and value.
+   */
+  getErrorMessage(errorKey: string, errorValue?: any): string {
+    const messageFn = this.defaultErrors[errorKey] ?? this.defaultErrors[ErrorMessageUtil.errorKeys.UNKNOWN];
     return messageFn(errorValue);
   }
 }
