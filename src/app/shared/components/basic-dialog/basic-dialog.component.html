@@ -1,0 +1,15 @@
+<div class="header-container">
+  <mat-icon *ngIf="matIcon" class="icon">{{ matIcon }}</mat-icon>
+  <h2 class="title"  *ngIf="title">{{ title }}</h2>
+</div>
+
+<mat-dialog-content>
+
+  <h3 class="subtitle" *ngIf="subTitle">{{ subTitle }}</h3>
+  <p *ngIf="contentText">{{ contentText }}</p>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close *ngIf="isCancelable">{{ cancelText }}</button>
+  <button mat-button [mat-dialog-close]="true" cdkFocusInitial>{{ confirmText }}</button>
+</mat-dialog-actions>

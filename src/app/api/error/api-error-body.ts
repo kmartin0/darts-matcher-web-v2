@@ -9,7 +9,7 @@ export interface ApiErrorBody {
   details?: TargetErrors; // array of details for targets containing the target and the error.
 }
 
-function isApiErrorBody(obj: any): obj is ApiErrorBody {
+export function isApiErrorBody(obj: any): obj is ApiErrorBody {
   return (
     typeof obj === 'object' &&
     obj !== null &&

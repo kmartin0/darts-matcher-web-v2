@@ -15,7 +15,6 @@ import {BestOfType} from '../../../../models/best-of-type';
 import {PlayerType} from '../../../../models/basematch/player-type';
 import {BestOfGroup, MatchForm, MatchFormResult, PlayerGroup} from './match-form';
 import {startWith, Subscription} from 'rxjs';
-import {ApiErrorEnum} from '../../../../api/error/api-error-enum';
 import {ApiErrorBody} from '../../../../api/error/api-error-body';
 import {ErrorComponent} from '../../../../shared/components/error/error.component';
 import {FormErrorComponent} from '../../../../shared/components/form-error/form-error.component';
@@ -179,34 +178,16 @@ export class MatchFormComponent extends BaseFormComponent<MatchFormResult> imple
   }
 
   /**
-   * Maps api errors messages to the related form controls using the error type and field name.
-   * @param apiError - The API error response body.
-   */
-  override handleApiError(apiError?: ApiErrorBody) {
-    super.handleApiError(apiError);
-    if (!apiError) return;
-
-    switch (apiError.error) {
-      case ApiErrorEnum.INVALID_ARGUMENTS: { // Handle invalid arguments
-        this.handleInvalidArguments(apiError.details);
-        break;
-      }
-    }
-  }
-
-  /**
    * Add each invalid argument to the appropriate form control.
    *
-   * @param apiTargetErrors - the 'details' from the api error containing the fields and their error message.
+   * @param apiError - The error response object returned from the API.
    */
-  private handleInvalidArguments(apiTargetErrors?: TargetErrors) {
-    // If there are no error details. Display an unknown error.
-    if (!apiTargetErrors) {
-      this.setError(this.form, this.errorMessageUtil.getErrorMessage(ErrorMessageUtil.errorKeys.UNKNOWN));
-      return;
-    }
+  override handleInvalidArguments(apiError?: ApiErrorBody) {
+    super.handleInvalidArguments(apiError);
+    if (!apiError || !apiError.details) return;
 
     // Loop over the api errors. For each error use the error map to set the error to the appropriate control.
+    const apiTargetErrors: TargetErrors = apiError?.details;
     Object.keys(apiTargetErrors).forEach(apiTargetKey => {
       const errorMsg = apiTargetErrors[apiTargetKey];
       const control = this.findControlForApiField(apiTargetKey);
@@ -215,6 +196,11 @@ export class MatchFormComponent extends BaseFormComponent<MatchFormResult> imple
     })
   }
 
+  /**
+   * Matches api field errors to the correct control.
+   *
+   * @param apiTargetKey - The api field key from the error details object.
+   */
   private findControlForApiField(apiTargetKey: string): AbstractControl | null {
     // Mapping the static api field keys to the form controls
     const errorMap: { [apiKey: string]: AbstractControl } = {
