@@ -1,0 +1,8 @@
+<mat-toolbar class="test">
+  <span>X01 Match</span>
+</mat-toolbar>
+<div class="x01-match-page-component-container">
+  <p *ngIf="invalidMatchId">The match id is invalid</p>
+  <p *ngIf="match">{{ match | json }}</p>
+</div>
+

@@ -1,7 +1,31 @@
 @use "helpers";
+@use "devices";
 
 .home-page-component-container {
   @include helpers.module-page();
-  display: flex;
-  flex-direction: column;
+}
+
+.header-container {
+  margin-bottom: 32px;
+}
+
+.title {
+  font: var(--mat-sys-headline-large);
+
+  @include devices.device(phone, phablet) {
+    font: var(--mat-sys-headline-small);
+  }
+}
+
+.subtitle {
+  font: var(--mat-sys-headline-small);
+
+  @include devices.device(phone, phablet) {
+    font: var(--mat-sys-title-medium);
+  }
+}
+
+.title, .subtitle {
+  margin: 4px;
+  text-align: center;
 }

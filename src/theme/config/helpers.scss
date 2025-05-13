@@ -4,4 +4,8 @@
   padding: dimens.$default-page-padding;
   max-width: 1600px;
   flex: 1;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  margin: auto;
 }

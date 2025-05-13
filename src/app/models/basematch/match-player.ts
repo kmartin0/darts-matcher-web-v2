@@ -1,7 +1,8 @@
 import {ResultType} from './result-type';
+import {ObjectId} from '../object-id';
 
 export interface MatchPlayer {
-  playerId: string;
+  playerId: ObjectId;
   playerName: string;
   resultType: ResultType;
 }
