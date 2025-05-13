@@ -43,9 +43,7 @@ import {ErrorMessageUtil} from '../../../../shared/utils/validator-error-message
     MatPrefix,
     MatIconButton,
     CdkDragHandle,
-    MatError,
-    FormErrorComponent,
-    ErrorComponent
+    FormErrorComponent
   ],
   templateUrl: './match-form.component.html',
   styleUrl: './match-form.component.scss',
