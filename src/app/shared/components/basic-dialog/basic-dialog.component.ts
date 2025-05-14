@@ -20,42 +20,44 @@ import {MatButton} from '@angular/material/button';
     MatDialogActions,
     MatDialogActions,
     MatButton,
-    MatDialogClose
+    MatDialogClose,
+    MatDialogTitle
   ],
   standalone: true,
   templateUrl: './basic-dialog.component.html',
   styleUrl: './basic-dialog.component.scss'
 })
 export class BasicDialogComponent {
+
   constructor(@Inject(MAT_DIALOG_DATA) public data: BasicDialogData) {
   }
 
   get title(): string {
-    return this.data.title ?? '';
+    return this?.data.title ?? '';
   }
 
   get subTitle(): string {
-    return this.data.subtitle ?? '';
+    return this?.data.subtitle ?? '';
   }
 
   get contentText(): string {
-    return this.data.contentText ?? '';
+    return this?.data.contentText ?? '';
   }
 
   get confirmText(): string {
-    return this.data.confirmText ?? 'Ok';
+    return this?.data.confirmText ?? 'Ok';
   }
 
   get cancelText(): string {
-    return this.data.cancelText ?? 'Cancel';
+    return this?.data.cancelText ?? 'Cancel';
   }
 
   get isCancelable(): boolean {
-    return this.data.isCancelable;
+    return this?.data.isCancelable;
   }
 
   get matIcon(): string | null {
-    return this.data.matIcon ?? null;
+    return this?.data.matIcon ?? null;
   }
 
 }

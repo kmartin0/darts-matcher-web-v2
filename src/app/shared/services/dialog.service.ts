@@ -1,13 +1,14 @@
-import {Injectable} from '@angular/core';
+import {Injectable, NgZone} from '@angular/core';
 import {MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {BasicDialogData} from '../components/basic-dialog/basic-dialog-data';
 import {BasicDialogComponent} from '../components/basic-dialog/basic-dialog.component';
+import {InternalErrorDialogComponent} from '../components/internal-error-dialog/internal-error-dialog.component';
 
 @Injectable({
   providedIn: 'root'
 })
-export class BasicDialogService {
-  public constructor(private matDialog: MatDialog) {
+export class DialogService {
+  public constructor(private matDialog: MatDialog, private zone: NgZone) {
   }
 
   public openBasicDialog(dialogData: BasicDialogData, stackable: boolean = false): MatDialogRef<BasicDialogComponent> | null {
@@ -31,13 +32,10 @@ export class BasicDialogService {
     return this.openBasicDialog(dialogData, stackable);
   }
 
-  public openInternalErrorDialog(stackable: boolean = false): MatDialogRef<BasicDialogComponent> | null {
-    return this.openErrorDialog(
-      'Error',
-      'Something went wrong on our end',
-      'Please try again or contact us.',
-      stackable
-    );
+  public openInternalErrorDialog(stackable: boolean = false): MatDialogRef<InternalErrorDialogComponent> | null {
+    if (!this.isDialogOpen()) return this.matDialog.open(InternalErrorDialogComponent);
+
+    return null;
   }
 
   public openUriNotFoundErrorDialog(stackable: boolean = false): MatDialogRef<BasicDialogComponent> | null {

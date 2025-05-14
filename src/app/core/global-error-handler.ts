@@ -1,10 +1,10 @@
-import {ErrorHandler, Injectable} from '@angular/core';
-import {BasicDialogService} from '../shared/services/basic-dialog.service';
+import {ErrorHandler, Injectable, NgZone} from '@angular/core';
+import {DialogService} from '../shared/services/dialog.service';
 
 @Injectable()
 export class GlobalErrorHandler implements ErrorHandler {
 
-  constructor(private dialogService: BasicDialogService) {
+  constructor(private dialogService: DialogService) {
   }
 
   handleError(error: any): void {

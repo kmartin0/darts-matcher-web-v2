@@ -3,12 +3,12 @@ import {HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest}
 import {catchError, Observable, throwError} from 'rxjs';
 import {ApiErrorBody, isApiErrorBody} from '../error/api-error-body';
 import {ApiErrorEnum} from '../error/api-error-enum';
-import {BasicDialogService} from '../../shared/services/basic-dialog.service';
+import {DialogService} from '../../shared/services/dialog.service';
 
 @Injectable()
 export class ApiErrorInterceptor implements HttpInterceptor {
 
-  constructor(private dialogService: BasicDialogService) {
+  constructor(private dialogService: DialogService) {
   }
 
   /**

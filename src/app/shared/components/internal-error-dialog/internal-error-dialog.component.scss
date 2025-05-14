@@ -1,0 +1,21 @@
+@use "@angular/material" as mat;
+
+.title {
+  font: var(--mat-sys-title-large);
+  margin: 0;
+}
+
+.subtitle {
+  font: var(--mat-sys-title-medium);
+}
+
+.icon {
+}
+
+.header-container {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+  align-items: center;
+  gap: 6px;
+}
