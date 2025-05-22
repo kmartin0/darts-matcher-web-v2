@@ -1,8 +1,8 @@
 import {Injectable, NgZone} from '@angular/core';
 import {MatDialog, MatDialogRef} from '@angular/material/dialog';
-import {BasicDialogData} from '../components/basic-dialog/basic-dialog-data';
-import {BasicDialogComponent} from '../components/basic-dialog/basic-dialog.component';
-import {InternalErrorDialogComponent} from '../components/internal-error-dialog/internal-error-dialog.component';
+import {BasicDialogData} from '../../components/basic-dialog/basic-dialog-data';
+import {BasicDialogComponent} from '../../components/basic-dialog/basic-dialog.component';
+import {InternalErrorDialogComponent} from '../../components/internal-error-dialog/internal-error-dialog.component';
 
 @Injectable({
   providedIn: 'root'

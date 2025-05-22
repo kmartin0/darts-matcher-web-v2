@@ -1,5 +1,5 @@
 import {FormArray, FormControl, FormGroup} from '@angular/forms';
-import {BestOfType} from '../../../../models/best-of-type';
+import {BestOfType} from '../../../../models/common/best-of-type';
 import {PlayerType} from '../../../../models/basematch/player-type';
 
 export interface MatchForm {

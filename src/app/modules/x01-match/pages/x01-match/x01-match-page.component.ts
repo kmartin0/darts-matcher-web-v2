@@ -5,16 +5,17 @@ import {DartsMatcherApiService} from '../../../../api/services/darts-matcher-api
 import {X01Match} from '../../../../models/x01-match/x01-match';
 import {HttpErrorResponse} from '@angular/common/http';
 import {isApiErrorBody} from '../../../../api/error/api-error-body';
-import {ObjectId} from '../../../../models/object-id';
-import {JsonPipe, NgIf} from '@angular/common';
+import {NgIf} from '@angular/common';
 import {MatToolbar} from '@angular/material/toolbar';
+import {X01MatchComponent} from '../../components/x01-match/x01-match.component';
+import {isValidObjectId} from '../../../../shared/utils/object-id.utils';
 
 @Component({
   selector: 'app-x01-match-page',
   imports: [
     NgIf,
-    JsonPipe,
-    MatToolbar
+    MatToolbar,
+    X01MatchComponent
   ],
   standalone: true,
   templateUrl: './x01-match-page.component.html',
@@ -42,12 +43,12 @@ export class X01MatchPageComponent implements OnInit, OnDestroy {
     this.getMatchSubscription.add(this.route.paramMap.pipe(
         switchMap(params => {
           const matchId = params.get('id') ?? '';
-          if (!ObjectId.isValid(matchId)) {
+          if (!isValidObjectId(matchId)) {
             this.handleInvalidMatchId();
             return EMPTY;
           }
 
-          return this.apiService.getMatch(new ObjectId(matchId));
+          return this.apiService.getMatch(matchId);
         })
       ).subscribe({
         next: (match: X01Match) => this.handleGetMatchSuccess(match),

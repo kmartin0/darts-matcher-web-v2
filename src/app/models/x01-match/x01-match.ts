@@ -5,7 +5,7 @@ import {BaseMatch} from '../basematch/base-match';
 import {X01MatchPlayer} from './x01-match-player';
 
 export interface X01Match extends BaseMatch<X01MatchPlayer> {
-  x01MatchSettings: X01MatchSettings;
+  matchSettings: X01MatchSettings;
   sets: X01Set[];
   matchProgress: X01MatchProgress;
 }

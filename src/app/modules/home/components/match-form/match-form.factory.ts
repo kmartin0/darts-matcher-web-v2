@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {FormBuilder, FormGroup, ValidatorFn, Validators} from '@angular/forms';
 import {MatchForm, PlayerGroup} from './match-form';
 import {CustomValidators} from '../../../../shared/validators/custom-validators';
-import {BestOfType} from '../../../../models/best-of-type';
+import {BestOfType} from '../../../../models/common/best-of-type';
 import {PlayerType} from '../../../../models/basematch/player-type';
 
 @Injectable({providedIn: 'root'})

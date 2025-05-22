@@ -1,10 +1,9 @@
 import {MatchStatus} from './match-status';
 import {MatchPlayer} from './match-player';
 import {MatchType} from './match-type';
-import {ObjectId} from '../object-id';
 
 export interface BaseMatch<PlayerType extends MatchPlayer> {
-  id: ObjectId;
+  id: string;
   startDate: Date;
   endDate: Date;
   matchStatus: MatchStatus;

@@ -20,8 +20,7 @@ import {MatButton} from '@angular/material/button';
     MatDialogActions,
     MatDialogActions,
     MatButton,
-    MatDialogClose,
-    MatDialogTitle
+    MatDialogClose
   ],
   standalone: true,
   templateUrl: './basic-dialog.component.html',

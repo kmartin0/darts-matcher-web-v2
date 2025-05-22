@@ -1,5 +1,5 @@
 import {ErrorHandler, Injectable, NgZone} from '@angular/core';
-import {DialogService} from '../shared/services/dialog.service';
+import {DialogService} from '../shared/services/dialog-service/dialog.service';
 
 @Injectable()
 export class GlobalErrorHandler implements ErrorHandler {

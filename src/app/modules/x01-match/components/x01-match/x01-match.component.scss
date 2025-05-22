@@ -1,0 +1,127 @@
+@use "@angular/material" as mat;
+
+
+:host {
+  width: 100%;
+  @include mat.card-overrides((
+    elevated-container-shape: var(--mat-sys-corner-small),
+    elevated-container-elevation: var(--mat-sys-level1)
+  ));
+}
+
+.x01-match-component-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+}
+
+.match-information-container {
+  font: var(--mat-sys-title-large);
+  min-height: var(--mat-sys-title-large-line-height);
+  font-weight: 500;
+  text-align: center;
+}
+
+.players-container {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+}
+
+.player-overview-container {
+  width: 100%;
+  flex-direction: column;
+  display: flex;
+  gap: 24px;
+}
+
+.player-info-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px;
+}
+
+.player-score {
+  font: var(--mat-sys-title-large);
+  min-height: var(--mat-sys-title-large-line-height);
+  font-weight: 500;
+}
+
+.player-name {
+  font: var(--mat-sys-headline-large);
+  min-height: var(--mat-sys-headline-large-line-height);
+  font-weight: 500;
+}
+
+.player-score-card {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); // 3 equal-width columns
+  grid-template-rows: auto auto 1fr; // 1st row height is auto, 2nd row takes remaining space
+  gap: 12px;
+  padding: 8px;
+
+  > * {
+    text-align: center;
+  }
+
+  .remaining {
+    grid-column: 1 / -1; // span all 3 columns
+    font: var(--mat-sys-display-large);
+    min-height: var(--mat-sys-display-large-line-height);
+    font-weight: 500;
+
+  }
+
+  .checkout-hint {
+    grid-column: 1 / -1; // span all 3 columns
+  }
+
+  .checkout-hint, .three-dart, .last-score, .first-nine {
+    font: var(--mat-sys-title-large);
+    min-height: var(--mat-sys-title-large-line-height);
+    font-weight: 500;
+  }
+
+  .emphasize {
+    font-weight: 600;
+  }
+}
+
+.score-stats-container {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+}
+
+.edit-options-container {
+  //width: 100%;
+  //display: flex;
+  //flex-direction: row;
+  //gap: 24px;
+  //align-items: center;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2.25fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 24px;
+  justify-items: center;
+}
+
+//.open-edit-dialog-btn {
+//  flex: 1;
+//}
+//
+//.select-leg-form-field {
+//  max-width: 300px;
+//  flex: 1;
+//}
+//
+//.toggle-edit-mode-btn {
+//  flex: 1;
+//}
+
+

@@ -4,7 +4,7 @@ import {DARTS_MATCHER_API_ENDPOINTS} from '../endpoints/darts-matcher-api.endpoi
 import {CreateMatchRequestDto} from '../dto/create-match-request.dto';
 import {X01Match} from '../../models/x01-match/x01-match';
 import {Injectable} from '@angular/core';
-import {ObjectId} from '../../models/object-id';
+import {X01Checkout} from '../../models/x01-match/x01-checkout';
 
 @Injectable({
   providedIn: 'root'
@@ -18,8 +18,12 @@ export class DartsMatcherApiService {
     return this.api.makePost(DARTS_MATCHER_API_ENDPOINTS.CREATE_MATCH, body);
   }
 
-  getMatch(matchId: ObjectId): Observable<X01Match> {
+  getMatch(matchId: string): Observable<X01Match> {
     return this.api.makeGet(DARTS_MATCHER_API_ENDPOINTS.GET_MATCH(matchId));
+  }
+
+  getCheckoutSuggestions(): Observable<X01Checkout[]> {
+    return this.api.makeGet(DARTS_MATCHER_API_ENDPOINTS.GET_X01_CHECKOUTS);
   }
 
 }

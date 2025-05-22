@@ -11,7 +11,7 @@ import {MatTooltip} from '@angular/material/tooltip';
 import {CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList, moveItemInArray} from '@angular/cdk/drag-drop';
 import {MatButton, MatIconButton} from '@angular/material/button';
 import {MatFormField, MatInput} from '@angular/material/input'
-import {BestOfType} from '../../../../models/best-of-type';
+import {BestOfType} from '../../../../models/common/best-of-type';
 import {PlayerType} from '../../../../models/basematch/player-type';
 import {BestOfGroup, MatchForm, MatchFormResult, PlayerGroup} from './match-form';
 import {startWith, Subscription} from 'rxjs';
