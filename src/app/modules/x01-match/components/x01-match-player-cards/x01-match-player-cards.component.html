@@ -1,0 +1,29 @@
+<div class="players-container" *ngIf="viewData && legSelection">
+  @let selectedSet = viewData.sets[legSelection.set] ;
+  @let selectedLegs = selectedSet?.legs?.[legSelection.leg] ;
+  @for (playerEntry of selectedLegs ?? {} | keyvalue; track playerEntry.key) {
+    @if (playerEntry.key && playerEntry.value) {
+      @let playerId = playerEntry.key ;
+      @let playerLegStats = playerEntry.value ;
+      @let playerInfo = viewData.playerInfo[playerId] ;
+
+      <div class="player-overview-container">
+        <mat-card class="player-info-card">
+          <span class="player-score">Score: (sets won: {{ playerLegStats.setsWon }}
+            - legs won: {{ playerLegStats.legsWonInSet }})</span>
+          <span class="player-name">{{ playerInfo?.name }}</span>
+        </mat-card>
+
+        <mat-card class="player-score-card">
+          <span class="remaining">{{ playerLegStats.remaining }}</span>
+          <span class="checkout-hint">{{ playerLegStats.suggestedCheckout }}</span>
+          <span class="three-dart">3-Dart:<br><span
+            class="emphasize">{{ playerInfo?.threeDartAvg ?? '-' }}</span></span>
+          <span class="last-score">Last:<br><span class="emphasize">{{ playerLegStats.lastScore ?? '-' }}</span></span>
+          <span class="first-nine">First 9:<br><span
+            class="emphasize">{{ playerInfo?.firstNineAvg ?? '-' }}</span></span>
+        </mat-card>
+      </div>
+    }
+  }
+</div>

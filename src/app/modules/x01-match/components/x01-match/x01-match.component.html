@@ -1,36 +1,8 @@
-<div
-  *ngIf="matchViewData"
-  class="x01-match-component-container">
-  <div class="match-information-container">
-    <span>{{ matchViewData.matchInformation }}</span>
-  </div>
+<div *ngIf="match" class="x01-match-component-container">
 
-  <div class="players-container">
-    @let selectedSet = selectedLegControl.value?.set ?? 0 ;
-    @let selectedLeg = selectedLegControl.value?.leg ?? 0 ;
-    @for (playerEntry of matchViewData?.sets?.[selectedSet]?.legs?.[selectedLeg]?.playerStats ?? {} | keyvalue; track playerEntry.key) {
-      @let playerId = playerEntry.key ;
-      @let playerValue = playerEntry.value ;
-      @let playerStats = matchViewData?.playerSummaries?.[playerId] ;
-      <div class="player-overview-container">
-        <mat-card class="player-info-card">
-          <span class="player-score">Score: (sets won: ({{ playerValue.setsWon }}
-            ) legs won: {{ playerValue.legsWonInSet }})</span>
-          <span class="player-name">{{ playerStats?.name }}</span>
-        </mat-card>
+  <app-x01-match-info [match]="match"/>
 
-        <mat-card class="player-score-card">
-          <span class="remaining">{{ playerValue.remainingInLeg }}</span>
-          <span class="checkout-hint">{{ playerValue.suggestedCheckout }}</span>
-          <span class="three-dart">3-Dart:<br><span
-            class="emphasize">{{ playerStats?.threeDartAvg ?? '-' }}</span></span>
-          <span class="last-score">Last:<br><span class="emphasize">{{ playerValue.lastScore ?? '-' }}</span></span>
-          <span class="first-nine">First 9:<br><span
-            class="emphasize">{{ playerStats?.firstNineAvg ?? '-' }}</span></span>
-        </mat-card>
-      </div>
-    }
-  </div>
+  <app-x01-match-player-cards [match]="match" [legSelection]="selectedLegControl.getRawValue()"/>
 
   <div class="edit-options-container">
     <button class="open-edit-dialog-btn" mat-icon-button>
@@ -40,10 +12,10 @@
     <mat-form-field class="select-leg-form-field" subscriptSizing="dynamic" appearance="fill">
       <mat-label>Select Leg (Set {{ selectedLegControl.value?.set }})</mat-label>
       <mat-select [formControl]="selectedLegControl" [compareWith]="compareLegSelection">
-        @for (setEntry of matchViewData.sets | keyvalue; track setEntry.key) {
-          <mat-optgroup label="Set {{setEntry.key}}">
-            @for (legEntry of setEntry.value.legs | keyvalue; track legEntry.key) {
-              <mat-option [value]="{set: +setEntry.key, leg: +legEntry.key}">Leg {{ legEntry.key }}</mat-option>
+        @for (set of match.sets; track set.set) {
+          <mat-optgroup label="Set {{set.set}}">
+            @for (leg of set.legs; track leg.leg) {
+              <mat-option [value]="{set: +set.set, leg: +leg.leg}">Leg {{ leg.leg }}</mat-option>
             }
           </mat-optgroup>
         }
@@ -53,35 +25,5 @@
     <button class="toggle-edit-mode-btn" mat-flat-button>Edit Mode</button>
   </div>
 
-  <div class="table-container">
-    <table mat-table [dataSource]="matchViewData.matchTableDataSource">
-      @let roundCol = matchViewData.columnDefinitions.round ;
-      <ng-container [matColumnDef]="roundCol.id">
-        <th mat-header-cell *matHeaderCellDef>{{ roundCol.label }}</th>
-        <td mat-cell *matCellDef="let rowData">{{ rowData.round }}</td>
-      </ng-container>
-
-      @let dartsCol = matchViewData.columnDefinitions.darts ;
-      <ng-container [matColumnDef]="dartsCol.id">
-        <th mat-header-cell *matHeaderCellDef>{{ dartsCol.label }}</th>
-        <td mat-cell *matCellDef="let rowData">{{ rowData.dartsThrown }}</td>
-      </ng-container>
-
-      @for (playerColumnsDefinition of matchViewData.columnDefinitions.playerColumns; track playerColumnsDefinition) {
-        <ng-container [matColumnDef]="playerColumnsDefinition.score.id">
-          <th mat-header-cell *matHeaderCellDef>{{ playerColumnsDefinition.score.label }}</th>
-          <td mat-cell *matCellDef="let rowData">{{ rowData.players[playerColumnsDefinition.playerId]?.score }}</td>
-        </ng-container>
-
-        <ng-container [matColumnDef]="playerColumnsDefinition.remaining.id">
-          <th mat-header-cell *matHeaderCellDef>{{ playerColumnsDefinition.remaining.label }}</th>
-          <td mat-cell *matCellDef="let rowData">{{ rowData.players[playerColumnsDefinition.playerId]?.remaining }}</td>
-        </ng-container>
-      }
-
-      <tr mat-header-row *matHeaderRowDef="matchViewData.displayedColumns ?? []"></tr>
-      <tr mat-row *matRowDef="let row; columns: matchViewData.displayedColumns ?? []"></tr>
-    </table>
-  </div>
-
+  <app-x01-match-leg-table [match]="match" [legSelection]="selectedLegControl.getRawValue()"/>
 </div>

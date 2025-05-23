@@ -1,0 +1,225 @@
+import {Injectable} from '@angular/core';
+import {X01CheckoutService} from '../../../../../shared/services/x01-checkout-service/x01-checkout-service';
+import {PlayerMap} from '../../../../../types/player-map';
+import {X01MatchPlayer} from '../../../../../models/x01-match/x01-match-player';
+import {X01Match} from '../../../../../models/x01-match/x01-match';
+import {PlayerWinTracker} from '../../../../../models/common/player-win-tracker';
+import {X01Set} from '../../../../../models/x01-match/x01-set';
+import {X01Leg} from '../../../../../models/x01-match/x01-leg';
+import {ResultType} from '../../../../../models/basematch/result-type';
+import {getAreaPrefix} from '../../../../../models/dartboard/dartboard-section-area';
+import {DartboardSectionToNumber} from '../../../../../models/dartboard/dartboard-section';
+import {X01PlayerCardsViewData} from './x01-player-cards-view-data';
+import {X01PlayerCardData} from './x01-player-card-data';
+import {X01PlayerCardSet} from './x01-player-card-set';
+import {X01PlayerCardLegData} from './x01-player-card-leg-data';
+import {SetMap} from '../../../../../types/set-map';
+
+@Injectable({providedIn: 'root'})
+export class X01MatchPlayerCardsViewDataTransformer {
+
+  constructor(private checkoutService: X01CheckoutService) {
+  }
+
+  /**
+   * Creates the full view data for each player cards.
+   *
+   * @param match The X01 match data.
+   * @returns A promise resolving to the view data or null if no match.
+   */
+  async createPlayerCardsViewData(match: X01Match | null): Promise<X01PlayerCardsViewData | null> {
+    if (!match) return null;
+
+    return {
+      playerInfo: this.createPlayersInfoMap(match.players),
+      sets: await this.createSetsViewData(match)
+    };
+  }
+
+  /**
+   * Maps players to their base info and averages.
+   *
+   * @param players The list of match players.
+   * @returns A map of player IDs to their card data.
+   */
+  private createPlayersInfoMap(players: X01MatchPlayer[]): PlayerMap<X01PlayerCardData> {
+    const playerInfoMap: PlayerMap<X01PlayerCardData> = {};
+    players.forEach(players => {
+      playerInfoMap[players.playerId.toString()] = {
+        name: players.playerName,
+        threeDartAvg: players.statistics.averageStats.average,
+        firstNineAvg: players.statistics.averageStats.averageFirstNine
+      };
+    });
+
+    return playerInfoMap;
+  }
+
+  /**
+   * Builds the full set view data for each set in the match.
+   *
+   * @param match The match to extract sets from.
+   * @returns A promise resolving to a set map of player card sets.
+   */
+  private async createSetsViewData(match: X01Match): Promise<SetMap<X01PlayerCardSet>> {
+    const setsMap: SetMap<X01PlayerCardSet> = {};
+    const players = match.players;
+    const x01 = match.matchSettings.x01;
+    const playerWinTrackerMap = this.createPlayerWinTrackerMap(players);
+
+    // Create an entry of SetViewData in the sets map for each set.
+    // Reset legs won tracker after each set to only keep track of legs won within a set.
+    for (const set of match.sets) {
+      setsMap[set.set] = await this.createSetViewData(set, players, x01, playerWinTrackerMap);
+      this.resetLegsWonTracker(playerWinTrackerMap);
+    }
+
+    return setsMap;
+  }
+
+  /**
+   * Creates a tracker map to track sets and legs won for each player.
+   *
+   * @param players The list of players.
+   * @returns A player win tracker map.
+   */
+  private createPlayerWinTrackerMap(players: X01MatchPlayer[]): PlayerMap<PlayerWinTracker> {
+    const playerWinTrackerMap: PlayerMap<PlayerWinTracker> = {};
+
+    players.forEach(player => {
+      playerWinTrackerMap[player.playerId] = {
+        setsWon: 0,
+        legsWon: 0
+      };
+    });
+
+    return playerWinTrackerMap;
+  }
+
+  /**
+   * Resets only the legs won count in the tracker map.
+   *
+   * @param playerWinTrackerMap The tracker map to reset.
+   */
+  private resetLegsWonTracker(playerWinTrackerMap: PlayerMap<PlayerWinTracker>) {
+    Object.keys(playerWinTrackerMap).forEach(playerId => {
+      playerWinTrackerMap[playerId].legsWon = 0;
+    });
+  }
+
+  /**
+   * Creates view data for all legs within a single set.
+   *
+   * @param set The set being processed.
+   * @param players The match players.
+   * @param x01 The starting score (e.g., 501).
+   * @param playerWinTrackerMap The win tracker for players.
+   * @returns A promise resolving to a player card set map.
+   */
+  private async createSetViewData(set: X01Set, players: X01MatchPlayer[], x01: number, playerWinTrackerMap: PlayerMap<PlayerWinTracker>): Promise<X01PlayerCardSet> {
+    const legsMap: Record<number, PlayerMap<X01PlayerCardLegData>> = {};
+
+    for (const leg of set.legs) {
+      legsMap[leg.leg] = await this.createLegViewData(set, leg, players, x01, playerWinTrackerMap);
+    }
+
+    return {legs: legsMap};
+  }
+
+  /**
+   * Creates view data for a single leg.
+   *
+   * @param set The set the leg belongs to.
+   * @param leg The leg being transformed.
+   * @param players All players in the match.
+   * @param x01 The starting score.
+   * @param playerWinTrackerMap The win tracker.
+   * @returns A promise resolving to player card leg data map.
+   */
+  private async createLegViewData(set: X01Set, leg: X01Leg, players: X01MatchPlayer[], x01: number, playerWinTrackerMap: PlayerMap<PlayerWinTracker>): Promise<PlayerMap<X01PlayerCardLegData>> {
+    // Update the win trackers.
+    this.updatePlayerWinTrackerMap(set, leg, playerWinTrackerMap);
+
+    // Initialize a map containing the remaining and last score for each player.
+    const legProgressMap = this.createLegProgressMap(leg, x01);
+
+    // Iterate through the players and their leg stats to the map.
+    const playerStatsMap: PlayerMap<X01PlayerCardLegData> = {};
+    for (const player of players) {
+      const playerId = player.playerId;
+      const remaining = legProgressMap[playerId]?.remaining ?? x01;
+
+      playerStatsMap[player.playerId] = {
+        remaining: remaining,
+        setsWon: playerWinTrackerMap[playerId]?.setsWon ?? 0,
+        legsWonInSet: playerWinTrackerMap[playerId]?.legsWon ?? 0,
+        lastScore: legProgressMap[playerId]?.lastScore,
+        suggestedCheckout: await this.createCheckoutMessage(remaining)
+      };
+    }
+
+    // Return the map containing the leg stats for each player.
+    return playerStatsMap;
+  }
+
+  /**
+   * Builds a progress map of players’ remaining scores and last scores for a leg.
+   *
+   * @param leg The leg to analyze.
+   * @param x01 The starting score (e.g., 501).
+   * @returns A map of player progress in the leg.
+   */
+  private createLegProgressMap(leg: X01Leg, x01: number): PlayerMap<{ remaining: number, lastScore: number }> {
+    const legProgressMap: PlayerMap<{ remaining: number, lastScore: number }> = {};
+    leg.rounds.forEach(round => {
+      Object.entries(round.scores).forEach(([playerId, roundScore]) => {
+        legProgressMap[playerId] = {
+          remaining: (legProgressMap[playerId]?.remaining ?? x01) - roundScore.score,
+          lastScore: roundScore.score
+        };
+      });
+    });
+
+    return legProgressMap;
+  }
+
+  /**
+   * Updates the win tracker based on the outcome of a leg. If it's the last leg of a set, also updates
+   * the sets won.
+   *
+   * @param set The set that contains the leg.
+   * @param leg The leg that just finished.
+   * @param winTrackers The current player win tracker map.
+   */
+  private updatePlayerWinTrackerMap(set: X01Set, leg: X01Leg, winTrackers: PlayerMap<PlayerWinTracker>) {
+    // Increment legs won for the player that has won this leg.
+    if (leg.winner && leg.winner in winTrackers) winTrackers[leg.winner].legsWon++;
+
+    // Increment sets won if this is the last leg in a set for each player that has won or drawn the set.
+    if (set.legs.length === leg.leg && set.result) {
+      Object.entries(winTrackers).forEach(([playerId, tracker]) => {
+        const playerResult = set.result[playerId];
+        if (playerResult === ResultType.WIN || playerResult === ResultType.DRAW) tracker.setsWon++;
+      });
+    }
+  }
+
+  /**
+   * Generates a formatted checkout message (e.g., "T20, D10") based on remaining score.
+   *
+   * @param remaining The score left to checkout.
+   * @returns A promise resolving to a checkout string or an empty string.
+   */
+  private async createCheckoutMessage(remaining: number): Promise<string> {
+    const checkout = await this.checkoutService.getCheckout(remaining);
+    if (!checkout) return '';
+
+    // Concatenate the dartboard area and section for each dart.
+    const targets = checkout.suggested.map(dart =>
+      `${getAreaPrefix(dart.area)}${DartboardSectionToNumber[dart.section]}`
+    );
+
+    // Concatenate the targets seperated by a comma
+    return targets.join(', ');
+  }
+}

@@ -1,36 +1,20 @@
-import {Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges} from '@angular/core';
+import {Component, Input, OnChanges, SimpleChanges} from '@angular/core';
 import {X01Match} from '../../../../models/x01-match/x01-match';
-import {JsonPipe, KeyValuePipe, NgIf} from '@angular/common';
-import {MatCard} from '@angular/material/card';
+import {NgIf} from '@angular/common';
 import {MatOptgroup, MatOption, MatSelect} from '@angular/material/select';
 import {MatFormField} from '@angular/material/input';
 import {MatLabel} from '@angular/material/form-field';
 import {MatButton, MatIconButton} from '@angular/material/button';
 import {MatIcon} from '@angular/material/icon';
 import {FormControl, ReactiveFormsModule} from '@angular/forms';
-import {Subscription} from 'rxjs';
-import {
-  MatCell,
-  MatCellDef,
-  MatColumnDef,
-  MatHeaderCell,
-  MatHeaderCellDef, MatHeaderRow,
-  MatHeaderRowDef, MatRow,
-  MatRowDef,
-  MatTable
-} from '@angular/material/table';
-import {X01MatchViewDataTransformer} from './x01-match-view-data-transformer';
-import {X01MatchViewData} from './models/x01-match-view-data';
-
-interface SelectLegFormControl {
-  set: number,
-  leg: number
-}
+import {X01MatchInfoComponent} from '../x01-match-info/x01-match-info.component';
+import {X01MatchPlayerCardsComponent} from '../x01-match-player-cards/x01-match-player-cards.component';
+import {X01MatchLegTableComponent} from '../x01-match-leg-table/x01-match-leg-table.component';
+import {LegSelection} from '../../../../models/common/leg-selection';
 
 @Component({
   selector: 'app-x01-match',
   imports: [
-    MatCard,
     MatFormField,
     MatSelect,
     MatLabel,
@@ -39,40 +23,19 @@ interface SelectLegFormControl {
     MatIconButton,
     MatIcon,
     MatButton,
-    KeyValuePipe,
     ReactiveFormsModule,
-    JsonPipe,
-    MatTable,
-    MatColumnDef,
-    MatHeaderCell,
-    MatHeaderCellDef,
-    MatHeaderRowDef,
-    MatRowDef,
-    MatCellDef,
-    MatRow,
-    MatHeaderRow,
-    MatCell,
-    NgIf
+    NgIf,
+    X01MatchInfoComponent,
+    X01MatchPlayerCardsComponent,
+    X01MatchLegTableComponent
   ],
   standalone: true,
   templateUrl: './x01-match.component.html',
   styleUrl: './x01-match.component.scss'
 })
-export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
-  @Input() match: X01Match | null | undefined = null;
-  private subscriptions = new Subscription();
-  readonly selectedLegControl = new FormControl<SelectLegFormControl>({set: 0, leg: 0});
-  matchViewData: X01MatchViewData | null = null;
-
-  constructor(private viewDataTransformer: X01MatchViewDataTransformer) {
-  }
-
-  /**
-   * On init sets up subscription to react to changes in selectedLegControl.
-   */
-  ngOnInit() {
-    this.initSelectedLegChange();
-  }
+export class X01MatchComponent implements OnChanges {
+  @Input() match: X01Match | null = null;
+  readonly selectedLegControl = new FormControl<LegSelection>({set: 0, leg: 0});
 
   /**
    * Watches for changes to `match` input to update view data and selected leg.
@@ -80,40 +43,8 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
    */
   async ngOnChanges(changes: SimpleChanges) {
     if (changes['match']) {
-      await this.updateMatchViewData();
       this.selectCurrentOrLastLeg();
     }
-  }
-
-  /**
-   * Cleans up all subscriptions to avoid memory leaks.
-   */
-  ngOnDestroy() {
-    this.subscriptions.unsubscribe();
-  }
-
-  /**
-   * Updates `matchViewData` by transforming the current `match` into a structure that the template can use to display
-   * all data fields without having to perform any additional calculations or transformations during rendering.
-   */
-  private async updateMatchViewData() {
-    this.matchViewData = await this.viewDataTransformer.createX01MatchViewData(this.match);
-  }
-
-  /**
-   * Sets up a subscription to the `selectedLegControl` FormControl value changes.
-   * When the selection changes, updates the match table data source with rounds of the selected leg.
-   */
-  initSelectedLegChange() {
-    this.subscriptions.add(this.selectedLegControl.valueChanges.subscribe(selection => {
-        const selectedSet = selection?.set;
-        const selectedLeg = selection?.leg;
-        if (this.matchViewData && selectedSet && selectedLeg) {
-          const legTable = this.matchViewData.sets[selectedSet]?.legs?.[selectedLeg]?.rounds ?? [];
-          this.matchViewData.matchTableDataSource.setData(legTable);
-        }
-      })
-    );
   }
 
   /**
@@ -121,7 +52,7 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
    * Sets the selected leg control to update the dropdown and table accordingly.
    */
   selectCurrentOrLastLeg() {
-    let selection: SelectLegFormControl = {set: 0, leg: 0};
+    let selection: LegSelection = {set: 0, leg: 0};
     if (this.match) {
       const setAndLegInPlay = this.getSetAndLegInPlay(this.match);
       if (setAndLegInPlay) { // Set the selection the current set and leg in play.
@@ -145,7 +76,7 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
    * @param match - The current X01Match object
    * @returns The current set and leg numbers, or undefined if none in play
    */
-  getSetAndLegInPlay(match: X01Match): SelectLegFormControl | undefined {
+  getSetAndLegInPlay(match: X01Match): LegSelection | undefined {
     const matchProgress = match.matchProgress;
     const setInPlay = match.sets.find(set => set.set === matchProgress.currentSet);
     const legInPlay = setInPlay?.legs.find(leg => leg.leg === matchProgress.currentLeg);
