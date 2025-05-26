@@ -1,9 +1,9 @@
 import {environment} from '../../../environments/environment';
 
-export const BASE_URL = environment.dartsMatcherApiUrl;
+export const DARTS_MATCHER_API_BASE_URL = environment.dartsMatcherApiUrl;
 
 export const DARTS_MATCHER_API_ENDPOINTS = {
-  CREATE_MATCH: `${BASE_URL}/matches`,
-  GET_MATCH: (matchId: string): string => `${BASE_URL}/matches/${matchId}`,
-  GET_X01_CHECKOUTS: `${BASE_URL}/checkouts`,
+  CREATE_MATCH: `${DARTS_MATCHER_API_BASE_URL}/matches`,
+  GET_MATCH: (matchId: string): string => `${DARTS_MATCHER_API_BASE_URL}/matches/${matchId}`,
+  GET_X01_CHECKOUTS: `${DARTS_MATCHER_API_BASE_URL}/checkouts`,
 }

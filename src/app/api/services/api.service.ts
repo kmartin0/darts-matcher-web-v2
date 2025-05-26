@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
+import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 
 @Injectable({
@@ -25,4 +25,5 @@ export class ApiService {
   makePut<T>(url: string, body: any): Observable<T> {
     return this.http.put<T>(url, body);
   }
+
 }
