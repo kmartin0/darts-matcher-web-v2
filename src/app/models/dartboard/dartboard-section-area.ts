@@ -1,6 +1,3 @@
-import {Dart} from './dart';
-import {DartboardSection} from './dartboard-section';
-
 export enum DartboardSectionArea {
   DOUBLE_BULL = 'DOUBLE_BULL',
   SINGLE_BULL = 'SINGLE_BULL',

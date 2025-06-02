@@ -1,6 +1,7 @@
 import {X01LegRoundScore} from './x01-leg-round-score';
+import {PlayerMap} from '../../types/player-map';
 
 export interface X01LegRound {
   round: number;
-  scores: { [playerId: string]: X01LegRoundScore }
+  scores: PlayerMap<X01LegRoundScore>
 }

@@ -1,29 +1,17 @@
 <div *ngIf="match" class="x01-match-component-container">
-
-  <app-x01-match-info [match]="match"/>
-
-  <app-x01-match-player-cards [match]="match" [legSelection]="selectedLegControl.getRawValue()"/>
-
-  <div class="edit-options-container">
-    <button class="open-edit-dialog-btn" mat-icon-button>
-      <mat-icon>edit</mat-icon>
-    </button>
-
-    <mat-form-field class="select-leg-form-field" subscriptSizing="dynamic" appearance="fill">
-      <mat-label>Select Leg (Set {{ selectedLegControl.value?.set }})</mat-label>
-      <mat-select [formControl]="selectedLegControl" [compareWith]="compareLegSelection">
-        @for (set of match.sets; track set.set) {
-          <mat-optgroup label="Set {{set.set}}">
-            @for (leg of set.legs; track leg.leg) {
-              <mat-option [value]="{set: +set.set, leg: +leg.leg}">Leg {{ leg.leg }}</mat-option>
-            }
-          </mat-optgroup>
-        }
-      </mat-select>
-    </mat-form-field>
-
-    <button class="toggle-edit-mode-btn" mat-flat-button>Edit Mode</button>
+  <div class="scrollable-content">
+      <app-x01-match-info [match]="match"/>
+      <app-x01-match-player-cards [match]="match" [legSelection]="selectedLeg"/>
+    <div class="app-edit-options">
+      <button class="open-edit-dialog-btn" mat-icon-button>
+        <mat-icon>edit</mat-icon>
+      </button>
+      <app-select-leg-form [match]="match" [(selectedLeg)]="selectedLeg"/>
+      <button class="toggle-edit-mode-btn" mat-flat-button>Edit Mode</button>
+    </div>
+    <div class="app-leg-table">
+      <app-x01-match-leg-table [match]="match" [legSelection]="selectedLeg"/>
+    </div>
   </div>
-
-  <app-x01-match-leg-table [match]="match" [legSelection]="selectedLegControl.getRawValue()"/>
+    <app-x01-score-input (submitScoreEvent)="submitScore($event)" #scoreInputComponent/>
 </div>

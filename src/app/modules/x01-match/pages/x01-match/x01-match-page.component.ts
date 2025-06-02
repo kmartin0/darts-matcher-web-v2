@@ -31,15 +31,27 @@ export class X01MatchPageComponent implements OnInit, OnDestroy {
   constructor(private route: ActivatedRoute, private websocketService: DartsMatcherWebsocketService) {
   }
 
+  /**
+   * Lifecycle hook that triggers on component initialization.
+   * Initiates the retrieval of the match using route parameters.
+   */
   ngOnInit(): void {
     this.getMatch();
   }
 
+  /**
+   * Lifecycle hook that triggers when the component is destroyed.
+   * Cleans up all subscriptions and deactivates WebSocket connection.
+   */
   ngOnDestroy() {
     this.getMatchSubscription.unsubscribe();
     this.websocketService.deactivate();
   }
 
+  /**
+   * Retrieve the match id from the route and subscribe to the single response match websocket for the initial match object
+   * and the broadcast for match updates.
+   */
   private getMatch() {
     this.getMatchSubscription.add(this.getMatchIdFromRoute().pipe(
         switchMap(matchId => concat(
@@ -53,6 +65,11 @@ export class X01MatchPageComponent implements OnInit, OnDestroy {
     );
   }
 
+  /**
+   * Extracts the match ID from the current route parameters and validates if it's an ObjectId.
+   *
+   * @returns An observable emitting a valid match ID, or EMPTY if invalid.
+   */
   private getMatchIdFromRoute(): Observable<string> {
     return this.route.paramMap.pipe(
       switchMap(params => {
@@ -66,14 +83,27 @@ export class X01MatchPageComponent implements OnInit, OnDestroy {
     );
   }
 
+  /**
+   * Initializes the component property `match` with the retrieved X01Match.
+   *
+   * @param match - The retrieved X01 match
+   */
   private handleGetMatchSuccess(match: X01Match) {
     this.match = match;
   }
 
+  /**
+   * Sets the invalid match ID flag when the route contains an invalid ObjectId.
+   */
   private handleInvalidMatchId() {
     this.invalidMatchId = true;
   }
 
+  /**
+   * Handles HTTP errors from match retrieval.
+   *
+   * @param err - The HTTP error response
+   */
   private handleGetMatchError(err: HttpErrorResponse) {
     if (isApiErrorBody(err)) {
 

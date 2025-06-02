@@ -3,12 +3,17 @@ import {MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {BasicDialogData} from '../../components/basic-dialog/basic-dialog-data';
 import {BasicDialogComponent} from '../../components/basic-dialog/basic-dialog.component';
 import {InternalErrorDialogComponent} from '../../components/internal-error-dialog/internal-error-dialog.component';
+import {X01CheckoutService} from '../x01-checkout-service/x01-checkout-service';
+import {X01Checkout} from '../../../models/x01-match/x01-checkout';
+import {
+  NumberSelectionDialogComponent, NumberSelectionDialogData
+} from '../../components/number-selection-dialog/number-selection-dialog.component';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DialogService {
-  public constructor(private matDialog: MatDialog, private zone: NgZone) {
+  public constructor(private matDialog: MatDialog, private checkoutService: X01CheckoutService) {
   }
 
   public openBasicDialog(dialogData: BasicDialogData, stackable: boolean = false): MatDialogRef<BasicDialogComponent> | null {
@@ -54,6 +59,24 @@ export class DialogService {
       undefined,
       stackable
     );
+  }
+
+  public openDartsUsedDialog(checkout: X01Checkout | null): MatDialogRef<NumberSelectionDialogComponent> {
+    const minDarts = checkout?.minDarts ?? 1;
+    const maxDarts = 3;
+    const dartsUsedOptions: number[] = [];
+    for (let i = minDarts; i <= maxDarts; i++) {
+      dartsUsedOptions.push(i);
+    }
+    const dialogData: NumberSelectionDialogData = {title: 'Darts Used', options: dartsUsedOptions};
+
+    return this.matDialog.open(NumberSelectionDialogComponent, {data: dialogData});
+  }
+
+  public openDoublesMissedDialog(): MatDialogRef<NumberSelectionDialogComponent> {
+    const dialogData: NumberSelectionDialogData = {title: 'Doubles Missed', options: [0, 1, 2, 3]};
+
+    return this.matDialog.open(NumberSelectionDialogComponent, {data: dialogData});
   }
 
   private isDialogOpen(): boolean {

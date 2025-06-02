@@ -1,27 +1,31 @@
 <div class="players-container" *ngIf="viewData && legSelection">
   @let selectedSet = viewData.sets[legSelection.set] ;
-  @let selectedLegs = selectedSet?.legs?.[legSelection.leg] ;
-  @for (playerEntry of selectedLegs ?? {} | keyvalue; track playerEntry.key) {
+  @let selectedLeg = selectedSet?.legs?.[legSelection.leg] ;
+  @for (playerEntry of selectedLeg?.players ?? {} | keyvalue; track playerEntry.key) {
     @if (playerEntry.key && playerEntry.value) {
       @let playerId = playerEntry.key ;
       @let playerLegStats = playerEntry.value ;
       @let playerInfo = viewData.playerInfo[playerId] ;
 
-      <div class="player-overview-container">
+      <div class="player-overview-container"
+           [ngClass]="{
+           'current-thrower': viewData.currentPlayer === playerId,
+           'starts-leg': selectedLeg?.startsLeg === playerId
+           }">
         <mat-card class="player-info-card">
-          <span class="player-score">Score: (sets won: {{ playerLegStats.setsWon }}
+          <span class="player-score bold">Score: (sets won: {{ playerLegStats.setsWon }}
             - legs won: {{ playerLegStats.legsWonInSet }})</span>
-          <span class="player-name">{{ playerInfo?.name }}</span>
+          <span class="player-name bold">{{ playerInfo?.name }}</span>
         </mat-card>
 
         <mat-card class="player-score-card">
-          <span class="remaining">{{ playerLegStats.remaining }}</span>
-          <span class="checkout-hint">{{ playerLegStats.suggestedCheckout }}</span>
-          <span class="three-dart">3-Dart:<br><span
-            class="emphasize">{{ playerInfo?.threeDartAvg ?? '-' }}</span></span>
-          <span class="last-score">Last:<br><span class="emphasize">{{ playerLegStats.lastScore ?? '-' }}</span></span>
-          <span class="first-nine">First 9:<br><span
-            class="emphasize">{{ playerInfo?.firstNineAvg ?? '-' }}</span></span>
+          <span class="remaining bold">{{ playerLegStats.remaining }}</span>
+          <span class="checkout-hint bold">{{ playerLegStats.suggestedCheckout }}</span>
+          <span class="three-dart">3-Dart<br><span class="bold">{{ playerInfo?.threeDartAvg ?? '-' }}</span></span>
+          <span class="first-nine">First 9<br><span
+            class="bold">{{ playerInfo?.firstNineAvg ?? '-' }}</span></span>
+          <span class="last-score">Last<br><span class="bold">{{ playerLegStats.lastScore ?? '-' }}</span></span>
+          <span class="darts-used">Darts<br><span class="bold">{{ playerLegStats.dartsUsed }}</span></span>
         </mat-card>
       </div>
     }

@@ -12,8 +12,9 @@ import {DartboardSectionToNumber} from '../../../../../models/dartboard/dartboar
 import {X01PlayerCardsViewData} from './x01-player-cards-view-data';
 import {X01PlayerCardData} from './x01-player-card-data';
 import {X01PlayerCardSet} from './x01-player-card-set';
-import {X01PlayerCardLegData} from './x01-player-card-leg-data';
+import {X01PlayerCardLegStats} from './x01-player-card-leg-stats';
 import {SetMap} from '../../../../../types/set-map';
+import {X01PlayerCardLeg} from './x01-player-card-leg';
 
 @Injectable({providedIn: 'root'})
 export class X01MatchPlayerCardsViewDataTransformer {
@@ -32,7 +33,8 @@ export class X01MatchPlayerCardsViewDataTransformer {
 
     return {
       playerInfo: this.createPlayersInfoMap(match.players),
-      sets: await this.createSetsViewData(match)
+      sets: await this.createSetsViewData(match),
+      currentPlayer: match.matchProgress.currentThrower
     };
   }
 
@@ -117,7 +119,7 @@ export class X01MatchPlayerCardsViewDataTransformer {
    * @returns A promise resolving to a player card set map.
    */
   private async createSetViewData(set: X01Set, players: X01MatchPlayer[], x01: number, playerWinTrackerMap: PlayerMap<PlayerWinTracker>): Promise<X01PlayerCardSet> {
-    const legsMap: Record<number, PlayerMap<X01PlayerCardLegData>> = {};
+    const legsMap: Record<number, X01PlayerCardLeg> = {};
 
     for (const leg of set.legs) {
       legsMap[leg.leg] = await this.createLegViewData(set, leg, players, x01, playerWinTrackerMap);
@@ -136,7 +138,7 @@ export class X01MatchPlayerCardsViewDataTransformer {
    * @param playerWinTrackerMap The win tracker.
    * @returns A promise resolving to player card leg data map.
    */
-  private async createLegViewData(set: X01Set, leg: X01Leg, players: X01MatchPlayer[], x01: number, playerWinTrackerMap: PlayerMap<PlayerWinTracker>): Promise<PlayerMap<X01PlayerCardLegData>> {
+  private async createLegViewData(set: X01Set, leg: X01Leg, players: X01MatchPlayer[], x01: number, playerWinTrackerMap: PlayerMap<PlayerWinTracker>): Promise<X01PlayerCardLeg> {
     // Update the win trackers.
     this.updatePlayerWinTrackerMap(set, leg, playerWinTrackerMap);
 
@@ -144,7 +146,7 @@ export class X01MatchPlayerCardsViewDataTransformer {
     const legProgressMap = this.createLegProgressMap(leg, x01);
 
     // Iterate through the players and their leg stats to the map.
-    const playerStatsMap: PlayerMap<X01PlayerCardLegData> = {};
+    const playerStatsMap: PlayerMap<X01PlayerCardLegStats> = {};
     for (const player of players) {
       const playerId = player.playerId;
       const remaining = legProgressMap[playerId]?.remaining ?? x01;
@@ -154,12 +156,13 @@ export class X01MatchPlayerCardsViewDataTransformer {
         setsWon: playerWinTrackerMap[playerId]?.setsWon ?? 0,
         legsWonInSet: playerWinTrackerMap[playerId]?.legsWon ?? 0,
         lastScore: legProgressMap[playerId]?.lastScore,
+        dartsUsed: legProgressMap[playerId]?.dartsUsed ?? 0,
         suggestedCheckout: await this.createCheckoutMessage(remaining)
       };
     }
 
     // Return the map containing the leg stats for each player.
-    return playerStatsMap;
+    return {startsLeg: leg.throwsFirst, players: playerStatsMap};
   }
 
   /**
@@ -169,13 +172,18 @@ export class X01MatchPlayerCardsViewDataTransformer {
    * @param x01 The starting score (e.g., 501).
    * @returns A map of player progress in the leg.
    */
-  private createLegProgressMap(leg: X01Leg, x01: number): PlayerMap<{ remaining: number, lastScore: number }> {
-    const legProgressMap: PlayerMap<{ remaining: number, lastScore: number }> = {};
+  private createLegProgressMap(leg: X01Leg, x01: number): PlayerMap<{
+    remaining: number,
+    lastScore: number,
+    dartsUsed: number
+  }> {
+    const legProgressMap: PlayerMap<{ remaining: number, lastScore: number, dartsUsed: number }> = {};
     leg.rounds.forEach(round => {
       Object.entries(round.scores).forEach(([playerId, roundScore]) => {
         legProgressMap[playerId] = {
           remaining: (legProgressMap[playerId]?.remaining ?? x01) - roundScore.score,
-          lastScore: roundScore.score
+          lastScore: roundScore.score,
+          dartsUsed: (legProgressMap[playerId]?.dartsUsed ?? 0) + roundScore.dartsUsed
         };
       });
     });
@@ -222,4 +230,5 @@ export class X01MatchPlayerCardsViewDataTransformer {
     // Concatenate the targets seperated by a comma
     return targets.join(', ');
   }
+
 }

@@ -12,7 +12,7 @@
       <td mat-cell *matCellDef="let rowData">{{ rowData.dartsThrown }}</td>
     </ng-container>
 
-    @for (playerColumnsDefinition of viewData.columnDefinitions.playerColumns; track playerColumnsDefinition) {
+    @for (playerColumnsDefinition of viewData.columnDefinitions.playerColumns; track playerColumnsDefinition.playerId) {5
       <ng-container [matColumnDef]="playerColumnsDefinition.score.id">
         <th mat-header-cell *matHeaderCellDef>{{ playerColumnsDefinition.score.label }}</th>
         <td mat-cell *matCellDef="let rowData">{{ rowData.players[playerColumnsDefinition.playerId]?.score }}</td>

@@ -5,7 +5,6 @@ import {
   X01LegTableRow
 } from '../x01-leg-table-data-source';
 import {X01Match} from '../../../../../models/x01-match/x01-match';
-import {X01MatchTableColumnDefinitions} from '../../x01-match/models/x01-match-table-column-definitions';
 import {X01MatchPlayer} from '../../../../../models/x01-match/x01-match-player';
 import {X01Set} from '../../../../../models/x01-match/x01-set';
 import {X01Leg} from '../../../../../models/x01-match/x01-leg';
@@ -15,6 +14,7 @@ import {X01MatchLegTableViewData} from './x01-match-leg-table-view-data';
 import {X01LegTableSetsMap} from './x01-match-leg-table-sets-map';
 import {X01LegTableLegsMap} from './x01-leg-table-legs-map';
 import {LegSelection} from '../../../../../models/common/leg-selection';
+import {X01MatchLegTableColumnDefinitions} from './x01-match-leg-table-column-definitions';
 
 
 @Injectable({providedIn: 'root'})
@@ -62,9 +62,9 @@ export class X01MatchLegTableViewDataTransformer {
    * @param players The list of match players.
    * @returns The column definitions.
    */
-  private createColumnDefinitions(players: X01MatchPlayer[]): X01MatchTableColumnDefinitions {
+  private createColumnDefinitions(players: X01MatchPlayer[]): X01MatchLegTableColumnDefinitions {
     // Create the column definitions containing column label and if per column.
-    const columnDefinitions: X01MatchTableColumnDefinitions = {
+    const columnDefinitions: X01MatchLegTableColumnDefinitions = {
       round: {id: 'round', label: 'Round'},
       darts: {id: 'darts', label: 'Darts'},
       playerColumns: []
@@ -91,7 +91,7 @@ export class X01MatchLegTableViewDataTransformer {
    * @param columnDefinitions The definitions for all table columns.
    * @returns An ordered list of column IDs for rendering.
    */
-  private createDisplayedColumns(columnDefinitions: X01MatchTableColumnDefinitions): string[] {
+  private createDisplayedColumns(columnDefinitions: X01MatchLegTableColumnDefinitions): string[] {
     const playerColumns = columnDefinitions.playerColumns;
     const nonPlayerColumns = [columnDefinitions.round.id, columnDefinitions.darts.id];
 

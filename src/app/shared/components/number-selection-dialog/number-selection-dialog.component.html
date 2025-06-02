@@ -1,0 +1,12 @@
+<div class="header" mat-dialog-title>{{ dialogData.title }}</div>
+<mat-dialog-content class="content">
+  <mat-radio-group [formControl]="numberOptionsFormControl" class="rg-number-options" aria-label="Select an option">
+    @for (option of dialogData.options; track option) {
+      <mat-radio-button [value]="option">{{ option }}</mat-radio-button>
+    }
+  </mat-radio-group>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancelDialog()">Cancel</button>
+  <button mat-button (click)="submitDialog()">Enter</button>
+</mat-dialog-actions>

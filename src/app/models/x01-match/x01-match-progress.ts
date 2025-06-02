@@ -1,6 +1,6 @@
 export interface X01MatchProgress {
-  currentSet: number;
-  currentLeg: number;
-  currentRound: number;
-  currentThrower: string;
+  currentSet: number | null;
+  currentLeg: number | null;
+  currentRound: number | null;
+  currentThrower: string | null;
 }

@@ -2,12 +2,18 @@
 @use "@angular/material" as mat;
 
 :host {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-height: 100vh;
+
   @include mat.toolbar-overrides((
     container-background-color: var(--mat-sys-primary),
     container-text-color: var(--mat-sys-on-primary)
-  ))
+  ));
 }
 
 .x01-match-page-component-container {
   @include helpers.module-page();
+  overflow-y: auto;
 }

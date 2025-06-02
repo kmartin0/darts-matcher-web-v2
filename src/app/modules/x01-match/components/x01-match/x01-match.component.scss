@@ -1,21 +1,44 @@
 @use "@angular/material" as mat;
 
 :host {
+  flex: 1;
+  overflow-y: auto;
   width: 100%;
 }
 
 .x01-match-component-container {
-  display: flex;
-  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  display: grid;
+  grid-template-rows: 7fr minmax(286px, 3fr);
+  overflow-y: auto;
   gap: 12px;
-  align-items: center;
-  justify-content: center;
 }
 
-.edit-options-container {
+.scrollable-content {
+  width: 100%;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 2.25fr) minmax(0, 1fr);
+  grid-template-rows: max-content max-content max-content minmax(160px, 1fr);
+  overflow-y: auto;
+  gap: 12px;
+}
+
+.app-edit-options {
+  display: grid;
+  width: 100%;
+  max-width: 500px;
+  padding: 0 4px;
+  gap: 4px;
+  grid-template-columns: 1fr 2fr 1fr;
   align-items: center;
-  gap: 24px;
   justify-items: center;
+  justify-self: center;
+}
+
+.select-leg-form-field {
+  width: 100%;
+}
+
+.app-leg-table {
+  overflow-y: auto;
 }

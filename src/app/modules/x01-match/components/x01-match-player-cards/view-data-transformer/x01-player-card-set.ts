@@ -1,7 +1,6 @@
-import {PlayerMap} from '../../../../../types/player-map';
-import {X01PlayerCardLegData} from './x01-player-card-leg-data';
 import {LegMap} from '../../../../../types/leg-map';
+import {X01PlayerCardLeg} from './x01-player-card-leg';
 
 export interface X01PlayerCardSet {
-  legs: LegMap<PlayerMap<X01PlayerCardLegData>>
+  legs: LegMap<X01PlayerCardLeg>;
 }

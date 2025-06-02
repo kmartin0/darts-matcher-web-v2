@@ -10,6 +10,13 @@ export class ApiLoggingInterceptor implements HttpInterceptor {
   constructor() {
   }
 
+  /**
+   * Intercepts HTTP requests to log the request.
+   *
+   * @param req - The outgoing HTTP request.
+   * @param next - The HTTP request handler.
+   * @returns An Observable of the HTTP event stream.
+   */
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     console.info(req);
     return next.handle(req).pipe(

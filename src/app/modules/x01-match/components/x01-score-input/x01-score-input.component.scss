@@ -1,0 +1,48 @@
+@use "@angular/material" as mat;
+
+:host {
+  height: 100%;
+}
+
+.x01-score-input-component-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.score-card {
+  width: max-content;
+  margin: auto;
+  padding: 0 24px;
+}
+
+.score-card-content {
+  display: grid;
+  grid-template-columns: repeat(2, 100px);
+  align-items: center;
+  grid-gap: 24px;
+}
+
+.score-input, .score-title {
+  font: var(--mat-sys-title-large);
+  font-weight: 500;
+  text-align: center;
+
+  $border-size: 2px;
+
+  &.score-input {
+    border-bottom: $border-size solid var(--mat-sys-primary);
+    &.blurred {
+      border-bottom-color: color-mix(in srgb, var(--mat-sys-primary) 25%, transparent);
+    }
+  }
+
+  &.score-title {
+    padding-bottom: $border-size;
+  }
+}
+
+app-keypad-component {
+  height: 100%;
+}

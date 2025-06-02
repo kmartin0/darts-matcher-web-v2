@@ -3,7 +3,7 @@ import {X01Match} from '../../../../models/x01-match/x01-match';
 import {
   X01MatchPlayerCardsViewDataTransformer
 } from './view-data-transformer/x01-match-player-cards-view-data-transformer.service';
-import {JsonPipe, KeyValuePipe, NgIf} from '@angular/common';
+import {JsonPipe, KeyValuePipe, NgClass, NgIf} from '@angular/common';
 import {MatCard} from '@angular/material/card';
 import {LegSelection} from '../../../../models/common/leg-selection';
 import {X01PlayerCardsViewData} from './view-data-transformer/x01-player-cards-view-data';
@@ -13,7 +13,9 @@ import {X01PlayerCardsViewData} from './view-data-transformer/x01-player-cards-v
   imports: [
     NgIf,
     KeyValuePipe,
-    MatCard
+    MatCard,
+    NgClass,
+    JsonPipe
   ],
   standalone: true,
   templateUrl: './x01-match-player-cards.component.html',
@@ -42,6 +44,7 @@ export class X01MatchPlayerCardsComponent implements OnChanges {
    */
   private async updateViewData() {
     this.viewData = await this.viewDataTransformer.createPlayerCardsViewData(this.match);
+    console.log(this.viewData);
   }
 
 }

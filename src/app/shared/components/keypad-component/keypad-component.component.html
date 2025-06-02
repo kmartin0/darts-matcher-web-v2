@@ -1,0 +1,5 @@
+<div class="keypad-component-container">
+  @for (key of keys; track key) {
+    <button mat-flat-button (click)="onKeyClick(key)">{{key}}</button>
+  }
+</div>

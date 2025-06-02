@@ -1,0 +1,14 @@
+<div *ngIf="match" class="select-leg-form-component-container">
+  <mat-form-field class="select-leg-form-field" subscriptSizing="dynamic" appearance="fill">
+    <mat-label>Select Leg (Set {{ selectedLegControl.value?.set }})</mat-label>
+    <mat-select [formControl]="selectedLegControl" [compareWith]="compareLegSelection">
+      @for (set of match.sets; track set.set) {
+        <mat-optgroup label="Set {{set.set}}">
+          @for (leg of set.legs; track leg.leg) {
+            <mat-option [value]="{set: +set.set, leg: +leg.leg}">Leg {{ leg.leg }}</mat-option>
+          }
+        </mat-optgroup>
+      }
+    </mat-select>
+  </mat-form-field>
+</div>

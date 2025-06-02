@@ -1,11 +1,12 @@
 @use "@angular/material" as mat;
 
 :host {
+  width: 100%;
+
   @include mat.card-overrides((
     elevated-container-shape: var(--mat-sys-corner-small),
     elevated-container-elevation: var(--mat-sys-level1)
   ));
-  width: 100%;
 }
 
 .players-container {
@@ -20,6 +21,35 @@
   flex-direction: column;
   display: flex;
   gap: 24px;
+
+  &.starts-leg {
+    .player-score-card {
+      position: relative;
+
+      &::before {
+        content: "";
+        position: absolute;
+        top: -2px;
+        right: -2px;
+        width: 36px;
+        height: 36px;
+        background-color: var(--mat-sys-secondary);
+        clip-path: polygon(100% 0, 0 0, 100% 100%);
+        border-top-right-radius: var(--mat-sys-corner-small);
+        z-index: 1;
+      }
+    }
+  }
+
+  &.current-thrower {
+    .player-info-card, .player-score-card {
+      border-color: var(--mat-sys-secondary);
+    }
+  }
+}
+
+.player-info-card, .player-score-card {
+  border: 2px solid transparent;
 }
 
 .player-info-card {
@@ -33,19 +63,17 @@
 .player-score {
   font: var(--mat-sys-title-large);
   min-height: var(--mat-sys-title-large-line-height);
-  font-weight: 500;
 }
 
 .player-name {
   font: var(--mat-sys-headline-large);
   min-height: var(--mat-sys-headline-large-line-height);
-  font-weight: 500;
 }
 
 .player-score-card {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); // 3 equal-width columns
-  grid-template-rows: auto auto 1fr; // 1st row height is auto, 2nd row takes remaining space
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: auto auto 1fr;
   gap: 12px;
   padding: 8px;
 
@@ -54,25 +82,18 @@
   }
 
   .remaining {
-    grid-column: 1 / -1; // span all 3 columns
+    grid-column: 1 / -1;
     font: var(--mat-sys-display-large);
     min-height: var(--mat-sys-display-large-line-height);
-    font-weight: 500;
-
   }
 
   .checkout-hint {
-    grid-column: 1 / -1; // span all 3 columns
+    grid-column: 1 / -1;
   }
 
-  .checkout-hint, .three-dart, .last-score, .first-nine {
+  .checkout-hint, .three-dart, .darts-used, .last-score, .first-nine {
     font: var(--mat-sys-title-large);
     min-height: var(--mat-sys-title-large-line-height);
-    font-weight: 500;
-  }
-
-  .emphasize {
-    font-weight: 600;
   }
 }
 

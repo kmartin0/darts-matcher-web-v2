@@ -6,4 +6,5 @@ import {SetMap} from '../../../../../types/set-map';
 export interface X01PlayerCardsViewData {
   playerInfo: PlayerMap<X01PlayerCardData>;
   sets: SetMap<X01PlayerCardSet>;
+  currentPlayer: string | null;
 }

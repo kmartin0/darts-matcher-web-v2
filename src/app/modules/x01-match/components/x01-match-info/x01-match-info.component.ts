@@ -12,6 +12,10 @@ export class X01MatchInfoComponent implements OnChanges {
   @Input() match: X01Match | null = null;
   matchInfoHeader: string | null = null;
 
+  /**
+   * Watches for changes to `match` input to update match info header.
+   * @param changes - Object containing changes to input properties
+   */
   ngOnChanges(changes: SimpleChanges) {
     if (changes['match']) {
       this.updateMatchInfoHeader();

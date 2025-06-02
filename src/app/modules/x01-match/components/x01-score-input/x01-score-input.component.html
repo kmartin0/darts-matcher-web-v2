@@ -1,0 +1,11 @@
+<div class="x01-score-input-component-container">
+
+  <mat-card class="score-card">
+    <mat-card-content class="score-card-content">
+      <div class="score-title">Score</div>
+      <div class="score-input" [class.blurred]="!isWindowFocused">{{ score ?? '\u00A0'}}</div>
+    </mat-card-content>
+  </mat-card>
+
+  <app-keypad-component (keyPress)="onKeyPress($event)"></app-keypad-component>
+</div>
