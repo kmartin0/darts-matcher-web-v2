@@ -65,19 +65,23 @@ export class X01MatchLegTableViewDataTransformer {
   private createColumnDefinitions(players: X01MatchPlayer[]): X01MatchLegTableColumnDefinitions {
     // Create the column definitions containing column label and if per column.
     const columnDefinitions: X01MatchLegTableColumnDefinitions = {
-      round: {id: 'round', label: 'Round'},
-      darts: {id: 'darts', label: 'Darts'},
-      playerColumns: []
+      default: {
+        id: 'default',
+        labels: {
+          round: 'Round',
+          darts: 'Darts'
+        }
+      },
+      players: {}
     };
 
     // Populate the player columns where each player has a score and to go column.
     players.forEach(player => {
       const playerId = player.playerId.toString();
-      columnDefinitions.playerColumns.push({
-        playerId: playerId,
-        score: {id: this.createScoreColId(playerId), label: 'Score'},
-        remaining: {id: this.createRemainingColId(playerId), label: 'To Go'}
-      });
+      columnDefinitions.players[playerId] = {
+        score: 'Score',
+        remaining: 'To Go'
+      };
     });
 
     // Return the column definitions.
@@ -92,42 +96,15 @@ export class X01MatchLegTableViewDataTransformer {
    * @returns An ordered list of column IDs for rendering.
    */
   private createDisplayedColumns(columnDefinitions: X01MatchLegTableColumnDefinitions): string[] {
-    const playerColumns = columnDefinitions.playerColumns;
-    const nonPlayerColumns = [columnDefinitions.round.id, columnDefinitions.darts.id];
+    const playerCols = Object.keys(columnDefinitions.players);
 
-    // Split the players into left hand side and right hand side
-    const half = Math.floor(playerColumns.length / 2);
-    const leftPlayers = playerColumns.slice(0, half);
-    const rightPlayers = playerColumns.slice(half);
+    // Split player IDs into two halves
+    const half = Math.floor(playerCols.length / 2);
+    const leftPlayers = playerCols.slice(0, half);
+    const rightPlayers = playerCols.slice(half);
 
-    // Helper to flatten player columns into ids
-    const flattenPlayerCols = (playersArray: typeof playerColumns) =>
-      playersArray.flatMap(player => [player.score.id, player.remaining.id]);
-
-    // Return the columns ids, with the non player columns in the middle.
-    return [...flattenPlayerCols(leftPlayers), ...nonPlayerColumns, ...flattenPlayerCols(rightPlayers),];
+    return [...leftPlayers, columnDefinitions.default.id, ...rightPlayers];
   }
-
-  /**
-   * Constructs a score column ID for a player.
-   *
-   * @param playerId The player's ID.
-   * @returns The score column ID.
-   */
-  private createScoreColId(playerId: string) {
-    return `score_${playerId}`;
-  }
-
-  /**
-   * Constructs a remaining column ID for a player.
-   *
-   * @param playerId The player's ID.
-   * @returns The remaining column ID.
-   */
-  private createRemainingColId(playerId: string) {
-    return `remaining_${playerId}`;
-  }
-
 
   /**
    * Builds a nested map of leg tables for each set and leg in the match.

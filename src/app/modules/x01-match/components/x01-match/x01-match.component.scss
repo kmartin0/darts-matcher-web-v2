@@ -14,10 +14,6 @@
   overflow-y: auto;
   gap: 12px;
 
-  &.keyboard-visible {
-    grid-template-rows: 7fr max-content minmax(286px, 3fr);
-  }
-
   &:not(.keyboard-visible) {
     grid-template-rows: 7fr max-content;
   }
@@ -28,7 +24,7 @@
   display: grid;
   grid-template-rows: max-content max-content max-content minmax(160px, 1fr);
   overflow-y: auto;
-  gap: 12px;
+  gap: 18px;
 }
 
 .app-edit-options {

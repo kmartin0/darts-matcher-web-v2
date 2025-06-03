@@ -1,11 +1,15 @@
-import {ColumnMetadata} from '../../../../../models/common/column-meta-data';
+import {PlayerMap} from '../../../../../types/player-map';
 
 export interface X01MatchLegTableColumnDefinitions {
-  round: ColumnMetadata,
-  darts: ColumnMetadata,
-  playerColumns: {
-    playerId: string
-    score: ColumnMetadata,
-    remaining: ColumnMetadata,
-  }[]
+  default: {
+    id: string,
+    labels: {
+      round: string,
+      darts: string
+    }
+  },
+  players: PlayerMap<{
+    score: string,
+    remaining: string
+  }>
 }

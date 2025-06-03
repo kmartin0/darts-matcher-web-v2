@@ -82,8 +82,8 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
    */
   async submitScore(score: number) {
     if (!this.match) return;
-    if(this.match.matchStatus === MatchStatus.CONCLUDED) {
-      this.errorMsg = 'Match is concluded'
+    if (this.match.matchStatus === MatchStatus.CONCLUDED) {
+      this.errorMsg = 'Match is concluded';
       return;
     }
 

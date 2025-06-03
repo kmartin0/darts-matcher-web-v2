@@ -1,30 +1,31 @@
 <div class="table-container" *ngIf="viewData && legSelection">
   <table mat-table [dataSource]="viewData.matchTableDataSource">
-    @let roundCol = viewData.columnDefinitions.round ;
-    <ng-container [matColumnDef]="roundCol.id">
-      <th mat-header-cell *matHeaderCellDef>{{ roundCol.label }}</th>
-      <td mat-cell *matCellDef="let rowData">{{ rowData.round }}</td>
+    @let defaultCol = viewData.columnDefinitions.default ;
+    <ng-container [matColumnDef]="defaultCol.id">
+      <th mat-header-cell *matHeaderCellDef>
+        <span>{{ defaultCol.labels.darts }}</span>
+        <span>{{ defaultCol.labels.round }}</span>
+      </th>
+      <td mat-cell *matCellDef="let rowData">
+        <span>{{ rowData.dartsThrown }}</span>
+        <span>{{ rowData.round }}</span>
+      </td>
     </ng-container>
 
-    @let dartsCol = viewData.columnDefinitions.darts ;
-    <ng-container [matColumnDef]="dartsCol.id">
-      <th mat-header-cell *matHeaderCellDef>{{ dartsCol.label }}</th>
-      <td mat-cell *matCellDef="let rowData">{{ rowData.dartsThrown }}</td>
-    </ng-container>
-
-    @for (playerColumnsDefinition of viewData.columnDefinitions.playerColumns; track playerColumnsDefinition.playerId) {5
-      <ng-container [matColumnDef]="playerColumnsDefinition.score.id">
-        <th mat-header-cell *matHeaderCellDef>{{ playerColumnsDefinition.score.label }}</th>
-        <td mat-cell *matCellDef="let rowData">{{ rowData.players[playerColumnsDefinition.playerId]?.score }}</td>
-      </ng-container>
-
-      <ng-container [matColumnDef]="playerColumnsDefinition.remaining.id">
-        <th mat-header-cell *matHeaderCellDef>{{ playerColumnsDefinition.remaining.label }}</th>
-        <td mat-cell *matCellDef="let rowData">{{ rowData.players[playerColumnsDefinition.playerId]?.remaining }}</td>
+    @for (playerColEntry of viewData.columnDefinitions.players | keyvalue; track playerColEntry.key) {
+      <ng-container [matColumnDef]="playerColEntry.key">
+        <th mat-header-cell *matHeaderCellDef>
+          <span>{{ playerColEntry.value.score }}</span>
+          <span>{{ playerColEntry.value.remaining }}</span>
+        </th>
+        <td mat-cell *matCellDef="let rowData">
+          <span>{{ rowData.players[playerColEntry.key]?.score }}</span>
+          <span>{{ rowData.players[playerColEntry.key]?.remaining }}</span>
+        </td>
       </ng-container>
     }
 
-    <tr mat-header-row *matHeaderRowDef="viewData.displayedColumns ?? []"></tr>
+    <tr mat-header-row *matHeaderRowDef="viewData.displayedColumns ?? []; sticky: true"></tr>
     <tr mat-row *matRowDef="let row; columns: viewData.displayedColumns ?? []"></tr>
   </table>
 </div>

@@ -1,4 +1,5 @@
-<div *ngIf="match" class="x01-match-component-container">
+@let displayScoreInput = (match?.matchStatus === MatchStatus.IN_PLAY) ;
+<div *ngIf="match" class="x01-match-component-container" [class.keyboard-visible]="displayScoreInput">
   <div class="scrollable-content">
     <app-x01-match-info [match]="match"/>
     <app-x01-match-player-cards [match]="match" [legSelection]="selectedLeg"/>
@@ -14,8 +15,6 @@
     </div>
   </div>
   <div class="error-label">{{ errorMsg }}</div>
-  @let displayScoreInput = match.matchStatus === MatchStatus.IN_PLAY ;
-  <app-x01-score-input *ngIf="displayScoreInput"
-                       [class.keyboard-visible]="displayScoreInput"
-                       (submitScoreEvent)="submitScore($event)" #scoreInputComponent/>
+
+  <app-x01-score-input *ngIf="displayScoreInput" (submitScoreEvent)="submitScore($event)" #scoreInputComponent/>
 </div>

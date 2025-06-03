@@ -1,6 +1,6 @@
 import {Component, Input, OnChanges, SimpleChanges} from '@angular/core';
 import {X01Match} from '../../../../models/x01-match/x01-match';
-import {NgIf} from '@angular/common';
+import {KeyValuePipe, NgIf} from '@angular/common';
 import {
   MatCell,
   MatCellDef, MatColumnDef,
@@ -29,7 +29,8 @@ import {LegSelection} from '../../../../models/common/leg-selection';
     MatRow,
     MatRowDef,
     MatHeaderRowDef,
-    MatColumnDef
+    MatColumnDef,
+    KeyValuePipe
   ],
   standalone: true,
   templateUrl: './x01-match-leg-table.component.html',
