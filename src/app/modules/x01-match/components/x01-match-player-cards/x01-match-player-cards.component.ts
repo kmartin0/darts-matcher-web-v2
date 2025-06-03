@@ -14,8 +14,7 @@ import {X01PlayerCardsViewData} from './view-data-transformer/x01-player-cards-v
     NgIf,
     KeyValuePipe,
     MatCard,
-    NgClass,
-    JsonPipe
+    NgClass
   ],
   standalone: true,
   templateUrl: './x01-match-player-cards.component.html',
@@ -44,7 +43,6 @@ export class X01MatchPlayerCardsComponent implements OnChanges {
    */
   private async updateViewData() {
     this.viewData = await this.viewDataTransformer.createPlayerCardsViewData(this.match);
-    console.log(this.viewData);
   }
 
 }

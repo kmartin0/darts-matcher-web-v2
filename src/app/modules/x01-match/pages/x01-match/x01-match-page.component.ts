@@ -1,14 +1,16 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {concat, EMPTY, Observable, of, Subscription, switchMap} from 'rxjs';
+import {EMPTY, Observable, of, Subscription, switchMap} from 'rxjs';
 import {X01Match} from '../../../../models/x01-match/x01-match';
-import {HttpErrorResponse} from '@angular/common/http';
-import {isApiErrorBody} from '../../../../api/error/api-error-body';
 import {NgIf} from '@angular/common';
 import {MatToolbar} from '@angular/material/toolbar';
 import {X01MatchComponent} from '../../components/x01-match/x01-match.component';
 import {isValidObjectId} from '../../../../shared/utils/object-id.utils';
 import {DartsMatcherWebsocketService} from '../../../../api/services/darts-matcher-websocket.service';
+import {ApiErrorEnum} from '../../../../api/error/api-error-enum';
+import {ApiErrorBodyHandler} from '../../../../api/services/api-error-body-handler.service';
+import {DARTS_MATCHER_WS_DESTINATIONS, WsDestType} from '../../../../api/endpoints/darts-matcher-websocket.endpoints';
+import {ApiWsErrorBody} from '../../../../api/error/api-ws-error-body';
 
 @Component({
   selector: 'app-x01-match-page',
@@ -23,12 +25,14 @@ import {DartsMatcherWebsocketService} from '../../../../api/services/darts-match
 })
 export class X01MatchPageComponent implements OnInit, OnDestroy {
 
+  private readonly matchIdParamKey = 'matchId';
   private getMatchSubscription: Subscription = new Subscription();
-  invalidMatchId: boolean = false;
+  matchNotFound: boolean = false;
 
   public match: X01Match | null = null;
 
-  constructor(private route: ActivatedRoute, private websocketService: DartsMatcherWebsocketService) {
+  constructor(private route: ActivatedRoute, private websocketService: DartsMatcherWebsocketService,
+              private apiErrorBodyHandler: ApiErrorBodyHandler) {
   }
 
   /**
@@ -36,6 +40,7 @@ export class X01MatchPageComponent implements OnInit, OnDestroy {
    * Initiates the retrieval of the match using route parameters.
    */
   ngOnInit(): void {
+    this.subscribeErrorQueue();
     this.getMatch();
   }
 
@@ -53,14 +58,10 @@ export class X01MatchPageComponent implements OnInit, OnDestroy {
    * and the broadcast for match updates.
    */
   private getMatch() {
-    this.getMatchSubscription.add(this.getMatchIdFromRoute().pipe(
-        switchMap(matchId => concat(
-          this.websocketService.subscribeToX01MatchSingleResponse(matchId),
-          this.websocketService.subscribeToX01MatchBroadcast(matchId)
-        ))
+    this.getMatchSubscription.add(this.getAndValidateMatchIdFromRoute().pipe(
+        switchMap(matchId => this.websocketService.getX01MatchBroadcast(matchId))
       ).subscribe({
         next: (match: X01Match) => this.handleGetMatchSuccess(match),
-        error: (err: HttpErrorResponse) => this.handleGetMatchError(err),
       })
     );
   }
@@ -70,10 +71,10 @@ export class X01MatchPageComponent implements OnInit, OnDestroy {
    *
    * @returns An observable emitting a valid match ID, or EMPTY if invalid.
    */
-  private getMatchIdFromRoute(): Observable<string> {
+  private getAndValidateMatchIdFromRoute(): Observable<string> {
     return this.route.paramMap.pipe(
       switchMap(params => {
-        const matchId = params.get('id') ?? '';
+        const matchId = params.get(this.matchIdParamKey) ?? '';
         if (!isValidObjectId(matchId)) {
           this.handleInvalidMatchId();
           return EMPTY;
@@ -96,18 +97,53 @@ export class X01MatchPageComponent implements OnInit, OnDestroy {
    * Sets the invalid match ID flag when the route contains an invalid ObjectId.
    */
   private handleInvalidMatchId() {
-    this.invalidMatchId = true;
+    this.matchNotFound = true;
   }
 
   /**
-   * Handles HTTP errors from match retrieval.
-   *
-   * @param err - The HTTP error response
+   * Subscribes to the websocket error queue. Validates if the error is an instance of websocket api error body.
+   * And delegates to ws error body handler.
    */
-  private handleGetMatchError(err: HttpErrorResponse) {
-    if (isApiErrorBody(err)) {
+  private subscribeErrorQueue() {
+    this.websocketService.getErrorQueue().subscribe({
+      next: (apiWsErrorBody) => {
+        this.handleApiWsErrorBody(apiWsErrorBody);
+      }
+    });
+  }
 
+  /**
+   * Handles errors coming from the websocket error queue. Checks if the error is relevant to this component by the destination.
+   *
+   * @param apiWsErrorBody - The error body to be handled.
+   */
+  private handleApiWsErrorBody(apiWsErrorBody: ApiWsErrorBody) {
+    const errorDestinations = this.getErrorDestinations();
+
+    if (errorDestinations.includes(apiWsErrorBody.destination)) {
+      switch (apiWsErrorBody.error) {
+        case ApiErrorEnum.RESOURCE_NOT_FOUND: {
+          this.handleInvalidMatchId();
+          break;
+        }
+
+        default: {
+          this.apiErrorBodyHandler.handleApiErrorBody(apiWsErrorBody);
+        }
+      }
     }
+  }
+
+  /**
+   * Array of error destination that should be handled by this component.
+   */
+  private getErrorDestinations(): string[] {
+    const matchId = this.route.snapshot.paramMap.get(this.matchIdParamKey) ?? '';
+
+    return [
+      DARTS_MATCHER_WS_DESTINATIONS.SUBSCRIBE.X01_GET_MATCH(matchId, WsDestType.BROADCAST),
+      DARTS_MATCHER_WS_DESTINATIONS.SUBSCRIBE.X01_GET_MATCH(matchId, WsDestType.SINGLE_RESPONSE)
+    ];
   }
 
 }

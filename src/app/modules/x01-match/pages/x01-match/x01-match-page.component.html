@@ -3,7 +3,6 @@
 </mat-toolbar>
 
 <div class="x01-match-page-component-container">
-  <p *ngIf="invalidMatchId">The match could not be found</p>
+  <p class="match-not-found" *ngIf="matchNotFound">The match could not be found</p>
   <app-x01-match [match]="match"></app-x01-match>
 </div>
-

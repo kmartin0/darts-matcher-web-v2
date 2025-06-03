@@ -1,13 +1,17 @@
 import {Injectable} from '@angular/core';
-import {RxStomp, RxStompConfig} from '@stomp/rx-stomp';
+import {IMessage, RxStomp, RxStompConfig, RxStompState} from '@stomp/rx-stomp';
 import {
   DARTS_MATCHER_WEBSOCKET_BASE_URL,
-  DARTS_MATCHER_WEBSOCKET_DESTINATIONS
+  DARTS_MATCHER_WS_DESTINATIONS,
+  WsDestType
 } from '../endpoints/darts-matcher-websocket.endpoints';
-import {map, Observable, take} from 'rxjs';
+import {distinctUntilChanged, filter, map, merge, Observable, switchMap, take, tap} from 'rxjs';
 import {X01Match} from '../../models/x01-match/x01-match';
 import {X01Turn} from '../../models/x01-match/x01-turn';
+import {ApiWsErrorBody, isApiWsErrorBody} from '../error/api-ws-error-body';
 
+// TODO: Since service is a singleton. If this were used at the same time and one component calls deactivate.
+// TODO: Then all other components will have their connection closed.
 @Injectable({providedIn: 'root'})
 export class DartsMatcherWebsocketService {
 
@@ -22,19 +26,16 @@ export class DartsMatcherWebsocketService {
     this.rxStomp.activate();
   }
 
-  /**
-   * Creates and returns the configuration object for RxStomp.
-   *
-   * @returns {RxStompConfig} The configuration for the RxStomp client.
-   */
-  private createRxStompConfig(): RxStompConfig {
-    return {
-      brokerURL: DARTS_MATCHER_WEBSOCKET_BASE_URL,
-      reconnectDelay: 2000,
-      heartbeatIncoming: 0,
-      heartbeatOutgoing: 20000,
-      debug: (msg: string) => console.log(msg)
-    };
+  getErrorQueue(): Observable<ApiWsErrorBody> {
+    const destination = DARTS_MATCHER_WS_DESTINATIONS.SUBSCRIBE.ERROR_QUEUE;
+    return this.watch(destination).pipe(
+      map(message => {
+        const parsedBody = JSON.parse(message.body);
+        if (!isApiWsErrorBody(parsedBody)) throw new Error('An unknown error occurred');
+
+        return parsedBody as ApiWsErrorBody;
+      })
+    );
   }
 
   /**
@@ -43,13 +44,10 @@ export class DartsMatcherWebsocketService {
    * @param {string} matchId - The ID of the match to subscribe to.
    * @returns {Observable<X01Match>} An observable emitting match updates.
    */
-  subscribeToX01MatchBroadcast(matchId: string): Observable<X01Match> {
-    const destination = DARTS_MATCHER_WEBSOCKET_DESTINATIONS.SUBSCRIBE.BROADCAST.X01_GET_MATCH(matchId);
-    return this.rxStomp.watch(destination).pipe(
-      map(message => {
-        return JSON.parse(message.body) as X01Match;
-      })
-    );
+  getX01MatchBroadcast(matchId: string): Observable<X01Match> {
+    const destination = DARTS_MATCHER_WS_DESTINATIONS.SUBSCRIBE.X01_GET_MATCH(matchId, WsDestType.BROADCAST);
+
+    return this.watchBroadcast<X01Match>(destination, this.getX01MatchSingleResponse(matchId));
   }
 
   /**
@@ -58,28 +56,27 @@ export class DartsMatcherWebsocketService {
    * @param {string} matchId - The ID of the match to retrieve.
    * @returns {Observable<X01Match>} An observable that emits the match data once and completes.
    */
-  subscribeToX01MatchSingleResponse(matchId: string): Observable<X01Match> {
-    const destination = DARTS_MATCHER_WEBSOCKET_DESTINATIONS.SUBSCRIBE.SINGLE_RESPONSE.X01_GET_MATCH(matchId);
-    return this.rxStomp.watch(destination).pipe(
+  getX01MatchSingleResponse(matchId: string): Observable<X01Match> {
+    const destination = DARTS_MATCHER_WS_DESTINATIONS.SUBSCRIBE.X01_GET_MATCH(matchId, WsDestType.SINGLE_RESPONSE);
+
+    return this.watch(destination).pipe(
       take(1), // Complete after the first response.
       map(message => {
-        console.log(message);
         return JSON.parse(message.body) as X01Match;
       })
     );
   }
 
   /**
-   * Sends a new X01 turn to the server via WebSocket.
+   * Publishes a new X01 turn to the server via WebSocket.
    *
    * @param {X01Turn} turn - The turn data to send.
    */
-  sendX01MatchTurn(turn: X01Turn) {
-    const destination = DARTS_MATCHER_WEBSOCKET_DESTINATIONS.SEND.X01_ADD_TURN;
-    this.rxStomp.publish({
-      destination: destination,
-      body: JSON.stringify(turn)
-    });
+  publishX01MatchTurn(turn: X01Turn) {
+    turn.score = 1800;
+    const destination = DARTS_MATCHER_WS_DESTINATIONS.PUBLISH.X01_ADD_TURN;
+
+    return this.publish(destination, turn);
   }
 
   /**
@@ -89,6 +86,55 @@ export class DartsMatcherWebsocketService {
   deactivate() {
     this.rxStomp.deactivate().catch(err => {
       console.error('Error while deactivating WebSocket:', err);
+    });
+  }
+
+  /**
+   * Creates and returns the configuration object for RxStomp.
+   *
+   * @returns {RxStompConfig} The configuration for the RxStomp client.
+   */
+  private createRxStompConfig(): RxStompConfig {
+    return {
+      brokerURL: DARTS_MATCHER_WEBSOCKET_BASE_URL,
+      reconnectDelay: 2000,
+      heartbeatIncoming: 10000,
+      heartbeatOutgoing: 10000
+    };
+  }
+
+  private watchBroadcast<T>(destination: string, singleResponse$: Observable<T>) {
+    // Create the broadcast observable.
+    const broadcast$ = this.watch(destination).pipe(
+      map(message => JSON.parse(message.body) as T)
+    );
+
+    // Create the single response observable.
+    const singleResponseOnConnect$ = this.rxStomp.connected$.pipe(
+      filter(stompState => stompState === RxStompState.OPEN),
+      switchMap(() => singleResponse$)
+    );
+
+    return merge(singleResponseOnConnect$, broadcast$).pipe(
+      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr))
+    );
+  }
+
+  private watch(destination: string): Observable<IMessage> {
+    return this.rxStomp.watch(destination).pipe(
+      tap(message => {
+        console.log(`ws incoming: ${destination}`);
+        console.log(JSON.parse(message.body));
+      })
+    );
+  }
+
+  private publish(destination: string, body: object) {
+    console.log('ws outgoing: ', destination);
+    console.log(body);
+    this.rxStomp.publish({
+      destination: destination,
+      body: JSON.stringify(body)
     });
   }
 

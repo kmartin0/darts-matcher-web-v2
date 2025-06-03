@@ -9,7 +9,7 @@ export const x01MatchRoutes: Routes = [
     component: PageNotFoundComponent
   },
   {
-    path: ':id',
+    path: ':matchId',
     component: X01MatchPageComponent
   },
   {

@@ -50,7 +50,6 @@ export class X01MatchComponent implements OnChanges, OnDestroy {
    */
   async ngOnChanges(changes: SimpleChanges) {
     if (changes['match']) {
-      console.log(this.match);
       this.selectCurrentOrLastLeg();
     }
   }
@@ -128,7 +127,7 @@ export class X01MatchComponent implements OnChanges, OnDestroy {
   private sendX01MatchTurn(score: number, dartsUsed: number, doublesMissed: number) {
     if (!this.match) return;
 
-    this.websocketService.sendX01MatchTurn({
+    this.websocketService.publishX01MatchTurn({
       matchId: this.match.id,
       score: score,
       dartsUsed: dartsUsed,

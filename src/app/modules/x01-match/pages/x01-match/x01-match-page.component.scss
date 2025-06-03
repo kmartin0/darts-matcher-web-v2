@@ -17,3 +17,7 @@
   @include helpers.module-page();
   overflow-y: auto;
 }
+
+.match-not-found {
+  font: var(--mat-sys-title-large);
+}

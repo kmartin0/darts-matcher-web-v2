@@ -1,14 +1,14 @@
 import {Injectable} from '@angular/core';
 import {HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest} from '@angular/common/http';
 import {catchError, Observable, throwError} from 'rxjs';
-import {ApiErrorBody, isApiErrorBody} from '../error/api-error-body';
-import {ApiErrorEnum} from '../error/api-error-enum';
+import {isApiErrorBody} from '../error/api-error-body';
 import {DialogService} from '../../shared/services/dialog-service/dialog.service';
+import {ApiErrorBodyHandler} from '../services/api-error-body-handler.service';
 
 @Injectable()
 export class ApiErrorInterceptor implements HttpInterceptor {
 
-  constructor(private dialogService: DialogService) {
+  constructor(private dialogService: DialogService, private apiErrorBodyHandler: ApiErrorBodyHandler) {
   }
 
   /**
@@ -47,32 +47,6 @@ export class ApiErrorInterceptor implements HttpInterceptor {
     }
 
     // Handle the api error by displaying a dialog for globally occurring api errors.
-    this.handleApiErrorBody(err.error as ApiErrorBody);
-  }
-
-  /**
-   * Handles API errors that should trigger the same UI response, regardless of where in the application they occur.
-   * Such as Internal Server Errors or invalid uri's. These errors will be displayed to the user via a dialog.
-   *
-   * @param apiError - A valid `ApiErrorBody` containing the error code and optional metadata.
-   */
-  private handleApiErrorBody(apiError: ApiErrorBody) {
-    switch ((apiError as ApiErrorBody).error) {
-      case ApiErrorEnum.INTERNAL:
-      case ApiErrorEnum.MESSAGE_NOT_READABLE:
-      case ApiErrorEnum.METHOD_NOT_ALLOWED:
-      case ApiErrorEnum.UNSUPPORTED_MEDIA_TYPE: {
-        this.dialogService.openInternalErrorDialog();
-        break;
-      }
-      case ApiErrorEnum.URI_NOT_FOUND: {
-        this.dialogService.openUriNotFoundErrorDialog();
-        break;
-      }
-      case ApiErrorEnum.UNAVAILABLE: {
-        this.dialogService.openServiceUnavailableErrorDialog();
-        break;
-      }
-    }
+    this.apiErrorBodyHandler.handleApiErrorBody(err.error);
   }
 }
