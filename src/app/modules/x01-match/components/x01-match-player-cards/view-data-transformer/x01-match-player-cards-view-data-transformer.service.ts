@@ -34,7 +34,7 @@ export class X01MatchPlayerCardsViewDataTransformer {
     return {
       playerInfo: this.createPlayersInfoMap(match.players),
       sets: await this.createSetsViewData(match),
-      currentPlayer: match.matchProgress.currentThrower
+      currentPlayer: match.matchProgress.currentThrower,
     };
   }
 
@@ -46,11 +46,12 @@ export class X01MatchPlayerCardsViewDataTransformer {
    */
   private createPlayersInfoMap(players: X01MatchPlayer[]): PlayerMap<X01PlayerCardData> {
     const playerInfoMap: PlayerMap<X01PlayerCardData> = {};
-    players.forEach(players => {
-      playerInfoMap[players.playerId.toString()] = {
-        name: players.playerName,
-        threeDartAvg: players.statistics.averageStats.average,
-        firstNineAvg: players.statistics.averageStats.averageFirstNine
+    players.forEach(player => {
+      playerInfoMap[player.playerId.toString()] = {
+        name: player.playerName,
+        threeDartAvg: player.statistics.averageStats.average,
+        firstNineAvg: player.statistics.averageStats.averageFirstNine,
+        matchResult: player.resultType
       };
     });
 

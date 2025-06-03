@@ -10,7 +10,8 @@
       <div class="player-overview-container"
            [ngClass]="{
            'current-thrower': viewData.currentPlayer === playerId,
-           'starts-leg': selectedLeg?.startsLeg === playerId
+           'starts-leg': selectedLeg?.startsLeg === playerId,
+           'win-or-draw': playerInfo.matchResult === ResultType.WIN || playerInfo.matchResult === ResultType.DRAW
            }">
         <mat-card class="player-info-card">
           <span class="player-score bold">Score: (sets won: {{ playerLegStats.setsWon }}

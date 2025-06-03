@@ -10,8 +10,6 @@ import {X01Match} from '../../models/x01-match/x01-match';
 import {X01Turn} from '../../models/x01-match/x01-turn';
 import {ApiWsErrorBody, isApiWsErrorBody} from '../error/api-ws-error-body';
 
-// TODO: Since service is a singleton. If this were used at the same time and one component calls deactivate.
-// TODO: Then all other components will have their connection closed.
 @Injectable({providedIn: 'root'})
 export class DartsMatcherWebsocketService {
 

@@ -1,7 +1,7 @@
 <div *ngIf="match" class="x01-match-component-container">
   <div class="scrollable-content">
-      <app-x01-match-info [match]="match"/>
-      <app-x01-match-player-cards [match]="match" [legSelection]="selectedLeg"/>
+    <app-x01-match-info [match]="match"/>
+    <app-x01-match-player-cards [match]="match" [legSelection]="selectedLeg"/>
     <div class="app-edit-options">
       <button class="open-edit-dialog-btn" mat-icon-button>
         <mat-icon>edit</mat-icon>
@@ -13,6 +13,9 @@
       <app-x01-match-leg-table [match]="match" [legSelection]="selectedLeg"/>
     </div>
   </div>
-  <div class="error-label">{{errorMsg}}</div>
-    <app-x01-score-input (submitScoreEvent)="submitScore($event)" #scoreInputComponent/>
+  <div class="error-label">{{ errorMsg }}</div>
+  @let displayScoreInput = match.matchStatus === MatchStatus.IN_PLAY ;
+  <app-x01-score-input *ngIf="displayScoreInput"
+                       [class.keyboard-visible]="displayScoreInput"
+                       (submitScoreEvent)="submitScore($event)" #scoreInputComponent/>
 </div>

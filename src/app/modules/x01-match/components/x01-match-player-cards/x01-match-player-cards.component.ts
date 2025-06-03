@@ -7,6 +7,7 @@ import {JsonPipe, KeyValuePipe, NgClass, NgIf} from '@angular/common';
 import {MatCard} from '@angular/material/card';
 import {LegSelection} from '../../../../models/common/leg-selection';
 import {X01PlayerCardsViewData} from './view-data-transformer/x01-player-cards-view-data';
+import {ResultType} from '../../../../models/basematch/result-type';
 
 @Component({
   selector: 'app-x01-match-player-cards',
@@ -23,6 +24,7 @@ import {X01PlayerCardsViewData} from './view-data-transformer/x01-player-cards-v
 export class X01MatchPlayerCardsComponent implements OnChanges {
   @Input() match: X01Match | null = null;
   @Input() legSelection: LegSelection | null = null;
+  protected readonly ResultType = ResultType;
   viewData: X01PlayerCardsViewData | null = null;
 
   constructor(private viewDataTransformer: X01MatchPlayerCardsViewDataTransformer) {
@@ -44,5 +46,4 @@ export class X01MatchPlayerCardsComponent implements OnChanges {
   private async updateViewData() {
     this.viewData = await this.viewDataTransformer.createPlayerCardsViewData(this.match);
   }
-
 }

@@ -13,6 +13,14 @@
   grid-template-rows: 7fr max-content minmax(286px, 3fr);
   overflow-y: auto;
   gap: 12px;
+
+  &.keyboard-visible {
+    grid-template-rows: 7fr max-content minmax(286px, 3fr);
+  }
+
+  &:not(.keyboard-visible) {
+    grid-template-rows: 7fr max-content;
+  }
 }
 
 .scrollable-content {

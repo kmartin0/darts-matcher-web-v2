@@ -46,6 +46,13 @@
       border-color: var(--mat-sys-secondary);
     }
   }
+
+  &.win-or-draw {
+    .player-info-card {
+      background-color: var(--mat-sys-secondary);
+      color: var(--mat-sys-on-secondary);
+    }
+  }
 }
 
 .player-info-card, .player-score-card {

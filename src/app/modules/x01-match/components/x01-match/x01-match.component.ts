@@ -45,6 +45,7 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
   private subscription = new Subscription();
   selectedLeg: LegSelection = {set: 0, leg: 0};
   errorMsg: string | undefined = undefined;
+  protected readonly MatchStatus = MatchStatus;
 
   constructor(private websocketService: DartsMatcherWebsocketService, private checkoutService: X01CheckoutService,
               private dialogService: DialogService, private apiErrorBodyHandler: ApiErrorBodyHandler, private destroyRef: DestroyRef) {
@@ -238,5 +239,4 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
       DARTS_MATCHER_WS_DESTINATIONS.PUBLISH.X01_ADD_TURN
     ];
   }
-
 }
