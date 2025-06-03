@@ -1,4 +1,4 @@
-import {Component, Input, OnChanges, OnDestroy, SimpleChanges, ViewChild} from '@angular/core';
+import {Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild} from '@angular/core';
 import {X01Match} from '../../../../models/x01-match/x01-match';
 import {NgIf} from '@angular/common';
 import {MatButton, MatIconButton} from '@angular/material/button';
@@ -15,6 +15,10 @@ import {Subscription} from 'rxjs';
 import {getLegInPlay, getRemainingForCurrentPlayer, getSetInPlay} from '../../../../shared/utils/x01-match.utils';
 import {X01CheckoutService} from '../../../../shared/services/x01-checkout-service/x01-checkout-service';
 import {DialogService} from '../../../../shared/services/dialog-service/dialog.service';
+import {ApiWsErrorBody} from '../../../../api/error/api-ws-error-body';
+import {ApiErrorEnum} from '../../../../api/error/api-error-enum';
+import {DARTS_MATCHER_WS_DESTINATIONS} from '../../../../api/endpoints/darts-matcher-websocket.endpoints';
+import {ApiErrorBodyHandler} from '../../../../api/services/api-error-body-handler.service';
 
 @Component({
   selector: 'app-x01-match',
@@ -34,14 +38,19 @@ import {DialogService} from '../../../../shared/services/dialog-service/dialog.s
   templateUrl: './x01-match.component.html',
   styleUrl: './x01-match.component.scss'
 })
-export class X01MatchComponent implements OnChanges, OnDestroy {
+export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
   @Input() match: X01Match | null = null;
   @ViewChild('scoreInputComponent') scoreInputComponent!: X01ScoreInputComponent;
   private subscription = new Subscription();
   selectedLeg: LegSelection = {set: 0, leg: 0};
+  errorMsg: string | undefined = undefined;
 
   constructor(private websocketService: DartsMatcherWebsocketService, private checkoutService: X01CheckoutService,
-              private dialogService: DialogService) {
+              private dialogService: DialogService, private apiErrorBodyHandler: ApiErrorBodyHandler) {
+  }
+
+  ngOnInit() {
+    this.subscribeErrorQueue();
   }
 
   /**
@@ -50,6 +59,7 @@ export class X01MatchComponent implements OnChanges, OnDestroy {
    */
   async ngOnChanges(changes: SimpleChanges) {
     if (changes['match']) {
+      this.errorMsg = undefined;
       this.selectCurrentOrLastLeg();
     }
   }
@@ -170,6 +180,57 @@ export class X01MatchComponent implements OnChanges, OnDestroy {
     const setInPlay = getSetInPlay(match);
     const legInPlay = getLegInPlay(match, setInPlay);
     return (setInPlay && legInPlay) ? {set: setInPlay.set, leg: legInPlay.leg} : null;
+  }
+
+  /**
+   * Subscribes to the websocket error queue. Delegates the errors to the ws error body handler.
+   */
+  private subscribeErrorQueue() {
+    this.websocketService.getErrorQueue().subscribe({
+      next: (apiWsErrorBody) => {
+        this.handleApiWsErrorBody(apiWsErrorBody);
+      }
+    });
+  }
+
+  /**
+   * Handles errors coming from the websocket error queue.
+   * Will only handle errors that are in the destinations relevant to this component.
+   *
+   * @param apiWsErrorBody - The error body to be handled.
+   */
+  private handleApiWsErrorBody(apiWsErrorBody: ApiWsErrorBody) {
+    const errorDestinations = this.getErrorDestinations();
+
+    if (errorDestinations.includes(apiWsErrorBody.destination)) {
+      switch (apiWsErrorBody.error) {
+        case ApiErrorEnum.RESOURCE_NOT_FOUND: {
+          this.errorMsg = 'Couldn\'t find the match';
+          break;
+        }
+
+        case ApiErrorEnum.INVALID_ARGUMENTS: {
+          const errorKey = Object.keys(apiWsErrorBody.details ?? {})[0];
+          this.errorMsg = apiWsErrorBody.details?.[errorKey];
+          break;
+        }
+
+        default: {
+          this.apiErrorBodyHandler.handleApiErrorBody(apiWsErrorBody);
+        }
+      }
+    }
+  }
+
+  /**
+   * Array of error destination that should be handled by this component.
+   */
+  private getErrorDestinations(): string[] {
+    if (!this.match) return [];
+
+    return [
+      DARTS_MATCHER_WS_DESTINATIONS.PUBLISH.X01_ADD_TURN
+    ];
   }
 
 }

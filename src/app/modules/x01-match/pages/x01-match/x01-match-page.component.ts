@@ -101,8 +101,7 @@ export class X01MatchPageComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Subscribes to the websocket error queue. Validates if the error is an instance of websocket api error body.
-   * And delegates to ws error body handler.
+   * Subscribes to the websocket error queue. Delegates the errors to the ws error body handler.
    */
   private subscribeErrorQueue() {
     this.websocketService.getErrorQueue().subscribe({
@@ -113,7 +112,8 @@ export class X01MatchPageComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Handles errors coming from the websocket error queue. Checks if the error is relevant to this component by the destination.
+   * Handles errors coming from the websocket error queue.
+   * Will only handle errors that are in the destinations relevant to this component.
    *
    * @param apiWsErrorBody - The error body to be handled.
    */

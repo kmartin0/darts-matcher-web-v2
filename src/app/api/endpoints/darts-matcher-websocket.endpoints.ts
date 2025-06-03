@@ -11,7 +11,7 @@ export enum WsDestType {
 
 export const DARTS_MATCHER_WS_DESTINATIONS = {
   SUBSCRIBE: {
-    X01_GET_MATCH: (matchId: string, type: (WsDestType.BROADCAST | WsDestType.SINGLE_RESPONSE)) => `${type ?? ''}/matches/x01/${matchId}`,
+    X01_GET_MATCH: (matchId: string, type: (WsDestType.BROADCAST | WsDestType.SINGLE_RESPONSE)) => `${type}/matches/x01/${matchId}`,
     ERROR_QUEUE: `${WsDestType.USER}/queue/errors`
   },
   PUBLISH: {

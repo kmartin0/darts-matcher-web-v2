@@ -94,7 +94,6 @@ export class X01ScoreInputComponent {
     } else if (newScore >= 0 && newScore <= 180) this.score = newScore;
   }
 
-
   /**
    * Emits the current score. If the score is undefined, emits 0.
    */

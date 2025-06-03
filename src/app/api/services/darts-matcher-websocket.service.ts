@@ -73,7 +73,6 @@ export class DartsMatcherWebsocketService {
    * @param {X01Turn} turn - The turn data to send.
    */
   publishX01MatchTurn(turn: X01Turn) {
-    turn.score = 1800;
     const destination = DARTS_MATCHER_WS_DESTINATIONS.PUBLISH.X01_ADD_TURN;
 
     return this.publish(destination, turn);

@@ -13,5 +13,6 @@
       <app-x01-match-leg-table [match]="match" [legSelection]="selectedLeg"/>
     </div>
   </div>
+  <div class="error-label">{{errorMsg}}</div>
     <app-x01-score-input (submitScoreEvent)="submitScore($event)" #scoreInputComponent/>
 </div>

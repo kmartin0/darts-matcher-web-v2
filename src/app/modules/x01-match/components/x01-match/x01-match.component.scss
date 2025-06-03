@@ -10,7 +10,7 @@
   height: 100%;
   width: 100%;
   display: grid;
-  grid-template-rows: 7fr minmax(286px, 3fr);
+  grid-template-rows: 7fr max-content minmax(286px, 3fr);
   overflow-y: auto;
   gap: 12px;
 }
@@ -41,4 +41,11 @@
 
 .app-leg-table {
   overflow-y: auto;
+}
+
+.error-label {
+  text-align: center;
+  font: var(--mat-sys-title-medium);
+  color: var(--mat-sys-error);
+  height: var(--mat-sys-title-medium-line-height);
 }
