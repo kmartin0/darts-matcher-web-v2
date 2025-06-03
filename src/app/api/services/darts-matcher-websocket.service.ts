@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {DestroyRef, Injectable} from '@angular/core';
 import {IMessage, RxStomp, RxStompConfig, RxStompState} from '@stomp/rx-stomp';
 import {
   DARTS_MATCHER_WEBSOCKET_BASE_URL,
@@ -16,6 +16,7 @@ import {ApiWsErrorBody, isApiWsErrorBody} from '../error/api-ws-error-body';
 export class DartsMatcherWebsocketService {
 
   private readonly rxStomp: RxStomp;
+  private activeConnections: Set<DestroyRef> = new Set<DestroyRef>();
 
   /**
    * Initializes the WebSocket service with RxStomp configuration and activates the connection.
@@ -23,7 +24,34 @@ export class DartsMatcherWebsocketService {
   constructor() {
     this.rxStomp = new RxStomp();
     this.rxStomp.configure(this.createRxStompConfig());
-    this.rxStomp.activate();
+  }
+
+  /**
+   * Connects a component to the WebSocket service and manages its lifecycle.
+   *
+   * If the WebSocket client is not active, it activates the connection.
+   * Tracks the component's DestroyRef to manage active connections and
+   * automatically deactivates the WebSocket client when no active connections remain.
+   *
+   * @param {DestroyRef} destroyRef - The Angular DestroyRef instance tied to the component's lifecycle.
+   */
+  connect(destroyRef: DestroyRef) {
+    // If the component is already connected, do nothing.
+    if (this.activeConnections.has(destroyRef)) return;
+
+    // Activate the STOMP client if not active.
+    if (!this.rxStomp.active) this.rxStomp.activate();
+
+    // Add the component to the active connections.
+    this.activeConnections.add(destroyRef);
+
+    // On component destroy, remove from active connections and deactivate if none remain.
+    destroyRef.onDestroy(() => {
+      this.activeConnections.delete(destroyRef);
+      if (this.activeConnections.size === 0) this.rxStomp.deactivate().catch(err => {
+        console.error('WebSocket deactivation error:', err);
+      });
+    });
   }
 
   getErrorQueue(): Observable<ApiWsErrorBody> {

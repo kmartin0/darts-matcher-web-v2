@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, DestroyRef, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {EMPTY, Observable, of, Subscription, switchMap} from 'rxjs';
 import {X01Match} from '../../../../models/x01-match/x01-match';
@@ -32,7 +32,7 @@ export class X01MatchPageComponent implements OnInit, OnDestroy {
   public match: X01Match | null = null;
 
   constructor(private route: ActivatedRoute, private websocketService: DartsMatcherWebsocketService,
-              private apiErrorBodyHandler: ApiErrorBodyHandler) {
+              private apiErrorBodyHandler: ApiErrorBodyHandler, private destroyRef: DestroyRef) {
   }
 
   /**
@@ -40,6 +40,7 @@ export class X01MatchPageComponent implements OnInit, OnDestroy {
    * Initiates the retrieval of the match using route parameters.
    */
   ngOnInit(): void {
+    this.websocketService.connect(this.destroyRef)
     this.subscribeErrorQueue();
     this.getMatch();
   }

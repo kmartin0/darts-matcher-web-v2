@@ -1,4 +1,4 @@
-import {Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild} from '@angular/core';
+import {Component, DestroyRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild} from '@angular/core';
 import {X01Match} from '../../../../models/x01-match/x01-match';
 import {NgIf} from '@angular/common';
 import {MatButton, MatIconButton} from '@angular/material/button';
@@ -19,6 +19,7 @@ import {ApiWsErrorBody} from '../../../../api/error/api-ws-error-body';
 import {ApiErrorEnum} from '../../../../api/error/api-error-enum';
 import {DARTS_MATCHER_WS_DESTINATIONS} from '../../../../api/endpoints/darts-matcher-websocket.endpoints';
 import {ApiErrorBodyHandler} from '../../../../api/services/api-error-body-handler.service';
+import {MatchStatus} from '../../../../models/basematch/match-status';
 
 @Component({
   selector: 'app-x01-match',
@@ -46,10 +47,11 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
   errorMsg: string | undefined = undefined;
 
   constructor(private websocketService: DartsMatcherWebsocketService, private checkoutService: X01CheckoutService,
-              private dialogService: DialogService, private apiErrorBodyHandler: ApiErrorBodyHandler) {
+              private dialogService: DialogService, private apiErrorBodyHandler: ApiErrorBodyHandler, private destroyRef: DestroyRef) {
   }
 
   ngOnInit() {
+    this.websocketService.connect(this.destroyRef);
     this.subscribeErrorQueue();
   }
 
@@ -79,6 +81,10 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
    */
   async submitScore(score: number) {
     if (!this.match) return;
+    if(this.match.matchStatus === MatchStatus.CONCLUDED) {
+      this.errorMsg = 'Match is concluded'
+      return;
+    }
 
     // Retrieve the current player's remaining score before the submitted score is applied.
     const remainingBeforeScore = getRemainingForCurrentPlayer(this.match);
