@@ -9,6 +9,8 @@ import {distinctUntilChanged, filter, map, merge, Observable, switchMap, take, t
 import {X01Match} from '../../models/x01-match/x01-match';
 import {X01Turn} from '../../models/x01-match/x01-turn';
 import {ApiWsErrorBody, isApiWsErrorBody} from '../error/api-ws-error-body';
+import {X01EditTurn} from '../../models/x01-match/x01-edit-turn';
+import {X01DeleteLastTurn} from '../../models/x01-match/x01-delete-last-turn';
 
 @Injectable({providedIn: 'root'})
 export class DartsMatcherWebsocketService {
@@ -52,6 +54,15 @@ export class DartsMatcherWebsocketService {
     });
   }
 
+  /**
+   * Subscribes to the WebSocket error queue and emits API WebSocket error messages.
+   *
+   * Parses incoming messages and validates them against the `ApiWsErrorBody` type guard. If a message
+   * doesn't match the expected structure, an error is thrown.
+   *
+   * @returns An observable emitting validated `ApiWsErrorBody` objects received from the error queue destination.
+   * @throws An error if the received message body does not conform to the `ApiWsErrorBody` format.
+   */
   getErrorQueue(): Observable<ApiWsErrorBody> {
     const destination = DARTS_MATCHER_WS_DESTINATIONS.SUBSCRIBE.ERROR_QUEUE;
     return this.watch(destination).pipe(
@@ -98,20 +109,32 @@ export class DartsMatcherWebsocketService {
    *
    * @param {X01Turn} turn - The turn data to send.
    */
-  publishX01MatchTurn(turn: X01Turn) {
+  publishX01AddTurn(turn: X01Turn) {
     const destination = DARTS_MATCHER_WS_DESTINATIONS.PUBLISH.X01_ADD_TURN;
 
-    return this.publish(destination, turn);
+    this.publish(destination, turn);
   }
 
   /**
-   * Deactivates the RxStomp WebSocket connection.
-   * Logs an error if deactivation fails.
+   * Publishes an edited X01 turn to the server via WebSocket.
+   *
+   * @param {X01EditTurn} editTurn - The edit turn data to send.
    */
-  deactivate() {
-    this.rxStomp.deactivate().catch(err => {
-      console.error('Error while deactivating WebSocket:', err);
-    });
+  publishX01EditTurn(editTurn: X01EditTurn) {
+    const destination = DARTS_MATCHER_WS_DESTINATIONS.PUBLISH.X01_EDIT_TURN;
+
+    this.publish(destination, editTurn);
+  }
+
+  /**
+   * Publishes a request to delete the last X01 turn from a match to the server via WebSocket.
+   *
+   * @param {X01DeleteLastTurn} deleteLastTurn - The body which contains from which match to delete the last turn from.
+   */
+  publishX01DeleteLastTurn(deleteLastTurn: X01DeleteLastTurn) {
+    const destination = DARTS_MATCHER_WS_DESTINATIONS.PUBLISH.X01_DELETE_LAST_TURN;
+
+    this.publish(destination, deleteLastTurn);
   }
 
   /**
@@ -128,6 +151,16 @@ export class DartsMatcherWebsocketService {
     };
   }
 
+  /**
+   * Watches a WebSocket destination and merges broadcast messages with a single-response observable (optional).
+   * This ensures that subscribing to a broadcast destination also emits an initial value.
+   *
+   * @template T - The expected type of the message payload after parsing.
+   * @param destination - The WebSocket destination to subscribe to.
+   * @param singleResponse$ - An observable that emits a single response once connected. (optional)
+   * @returns An observable emitting both the single response (on connect) and broadcast messages,
+   *          filtered to avoid duplicate emissions.
+   */
   private watchBroadcast<T>(destination: string, singleResponse$: Observable<T>) {
     // Create the broadcast observable.
     const broadcast$ = this.watch(destination).pipe(
@@ -145,6 +178,12 @@ export class DartsMatcherWebsocketService {
     );
   }
 
+  /**
+   * Subscribes to a WebSocket destination and logs all incoming messages to the console.
+   *
+   * @param destination - The WebSocket destination to subscribe to.
+   * @returns An observable emitting raw STOMP messages received from the destination.
+   */
   private watch(destination: string): Observable<IMessage> {
     return this.rxStomp.watch(destination).pipe(
       tap(message => {
@@ -154,6 +193,12 @@ export class DartsMatcherWebsocketService {
     );
   }
 
+  /**
+   * Sends a message to the specified WebSocket destination.
+   *
+   * @param destination - The destination to which the message should be sent.
+   * @param body - The message payload to be serialized and sent.
+   */
   private publish(destination: string, body: object) {
     console.log('ws outgoing: ', destination);
     console.log(body);
@@ -162,5 +207,4 @@ export class DartsMatcherWebsocketService {
       body: JSON.stringify(body)
     });
   }
-
 }

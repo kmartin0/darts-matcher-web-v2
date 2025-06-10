@@ -4,8 +4,8 @@
     <app-x01-match-info [match]="match"/>
     <app-x01-match-player-cards [match]="match" [legSelection]="selectedLeg"/>
     <div class="app-edit-options">
-      <button class="open-edit-dialog-btn" mat-icon-button>
-        <mat-icon>edit</mat-icon>
+      <button class="open-edit-dialog-btn" mat-icon-button (click)="deleteLastTurn()" matTooltip="Undo last score">
+        <mat-icon>undo</mat-icon>
       </button>
       <app-select-leg-form [match]="match" [(selectedLeg)]="selectedLeg"/>
       <button class="toggle-edit-mode-btn" mat-flat-button>Edit Mode</button>
@@ -16,5 +16,5 @@
   </div>
   <div class="error-label">{{ errorMsg }}</div>
 
-  <app-x01-score-input *ngIf="displayScoreInput" (submitScoreEvent)="submitScore($event)" #scoreInputComponent/>
+  <app-x01-score-input *ngIf="displayScoreInput" (submitScoreEvent)="onSubmitScore($event)" #scoreInputComponent/>
 </div>

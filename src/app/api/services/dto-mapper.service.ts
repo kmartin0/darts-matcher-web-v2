@@ -10,7 +10,7 @@ export class DtoMapperService {
       matchSettings: {
         bestOf: {
           legs: result.bestOf.legs,
-          sets: result.bestOf.sets
+          sets: result.bestOf.sets ?? 1
         },
         trackDoubles: result.trackDoubles,
         x01: result.x01

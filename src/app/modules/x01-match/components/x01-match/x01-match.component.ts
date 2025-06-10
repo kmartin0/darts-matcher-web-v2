@@ -12,7 +12,11 @@ import {X01ScoreInputComponent} from '../x01-score-input/x01-score-input.compone
 import {SelectLegFormComponent} from '../select-leg-form/select-leg-form.component';
 import {DartsMatcherWebsocketService} from '../../../../api/services/darts-matcher-websocket.service';
 import {Subscription} from 'rxjs';
-import {getLegInPlay, getRemainingForCurrentPlayer, getSetInPlay} from '../../../../shared/utils/x01-match.utils';
+import {
+  getLegInPlay,
+  getRemainingForCurrentPlayer,
+  getSetInPlay
+} from '../../../../shared/utils/x01-match.utils';
 import {X01CheckoutService} from '../../../../shared/services/x01-checkout-service/x01-checkout-service';
 import {DialogService} from '../../../../shared/services/dialog-service/dialog.service';
 import {ApiWsErrorBody} from '../../../../api/error/api-ws-error-body';
@@ -20,6 +24,7 @@ import {ApiErrorEnum} from '../../../../api/error/api-error-enum';
 import {DARTS_MATCHER_WS_DESTINATIONS} from '../../../../api/endpoints/darts-matcher-websocket.endpoints';
 import {ApiErrorBodyHandler} from '../../../../api/services/api-error-body-handler.service';
 import {MatchStatus} from '../../../../models/basematch/match-status';
+import {MatTooltip} from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-x01-match',
@@ -33,7 +38,8 @@ import {MatchStatus} from '../../../../models/basematch/match-status';
     X01MatchPlayerCardsComponent,
     X01MatchLegTableComponent,
     X01ScoreInputComponent,
-    SelectLegFormComponent
+    SelectLegFormComponent,
+    MatTooltip,
   ],
   standalone: true,
   templateUrl: './x01-match.component.html',
@@ -75,12 +81,21 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   /**
+   * Deletes the last turn of the current match via WebSocket.
+   */
+  deleteLastTurn() {
+    if(!this.match) return;
+
+    this.websocketService.publishX01DeleteLastTurn({matchId: this.match.id});
+  }
+
+  /**
    * Handles a submitted score by checking match state and determining the next step.
    * Could result in sending a turn directly, or opening dialogs for checkout or doubles.
    *
    * @param score - The score submitted by the user
    */
-  async submitScore(score: number) {
+  async onSubmitScore(score: number) {
     if (!this.match) return;
     if (this.match.matchStatus === MatchStatus.CONCLUDED) {
       this.errorMsg = 'Match is concluded';
@@ -94,10 +109,25 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
     // Calculate the player's new remaining score after applying the submitted score.
     const remainingAfterScore = remainingBeforeScore - score;
 
-    // When a player has checked out open the darts used dialog. When a player could've hit a double and double tracking
-    // is enabled open doubles missed dialog. Otherwise, send the submitted score.
-    if (remainingAfterScore === 0) await this.openDartsUsedDialog(score);
-    else if (this.match.matchSettings.trackDoubles && remainingAfterScore <= 50) this.openDoublesMissedDialog(score, 3);
+    // Handle the result of the submitted score (potentially open dialogs such as darts used or doubles missed).
+    await this.handleScoreOutcome(score, remainingAfterScore, this.match.matchSettings.trackDoubles);
+  }
+
+  /**
+   * Handles the outcome of a submitted score by determining the appropriate follow-up action.
+   *
+   * Depending on the remaining score and whether double tracking is enabled, this method:
+   * - Opens the "darts used" dialog if the player checked out (remaining score is 0).
+   * - Opens the "doubles missed" dialog if double tracking is enabled and the remaining score is <= 50.
+   * - Otherwise, sends the score directly as a match turn.
+   *
+   * @param score - The submitted score by the player.
+   * @param remainingAfterScore - The player's score after applying the submitted value.
+   * @param trackDoubles - Whether double tracking is enabled in the match settings.
+   */
+  private async handleScoreOutcome(score: number, remainingAfterScore: number, trackDoubles: boolean) {
+    if (remainingAfterScore === 0) await this.openDartsUsedDialog(score, trackDoubles);
+    else if (trackDoubles && remainingAfterScore <= 50) this.openDoublesMissedDialog(score, 3);
     else this.sendX01MatchTurn(score, 3, 0);
   }
 
@@ -124,13 +154,13 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
    *
    * @param score - The checkout score submitted
    */
-  private async openDartsUsedDialog(score: number) {
+  private async openDartsUsedDialog(score: number, trackDoubles: boolean) {
     const checkout = await this.checkoutService.getCheckout(score);
     const dialogRef = this.dialogService.openDartsUsedDialog(checkout ?? null);
     this.subscription.add(dialogRef.afterClosed().subscribe((dartsUsed: number | undefined) => {
       if (dartsUsed === undefined || dartsUsed === null) return;
 
-      this.match?.matchSettings.trackDoubles ? this.openDoublesMissedDialog(score, dartsUsed) : this.sendX01MatchTurn(score, dartsUsed, 0);
+      trackDoubles ? this.openDoublesMissedDialog(score, dartsUsed) : this.sendX01MatchTurn(score, dartsUsed, 0);
     }));
   }
 
@@ -144,7 +174,7 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
   private sendX01MatchTurn(score: number, dartsUsed: number, doublesMissed: number) {
     if (!this.match) return;
 
-    this.websocketService.publishX01MatchTurn({
+    this.websocketService.publishX01AddTurn({
       matchId: this.match.id,
       score: score,
       dartsUsed: dartsUsed,
@@ -173,7 +203,7 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
         }
       }
     }
-
+    console.log('NEW SELECTION: ' + JSON.stringify(selection));
     this.selectedLeg = selection;
   }
 
@@ -236,7 +266,9 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
     if (!this.match) return [];
 
     return [
-      DARTS_MATCHER_WS_DESTINATIONS.PUBLISH.X01_ADD_TURN
+      DARTS_MATCHER_WS_DESTINATIONS.PUBLISH.X01_ADD_TURN,
+      DARTS_MATCHER_WS_DESTINATIONS.PUBLISH.X01_EDIT_TURN,
+      DARTS_MATCHER_WS_DESTINATIONS.PUBLISH.X01_DELETE_LAST_TURN
     ];
   }
 }

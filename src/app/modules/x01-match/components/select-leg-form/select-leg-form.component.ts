@@ -23,7 +23,7 @@ import {NgIf} from '@angular/common';
   templateUrl: './select-leg-form.component.html',
   styleUrl: './select-leg-form.component.scss'
 })
-export class SelectLegFormComponent implements OnInit, OnDestroy {
+export class SelectLegFormComponent implements OnInit, OnChanges, OnDestroy {
   readonly selectedLegControl = new FormControl<LegSelection>({set: 0, leg: 0});
 
   private subscription = new Subscription();
@@ -38,6 +38,12 @@ export class SelectLegFormComponent implements OnInit, OnDestroy {
    */
   ngOnInit(): void {
     this.initSelectedLegControl();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if(changes['selectedLeg']) {
+      this.selectedLegControl.setValue(this.selectedLeg, {emitEvent: false});
+    }
   }
 
   /**
@@ -69,6 +75,7 @@ export class SelectLegFormComponent implements OnInit, OnDestroy {
     this.subscription.add(
       this.selectedLegControl.valueChanges.subscribe(value => {
         if (value) {
+          this.selectedLeg = value;
           this.selectedLegChange.emit(value);
         }
       })

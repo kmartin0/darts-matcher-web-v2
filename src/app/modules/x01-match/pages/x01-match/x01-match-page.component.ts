@@ -51,7 +51,6 @@ export class X01MatchPageComponent implements OnInit, OnDestroy {
    */
   ngOnDestroy() {
     this.getMatchSubscription.unsubscribe();
-    this.websocketService.deactivate();
   }
 
   /**

@@ -22,7 +22,11 @@ body {
     filled-container-shape: var(--mat-sys-corner-extra-small),
     outlined-container-shape: var(--mat-sys-corner-extra-small),
     protected-container-shape: var(--mat-sys-corner-extra-small),
-    text-container-shape: var(--mat-sys-corner-extra-small)
+    text-container-shape: var(--mat-sys-corner-extra-small),
+    protected-touch-target-display: none,
+    filled-touch-target-display: none,
+    outlined-touch-target-display: none,
+    text-touch-target-display: none,
   ));
 }
 

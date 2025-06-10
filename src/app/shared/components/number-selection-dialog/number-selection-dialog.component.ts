@@ -81,7 +81,7 @@ export class NumberSelectionDialogComponent {
    * Subscribes to global keyboard events and handles numeric or special keys.
    */
   private initKeyDownListener() {
-    this.keydownEventDispatcher.getKeyDownObservable(this.destroyRef)
+    this.keydownEventDispatcher.getKeyDownObservable(this.destroyRef, this.dialogRef)
       .subscribe(event => this.handleKeyboardEvent(event));
   }
 
