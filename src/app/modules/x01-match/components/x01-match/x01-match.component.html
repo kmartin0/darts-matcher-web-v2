@@ -1,13 +1,14 @@
-@let displayScoreInput = (match?.matchStatus === MatchStatus.IN_PLAY) ;
 <div *ngIf="match" class="x01-match-component-container" [class.keyboard-visible]="displayScoreInput">
   <div class="scrollable-content">
     <app-x01-match-info [match]="match"/>
     <app-x01-match-player-cards [match]="match" [legSelection]="selectedLeg"/>
     <div class="app-edit-options">
-      <button class="open-edit-dialog-btn" mat-icon-button (click)="deleteLastTurn()" matTooltip="Undo last score">
-        <mat-icon>undo</mat-icon>
-      </button>
-      <app-select-leg-form [match]="match" [(selectedLeg)]="selectedLeg"/>
+      <div>
+        <button *ngIf="displayUndoScore" class="open-edit-dialog-btn" mat-icon-button (click)="deleteLastTurn()" matTooltip="Undo last score">
+          <mat-icon>undo</mat-icon>
+        </button>
+      </div>
+      <app-select-leg-form [match]="match" [(selectedLeg)]="selectedLeg" (selectedLegChange)="onSelectedLegChange()"/>
       <button class="toggle-edit-mode-btn" mat-icon-button matTooltip="Edit score" (click)="editScoreMode = !editScoreMode">
         <mat-icon>content_cut</mat-icon>
       </button>

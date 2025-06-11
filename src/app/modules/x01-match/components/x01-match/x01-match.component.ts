@@ -56,8 +56,9 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
   private subscription = new Subscription();
   selectedLeg: LegSelection = {set: 0, leg: 0};
   errorMsg: string | undefined = undefined;
-  protected readonly MatchStatus = MatchStatus;
   editScoreMode: boolean = false;
+  displayScoreInput: boolean = false;
+  displayUndoScore: boolean = false;
 
   constructor(private websocketService: DartsMatcherWebsocketService, private checkoutService: X01CheckoutService,
               private dialogService: DialogService, private apiErrorBodyHandler: ApiErrorBodyHandler, private destroyRef: DestroyRef) {
@@ -74,8 +75,9 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
   /**
    * Watches for changes to `match` input to update view data and selected leg.
    * @param changes - Object containing changes to input properties
+   * @returns {Promise<void>} Promise that resolves when changes are handled
    */
-  async ngOnChanges(changes: SimpleChanges) {
+  async ngOnChanges(changes: SimpleChanges): Promise<void> {
     if (changes['match']) {
       this.errorMsg = undefined;
       this.selectCurrentOrLastLeg();
@@ -90,12 +92,22 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   /**
+   * Handles logic when the selected leg changes.
+   * Updates visibility flags for score input and undo score controls.
+   */
+  onSelectedLegChange() {
+    this.updateDisplayScoreInput();
+    this.updateDisplayUndoScore();
+  }
+
+  /**
    * Handles a submitted score by checking match state and determining the next step.
    * Could result in sending a turn directly, or opening dialogs for checkout or doubles.
    *
    * @param score - The score submitted by the user
+   * @returns {Promise<void>} Promise that resolves after processing the score
    */
-  async onSubmitScore(score: number) {
+  async onSubmitScore(score: number): Promise<void> {
     if (!this.match) return;
     if (this.match.matchStatus === MatchStatus.CONCLUDED) {
       this.errorMsg = 'Match is concluded';
@@ -161,6 +173,7 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
    * @param score - The submitted score by the player.
    * @param remainingAfterScore - The player's score after applying the submitted value.
    * @param trackDoubles - Whether double tracking is enabled in the match settings.
+   * @returns {Promise<X01LegRoundScore | null>} The round score data or null if cancelled
    */
   private async createRoundScore(score: number, remainingAfterScore: number, trackDoubles: boolean): Promise<X01LegRoundScore | null> {
     if (remainingAfterScore === 0) return this.openDartsUsedDialog(score, trackDoubles);
@@ -174,6 +187,7 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
    *
    * @param score - The score thrown in the current turn
    * @param dartsUsed - The number of darts used during the turn
+   * @returns {Promise<X01LegRoundScore | null>} The round score data or null if cancelled
    */
   private async openDoublesMissedDialog(score: number, dartsUsed: number): Promise<X01LegRoundScore | null> {
     const dialogRef = this.dialogService.openDoublesMissedDialog();
@@ -191,6 +205,7 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
    *
    * @param score - The checkout score submitted
    * @param trackDoubles - Whether the match is tracking doubles
+   * @returns {Promise<X01LegRoundScore | null>} The round score data or null if cancelled
    */
   private async openDartsUsedDialog(score: number, trackDoubles: boolean): Promise<X01LegRoundScore | null> {
     const checkout = await this.checkoutService.getCheckout(score);
@@ -244,6 +259,35 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   /**
+   * Updates the visibility of the score input.
+   * The score input is shown only if the match is in progress and the selected leg matches the current leg in play.
+   */
+  private updateDisplayScoreInput() {
+    if (!this.match) {
+      this.displayScoreInput = false;
+      return;
+    }
+
+    this.displayScoreInput =
+      this.match.matchStatus === MatchStatus.IN_PLAY &&
+      this.match.matchProgress.currentSet === this.selectedLeg.set &&
+      this.match.matchProgress.currentLeg === this.selectedLeg.leg;
+  }
+
+  /**
+   * Updates the visibility of the undo score control.
+   * The undo option is shown only if the selected leg matches the last recorded set and leg in the match.
+   */
+  private updateDisplayUndoScore() {
+    const lastSet = getSet(this.match, Math.max(...this.match?.sets.map(s => s.set) ?? []));
+    const lastLeg = getLeg(lastSet, Math.max(...lastSet?.legs.map(l => l.leg) ?? []));
+
+    this.displayUndoScore =
+      lastSet?.set === this.selectedLeg.set &&
+      lastLeg?.leg === this.selectedLeg.leg;
+  }
+
+  /**
    * Selects the current leg in play if available; otherwise selects the last leg in the match.
    * Updates the `selectedLeg` component property with the current set/leg number.
    */
@@ -262,8 +306,8 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
         }
       }
     }
-    console.log('NEW SELECTION: ' + JSON.stringify(selection));
     this.selectedLeg = selection;
+    this.onSelectedLegChange();
   }
 
   /**
@@ -320,6 +364,7 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
 
   /**
    * Array of error destination that should be handled by this component.
+   * @returns {LegSelection | null} The current set and leg numbers, or null if none are in play
    */
   private getErrorDestinations(): string[] {
     if (!this.match) return [];
