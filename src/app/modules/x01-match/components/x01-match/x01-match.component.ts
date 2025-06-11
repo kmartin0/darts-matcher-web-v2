@@ -1,7 +1,7 @@
 import {Component, DestroyRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild} from '@angular/core';
 import {X01Match} from '../../../../models/x01-match/x01-match';
 import {NgIf} from '@angular/common';
-import {MatButton, MatIconButton} from '@angular/material/button';
+import {MatIconButton} from '@angular/material/button';
 import {MatIcon} from '@angular/material/icon';
 import {ReactiveFormsModule} from '@angular/forms';
 import {X01MatchInfoComponent} from '../x01-match-info/x01-match-info.component';
@@ -11,10 +11,11 @@ import {LegSelection} from '../../../../models/common/leg-selection';
 import {X01ScoreInputComponent} from '../x01-score-input/x01-score-input.component';
 import {SelectLegFormComponent} from '../select-leg-form/select-leg-form.component';
 import {DartsMatcherWebsocketService} from '../../../../api/services/darts-matcher-websocket.service';
-import {Subscription} from 'rxjs';
+import {firstValueFrom, Subscription} from 'rxjs';
 import {
+  getLeg,
   getLegInPlay,
-  getRemainingForCurrentPlayer,
+  getRemainingForCurrentPlayer, getRemainingForPlayer, getSet,
   getSetInPlay
 } from '../../../../shared/utils/x01-match.utils';
 import {X01CheckoutService} from '../../../../shared/services/x01-checkout-service/x01-checkout-service';
@@ -25,13 +26,17 @@ import {DARTS_MATCHER_WS_DESTINATIONS} from '../../../../api/endpoints/darts-mat
 import {ApiErrorBodyHandler} from '../../../../api/services/api-error-body-handler.service';
 import {MatchStatus} from '../../../../models/basematch/match-status';
 import {MatTooltip} from '@angular/material/tooltip';
+import {
+  X01EditScoreDialogResult
+} from '../../../../shared/components/x01-edit-score-dialog/x01-edit-score-dialog.types';
+import {X01LegRoundScore} from '../../../../models/x01-match/x01-leg-round-score';
+import {X01EditTurn} from '../../../../models/x01-match/x01-edit-turn';
 
 @Component({
   selector: 'app-x01-match',
   imports: [
     MatIconButton,
     MatIcon,
-    MatButton,
     ReactiveFormsModule,
     NgIf,
     X01MatchInfoComponent,
@@ -52,11 +57,15 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
   selectedLeg: LegSelection = {set: 0, leg: 0};
   errorMsg: string | undefined = undefined;
   protected readonly MatchStatus = MatchStatus;
+  editScoreMode: boolean = false;
 
   constructor(private websocketService: DartsMatcherWebsocketService, private checkoutService: X01CheckoutService,
               private dialogService: DialogService, private apiErrorBodyHandler: ApiErrorBodyHandler, private destroyRef: DestroyRef) {
   }
 
+  /**
+   * Establishes a WebSocket connection and subscribes to the error queue after component initialization.
+   */
   ngOnInit() {
     this.websocketService.connect(this.destroyRef);
     this.subscribeErrorQueue();
@@ -81,15 +90,6 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   /**
-   * Deletes the last turn of the current match via WebSocket.
-   */
-  deleteLastTurn() {
-    if(!this.match) return;
-
-    this.websocketService.publishX01DeleteLastTurn({matchId: this.match.id});
-  }
-
-  /**
    * Handles a submitted score by checking match state and determining the next step.
    * Could result in sending a turn directly, or opening dialogs for checkout or doubles.
    *
@@ -104,13 +104,50 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
 
     // Retrieve the current player's remaining score before the submitted score is applied.
     const remainingBeforeScore = getRemainingForCurrentPlayer(this.match);
-    if (remainingBeforeScore == null) throw new Error('Remaining for current player not found.');
 
     // Calculate the player's new remaining score after applying the submitted score.
     const remainingAfterScore = remainingBeforeScore - score;
 
-    // Handle the result of the submitted score (potentially open dialogs such as darts used or doubles missed).
-    await this.handleScoreOutcome(score, remainingAfterScore, this.match.matchSettings.trackDoubles);
+    // Create the round score (if necessary prompts user for darts used and doubles missed). And publish the turn to the API via Websocket.
+    this.createRoundScore(score, remainingAfterScore, this.match.matchSettings.trackDoubles).then(roundScore => {
+      if (roundScore == null) return;
+      this.publishX01MatchTurn(roundScore.score, roundScore.dartsUsed, roundScore.doublesMissed);
+    });
+  }
+
+  /**
+   * Deletes the last turn of the current match via WebSocket.
+   */
+  deleteLastTurn() {
+    if (!this.match) return;
+
+    this.websocketService.publishX01DeleteLastTurn({matchId: this.match.id});
+  }
+
+  /**
+   * Handles the result from editing a score dialog.
+   * Creates an X01RoundScore object and uses it with the dialog result to create an X01EditTurn object and publishes it
+   * to the API via Websocket.
+   *
+   * @param dialogResult The result containing the edited score and context details.
+   */
+  onEditScoreResult(dialogResult: X01EditScoreDialogResult) {
+    if (!this.match) return;
+
+    // Get the leg to edit, return if not found.
+    const set = getSet(this.match, dialogResult.set);
+    const leg = getLeg(set, dialogResult.leg);
+    if (!leg) return;
+
+    // Calculate the remaining score by replacing the old score with the new score.
+    const remainingBeforeEdit = getRemainingForPlayer(leg, this.match.matchSettings.x01, dialogResult.playerId);
+    const remainingAfterEdit = (remainingBeforeEdit + dialogResult.oldScore) - dialogResult.newScore;
+
+    // When necessary prompt the user for darts used and doubles missed input. Use the result to publish the edited turn.
+    this.createRoundScore(dialogResult.newScore, remainingAfterEdit, this.match.matchSettings.trackDoubles).then(roundScore => {
+      if (roundScore == null) return;
+      this.websocketService.publishX01EditTurn(this.createEditTurn(dialogResult, roundScore));
+    });
   }
 
   /**
@@ -119,16 +156,16 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
    * Depending on the remaining score and whether double tracking is enabled, this method:
    * - Opens the "darts used" dialog if the player checked out (remaining score is 0).
    * - Opens the "doubles missed" dialog if double tracking is enabled and the remaining score is <= 50.
-   * - Otherwise, sends the score directly as a match turn.
+   * - Otherwise, callback a regular round (3 darts used, 0 doubles missed).
    *
    * @param score - The submitted score by the player.
    * @param remainingAfterScore - The player's score after applying the submitted value.
    * @param trackDoubles - Whether double tracking is enabled in the match settings.
    */
-  private async handleScoreOutcome(score: number, remainingAfterScore: number, trackDoubles: boolean) {
-    if (remainingAfterScore === 0) await this.openDartsUsedDialog(score, trackDoubles);
-    else if (trackDoubles && remainingAfterScore <= 50) this.openDoublesMissedDialog(score, 3);
-    else this.sendX01MatchTurn(score, 3, 0);
+  private async createRoundScore(score: number, remainingAfterScore: number, trackDoubles: boolean): Promise<X01LegRoundScore | null> {
+    if (remainingAfterScore === 0) return this.openDartsUsedDialog(score, trackDoubles);
+    else if (trackDoubles && remainingAfterScore <= 50) return this.openDoublesMissedDialog(score, 3);
+    else return {score: score, dartsUsed: 3, doublesMissed: 0};
   }
 
   /**
@@ -138,13 +175,13 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
    * @param score - The score thrown in the current turn
    * @param dartsUsed - The number of darts used during the turn
    */
-  private openDoublesMissedDialog(score: number, dartsUsed: number) {
+  private async openDoublesMissedDialog(score: number, dartsUsed: number): Promise<X01LegRoundScore | null> {
     const dialogRef = this.dialogService.openDoublesMissedDialog();
-    this.subscription.add(dialogRef.afterClosed().subscribe((doublesMissed: number | undefined) => {
-      if (doublesMissed === undefined || doublesMissed === null) return;
+    const doublesMissed = await firstValueFrom<number | undefined>(dialogRef.afterClosed()); // TODO $ondestroy basecomponent
 
-      this.sendX01MatchTurn(score, dartsUsed, doublesMissed);
-    }));
+    if (doublesMissed === undefined || doublesMissed === null) return null;
+
+    return {score: score, dartsUsed: dartsUsed, doublesMissed: doublesMissed};
   }
 
   /**
@@ -153,15 +190,37 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
    * If a value is provided, proceeds to prompt for missed doubles.
    *
    * @param score - The checkout score submitted
+   * @param trackDoubles - Whether the match is tracking doubles
    */
-  private async openDartsUsedDialog(score: number, trackDoubles: boolean) {
+  private async openDartsUsedDialog(score: number, trackDoubles: boolean): Promise<X01LegRoundScore | null> {
     const checkout = await this.checkoutService.getCheckout(score);
     const dialogRef = this.dialogService.openDartsUsedDialog(checkout ?? null);
-    this.subscription.add(dialogRef.afterClosed().subscribe((dartsUsed: number | undefined) => {
-      if (dartsUsed === undefined || dartsUsed === null) return;
+    const dartsUsed = await firstValueFrom<number | undefined>(dialogRef.afterClosed()); // TODO $ondestroy basecomponent
 
-      trackDoubles ? this.openDoublesMissedDialog(score, dartsUsed) : this.sendX01MatchTurn(score, dartsUsed, 0);
-    }));
+    if (dartsUsed === undefined || dartsUsed === null) return null;
+
+    if (trackDoubles) return await this.openDoublesMissedDialog(score, dartsUsed);
+    else return {score: score, dartsUsed: dartsUsed, doublesMissed: 0};
+  }
+
+  /**
+   * Creates an X01EditTurn object based on dialog result and round score.
+   *
+   * @param dialogResult X01EditScoreDialogResult - The dialog result containing match and player info.
+   * @param roundScore X01LegRoundScore - The round score with darts used, doubles missed and the score.
+   * @returns X01EditTurn - object representing the edited turn.
+   */
+  private createEditTurn(dialogResult: X01EditScoreDialogResult, roundScore: X01LegRoundScore): X01EditTurn {
+    return {
+      matchId: dialogResult.matchId,
+      playerId: dialogResult.playerId,
+      set: dialogResult.set,
+      leg: dialogResult.leg,
+      round: dialogResult.round,
+      score: roundScore.score,
+      dartsUsed: roundScore.dartsUsed,
+      doublesMissed: roundScore.doublesMissed
+    };
   }
 
   /**
@@ -171,7 +230,7 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
    * @param dartsUsed - Number of darts used in the turn
    * @param doublesMissed - Number of missed double attempts
    */
-  private sendX01MatchTurn(score: number, dartsUsed: number, doublesMissed: number) {
+  private publishX01MatchTurn(score: number, dartsUsed: number, doublesMissed: number) {
     if (!this.match) return;
 
     this.websocketService.publishX01AddTurn({

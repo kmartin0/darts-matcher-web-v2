@@ -29,27 +29,27 @@ export class X01CheckoutService {
   }
 
   /**
-   * Retrieves a specific checkout suggestion for the given remaining score.
+   * Retrieves a specific checkout suggestion for the given points.
    *
-   * @param remaining - Score remaining
+   * @param points - The points for which a checkout should be look up for.
    * @returns A promise resolving to the matching X01Checkout if available, otherwise undefined
    */
-  async getCheckout(remaining: number): Promise<X01Checkout | undefined> {
-    if (remaining > 170) return undefined;
+  async getCheckout(points: number): Promise<X01Checkout | undefined> {
+    if (points > 170) return undefined;
     const checkouts = await this.getCheckouts();
-    return this.getCheckoutInList(checkouts, remaining);
+    return this.getCheckoutInList(checkouts, points);
   }
 
   /**
-   * Searches the given list of checkouts for a match to the specified remaining score.
+   * Searches the given list of checkouts for a match to the specified points.
    *
    * @param checkouts - List of checkout suggestions to search through
-   * @param remaining - Score remaining
+   * @param points - The points for which a checkout should be look up for.
    * @returns The matching X01Checkout if found, otherwise undefined
    */
-  getCheckoutInList(checkouts: X01Checkout[], remaining: number): X01Checkout | undefined {
-    if (remaining > 170) return undefined;
-    return checkouts.find(checkout => checkout.checkout === remaining);
+  getCheckoutInList(checkouts: X01Checkout[], points: number): X01Checkout | undefined {
+    if (points > 170) return undefined;
+    return checkouts.find(checkout => checkout.checkout === points);
   }
 
   /**

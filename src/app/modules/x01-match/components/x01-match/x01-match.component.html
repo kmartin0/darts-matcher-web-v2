@@ -8,10 +8,12 @@
         <mat-icon>undo</mat-icon>
       </button>
       <app-select-leg-form [match]="match" [(selectedLeg)]="selectedLeg"/>
-      <button class="toggle-edit-mode-btn" mat-flat-button>Edit Mode</button>
+      <button class="toggle-edit-mode-btn" mat-icon-button matTooltip="Edit score" (click)="editScoreMode = !editScoreMode">
+        <mat-icon>content_cut</mat-icon>
+      </button>
     </div>
     <div class="app-leg-table">
-      <app-x01-match-leg-table [match]="match" [legSelection]="selectedLeg"/>
+      <app-x01-match-leg-table [match]="match" [legSelection]="selectedLeg" [(editMode)]="editScoreMode" (submitScoreEdit)="onEditScoreResult($event)"/>
     </div>
   </div>
   <div class="error-label">{{ errorMsg }}</div>

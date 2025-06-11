@@ -15,12 +15,15 @@
     @for (playerColEntry of viewData.columnDefinitions.players | keyvalue; track playerColEntry.key) {
       <ng-container [matColumnDef]="playerColEntry.key">
         <th mat-header-cell *matHeaderCellDef>
+          <span *ngIf="editMode"></span>
           <span>{{ playerColEntry.value.score }}</span>
           <span>{{ playerColEntry.value.remaining }}</span>
         </th>
         <td mat-cell *matCellDef="let rowData">
-          <span>{{ rowData.players[playerColEntry.key]?.score }}</span>
-          <span>{{ rowData.players[playerColEntry.key]?.remaining }}</span>
+          @let playerData = rowData.players[playerColEntry.key];
+          <button *ngIf="editMode && playerData" mat-icon-button (click)="onEditScoreClick(playerColEntry.key, rowData)"><mat-icon>edit</mat-icon></button>
+          <span>{{ playerData?.score }}</span>
+          <span>{{ playerData?.remaining }}</span>
         </td>
       </ng-container>
     }

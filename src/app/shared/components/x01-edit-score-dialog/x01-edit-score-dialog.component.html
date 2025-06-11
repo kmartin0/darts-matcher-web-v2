@@ -1,0 +1,15 @@
+<div class="header" mat-dialog-title>Edit Score ({{dialogData.playerName}})</div>
+<mat-dialog-content class="content">
+  <div class="subtitle">Set {{dialogData.set}} - Leg {{dialogData.leg}} - Round {{dialogData.round}}</div>
+
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>New Score</mat-label>
+    <input matInput [formControl]="scoreFormControl"/>
+  </mat-form-field>
+  <app-form-error [control]="scoreFormControl"/>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="cancelDialog()">Cancel</button>
+    <button mat-button (click)="submitDialog(scoreFormControl.value)">Ok</button>
+  </mat-dialog-actions>
+</mat-dialog-content>

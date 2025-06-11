@@ -1,19 +1,22 @@
-import {Injectable, NgZone} from '@angular/core';
+import {Injectable} from '@angular/core';
 import {MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {BasicDialogData} from '../../components/basic-dialog/basic-dialog-data';
 import {BasicDialogComponent} from '../../components/basic-dialog/basic-dialog.component';
 import {InternalErrorDialogComponent} from '../../components/internal-error-dialog/internal-error-dialog.component';
-import {X01CheckoutService} from '../x01-checkout-service/x01-checkout-service';
 import {X01Checkout} from '../../../models/x01-match/x01-checkout';
 import {
   NumberSelectionDialogComponent, NumberSelectionDialogData
 } from '../../components/number-selection-dialog/number-selection-dialog.component';
+import {
+  X01EditScoreDialogComponent,
+} from '../../components/x01-edit-score-dialog/x01-edit-score-dialog.component';
+import {X01EditScoreDialogData} from '../../components/x01-edit-score-dialog/x01-edit-score-dialog.types';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DialogService {
-  public constructor(private matDialog: MatDialog, private checkoutService: X01CheckoutService) {
+  public constructor(private matDialog: MatDialog) {
   }
 
   public openBasicDialog(dialogData: BasicDialogData, stackable: boolean = false): MatDialogRef<BasicDialogComponent> | null {
@@ -70,13 +73,17 @@ export class DialogService {
     }
     const dialogData: NumberSelectionDialogData = {title: 'Darts Used', options: dartsUsedOptions};
 
-    return this.matDialog.open(NumberSelectionDialogComponent, {data: dialogData});
+    return this.matDialog.open(NumberSelectionDialogComponent, {data: dialogData, restoreFocus: false});
   }
 
   public openDoublesMissedDialog(): MatDialogRef<NumberSelectionDialogComponent> {
     const dialogData: NumberSelectionDialogData = {title: 'Doubles Missed', options: [0, 1, 2, 3]};
 
-    return this.matDialog.open(NumberSelectionDialogComponent, {data: dialogData});
+    return this.matDialog.open(NumberSelectionDialogComponent, {data: dialogData, restoreFocus: false});
+  }
+
+  public openX01EditScoreDialog(dialogData: X01EditScoreDialogData): MatDialogRef<X01EditScoreDialogComponent> {
+    return this.matDialog.open(X01EditScoreDialogComponent, {data: dialogData, restoreFocus: false});
   }
 
   private isDialogOpen(): boolean {
