@@ -1,5 +1,5 @@
 import {Component, DestroyRef, OnDestroy, OnInit} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {EMPTY, Observable, of, Subscription, switchMap} from 'rxjs';
 import {X01Match} from '../../../../models/x01-match/x01-match';
 import {NgIf} from '@angular/common';
@@ -11,6 +11,7 @@ import {ApiErrorEnum} from '../../../../api/error/api-error-enum';
 import {ApiErrorBodyHandler} from '../../../../api/services/api-error-body-handler.service';
 import {DARTS_MATCHER_WS_DESTINATIONS, WsDestType} from '../../../../api/endpoints/darts-matcher-websocket.endpoints';
 import {ApiWsErrorBody} from '../../../../api/error/api-ws-error-body';
+import {AppEndpoints} from '../../../../core/app.endpoints';
 
 @Component({
   selector: 'app-x01-match-page',
@@ -32,7 +33,7 @@ export class X01MatchPageComponent implements OnInit, OnDestroy {
   public match: X01Match | null = null;
 
   constructor(private route: ActivatedRoute, private websocketService: DartsMatcherWebsocketService,
-              private apiErrorBodyHandler: ApiErrorBodyHandler, private destroyRef: DestroyRef) {
+              private apiErrorBodyHandler: ApiErrorBodyHandler, private destroyRef: DestroyRef, private router: Router) {
   }
 
   /**
@@ -51,6 +52,13 @@ export class X01MatchPageComponent implements OnInit, OnDestroy {
    */
   ngOnDestroy() {
     this.getMatchSubscription.unsubscribe();
+  }
+
+  /**
+   * Navigates the user to the home page.
+   */
+  navigateToHome() {
+    this.router.navigateByUrl(AppEndpoints.home()).catch(e => {});
   }
 
   /**
