@@ -1,5 +1,6 @@
 import {DestroyRef, Injectable} from '@angular/core';
 import {fromEvent, Observable, Subject, Subscription} from 'rxjs';
+import {MatDialog, MatDialogRef} from '@angular/material/dialog';
 
 /**
  * Service to provide a shared observable stream of `keydown` events across the application.
@@ -8,19 +9,23 @@ import {fromEvent, Observable, Subject, Subscription} from 'rxjs';
  */
 @Injectable({providedIn: 'root'})
 export class KeydownEventDispatcherService {
-  private subjects: Subject<KeyboardEvent>[] = [];
+  private subscriberStack: { subject: Subject<KeyboardEvent>; dialogRef?: MatDialogRef<any> }[] = [];
   private keydownSubscription: Subscription | null = null;
+
+  constructor(private matDialog: MatDialog) {
+  }
 
   /**
    * Registers a new observable stream for keydown events, tied to the caller's destroy lifecycle.
    * Events are only forwarded to the most recently active subscriber.
    *
    * @param destroyRef - Angular destroy reference to auto-unsubscribe when the consumer is destroyed
+   * @param dialogRef
    * @returns Observable that emits `KeyboardEvent`s for the active subscriber
    */
-  getKeyDownObservable(destroyRef: DestroyRef): Observable<KeyboardEvent> {
+  getKeyDownObservable(destroyRef: DestroyRef, dialogRef?: MatDialogRef<any>): Observable<KeyboardEvent> {
     const subject = new Subject<KeyboardEvent>();
-    this.addSubscriber(subject);
+    this.addSubscriber(subject, dialogRef);
 
     destroyRef.onDestroy(() => {
       this.removeSubscriber(subject);
@@ -40,18 +45,18 @@ export class KeydownEventDispatcherService {
    * Adds a subject to the internal subscriber list and ensures global keydown listening is active.
    *
    * @param subject - Subject that will receive keydown events
+   * @param dialogRef
    */
-  private addSubscriber(subject: Subject<KeyboardEvent>) {
-    this.subjects.push(subject);
+  private addSubscriber(subject: Subject<KeyboardEvent>, dialogRef?: MatDialogRef<any>) {
+    this.subscriberStack.push({subject, dialogRef});
     this.startKeydownSubscription();
   }
-
 
   /**
    * Starts listening to global keydown events if not already listening.
    */
   private startKeydownSubscription() {
-    if (!this.keydownSubscription && this.subjects.length > 0) {
+    if (!this.keydownSubscription && this.subscriberStack.length > 0) {
       this.keydownSubscription = fromEvent<KeyboardEvent>(window, 'keydown')
         .subscribe(event => this.handleKeyboardEvent(event));
     }
@@ -63,7 +68,12 @@ export class KeydownEventDispatcherService {
    * @param event - The keyboard event to be dispatched
    */
   private handleKeyboardEvent(event: KeyboardEvent) {
-    this.subjects.at(-1)?.next(event);
+    const lastSubscriber = this.subscriberStack.at(-1);
+
+    const openDialogs = this.matDialog.openDialogs;
+    if(openDialogs.length === 0 || (lastSubscriber?.dialogRef && openDialogs.includes(lastSubscriber.dialogRef))) {
+      lastSubscriber?.subject.next(event);
+    }
   }
 
   /**
@@ -74,7 +84,7 @@ export class KeydownEventDispatcherService {
   private removeSubscriber(subject: Subject<KeyboardEvent>) {
     subject.complete();
     subject.unsubscribe();
-    this.subjects = this.subjects.filter(sub => sub !== subject);
+    this.subscriberStack = this.subscriberStack.filter(sub => sub.subject !== subject);
     this.stopKeydownSubscription();
   }
 
@@ -82,7 +92,7 @@ export class KeydownEventDispatcherService {
    * Stops the global keydown listener if there are no active subscribers.
    */
   private stopKeydownSubscription() {
-    if (this.subjects.length === 0) {
+    if (this.subscriberStack.length === 0) {
       this.keydownSubscription?.unsubscribe();
       this.keydownSubscription = null;
     }
