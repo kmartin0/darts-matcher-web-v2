@@ -1,0 +1,10 @@
+<div mat-dialog-title>Are you sure?</div>
+
+<mat-dialog-content class="content-container">
+  <p><strong>{{ dialogData.action }}</strong></p>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancelDialog()">Cancel</button>
+  <button mat-button (click)="submitDialog()" cdkFocusInitial>Confirm</button>
+</mat-dialog-actions>

@@ -1,9 +1,5 @@
 import {Injectable} from '@angular/core';
-import {
-  X01LegTableDataSource,
-  X01LegTableRowPlayerData,
-  X01LegTableRow
-} from '../x01-leg-table-data-source';
+import {X01LegTableDataSource, X01LegTableRow, X01LegTableRowPlayerData} from '../x01-leg-table-data-source';
 import {X01Match} from '../../../../../models/x01-match/x01-match';
 import {X01MatchPlayer} from '../../../../../models/x01-match/x01-match-player';
 import {X01Set} from '../../../../../models/x01-match/x01-set';

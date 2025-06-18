@@ -1,19 +1,18 @@
 import {DestroyRef, Injectable} from '@angular/core';
 import {IMessage, RxStomp, RxStompConfig, RxStompState} from '@stomp/rx-stomp';
 import {
-  DARTS_MATCHER_WEBSOCKET_BASE_URL,
+  DARTS_MATCHER_WEB_SOCKET_BASE_URL,
   DARTS_MATCHER_WS_DESTINATIONS,
   WsDestType
-} from '../endpoints/darts-matcher-websocket.endpoints';
+} from '../endpoints/darts-matcher-web-socket.endpoints';
 import {distinctUntilChanged, filter, map, merge, Observable, switchMap, take, tap} from 'rxjs';
-import {X01Match} from '../../models/x01-match/x01-match';
 import {X01Turn} from '../../models/x01-match/x01-turn';
 import {ApiWsErrorBody, isApiWsErrorBody} from '../error/api-ws-error-body';
 import {X01EditTurn} from '../../models/x01-match/x01-edit-turn';
-import {X01DeleteLastTurn} from '../../models/x01-match/x01-delete-last-turn';
+import {X01WebSocketEvent} from '../dto/base-x01-web-socket-event';
 
 @Injectable({providedIn: 'root'})
-export class DartsMatcherWebsocketService {
+export class DartsMatcherWebSocketService {
 
   private readonly rxStomp: RxStomp;
   private activeConnections: Set<DestroyRef> = new Set<DestroyRef>();
@@ -81,10 +80,10 @@ export class DartsMatcherWebsocketService {
    * @param {string} matchId - The ID of the match to subscribe to.
    * @returns {Observable<X01Match>} An observable emitting match updates.
    */
-  getX01MatchBroadcast(matchId: string): Observable<X01Match> {
+  getX01MatchBroadcast(matchId: string): Observable<X01WebSocketEvent> {
     const destination = DARTS_MATCHER_WS_DESTINATIONS.SUBSCRIBE.X01_GET_MATCH(matchId, WsDestType.BROADCAST);
 
-    return this.watchBroadcast<X01Match>(destination, this.getX01MatchSingleResponse(matchId));
+    return this.watchBroadcast<X01WebSocketEvent>(destination, this.getX01MatchSingleResponse(matchId));
   }
 
   /**
@@ -93,13 +92,13 @@ export class DartsMatcherWebsocketService {
    * @param {string} matchId - The ID of the match to retrieve.
    * @returns {Observable<X01Match>} An observable that emits the match data once and completes.
    */
-  getX01MatchSingleResponse(matchId: string): Observable<X01Match> {
+  getX01MatchSingleResponse(matchId: string): Observable<X01WebSocketEvent> {
     const destination = DARTS_MATCHER_WS_DESTINATIONS.SUBSCRIBE.X01_GET_MATCH(matchId, WsDestType.SINGLE_RESPONSE);
 
     return this.watch(destination).pipe(
       take(1), // Complete after the first response.
       map(message => {
-        return JSON.parse(message.body) as X01Match;
+        return JSON.parse(message.body) as X01WebSocketEvent;
       })
     );
   }
@@ -107,10 +106,11 @@ export class DartsMatcherWebsocketService {
   /**
    * Publishes a new X01 turn to the server via WebSocket.
    *
+   * @param matchId - ID of the match the turn needs to be added to
    * @param {X01Turn} turn - The turn data to send.
    */
-  publishX01AddTurn(turn: X01Turn) {
-    const destination = DARTS_MATCHER_WS_DESTINATIONS.PUBLISH.X01_ADD_TURN;
+  publishX01AddTurn(matchId: string, turn: X01Turn) {
+    const destination = DARTS_MATCHER_WS_DESTINATIONS.PUBLISH.X01_ADD_TURN(matchId);
 
     this.publish(destination, turn);
   }
@@ -118,10 +118,11 @@ export class DartsMatcherWebsocketService {
   /**
    * Publishes an edited X01 turn to the server via WebSocket.
    *
+   * @param matchId - ID of the match the turn needs to be edited in
    * @param {X01EditTurn} editTurn - The edit turn data to send.
    */
-  publishX01EditTurn(editTurn: X01EditTurn) {
-    const destination = DARTS_MATCHER_WS_DESTINATIONS.PUBLISH.X01_EDIT_TURN;
+  publishX01EditTurn(matchId: string, editTurn: X01EditTurn) {
+    const destination = DARTS_MATCHER_WS_DESTINATIONS.PUBLISH.X01_EDIT_TURN(matchId);
 
     this.publish(destination, editTurn);
   }
@@ -129,12 +130,34 @@ export class DartsMatcherWebsocketService {
   /**
    * Publishes a request to delete the last X01 turn from a match to the server via WebSocket.
    *
-   * @param {X01DeleteLastTurn} deleteLastTurn - The body which contains from which match to delete the last turn from.
+   * @param matchId - ID from the match to delete the last turn from.
    */
-  publishX01DeleteLastTurn(deleteLastTurn: X01DeleteLastTurn) {
-    const destination = DARTS_MATCHER_WS_DESTINATIONS.PUBLISH.X01_DELETE_LAST_TURN;
+  publishX01DeleteLastTurn(matchId: string) {
+    const destination = DARTS_MATCHER_WS_DESTINATIONS.PUBLISH.X01_DELETE_LAST_TURN(matchId);
 
-    this.publish(destination, deleteLastTurn);
+    this.publish(destination);
+  }
+
+  /**
+   * Publishes a request to delete the X01 match to the server via WebSocket.
+   *
+   * @param matchId - The ID of the match to be deleted.
+   */
+  publishDeleteMatch(matchId: string) {
+    const destination = DARTS_MATCHER_WS_DESTINATIONS.PUBLISH.X01_DELETE_MATCH(matchId);
+
+    this.publish(destination);
+  }
+
+  /**
+   * Publishes a request to reset the X01 match to the server via WebSocket.
+   *
+   * @param matchId - The ID of the match to be reset.
+   */
+  publishResetMatch(matchId: string) {
+    const destination = DARTS_MATCHER_WS_DESTINATIONS.PUBLISH.X01_RESET_MATCH(matchId);
+
+    this.publish(destination);
   }
 
   /**
@@ -144,7 +167,7 @@ export class DartsMatcherWebsocketService {
    */
   private createRxStompConfig(): RxStompConfig {
     return {
-      brokerURL: DARTS_MATCHER_WEBSOCKET_BASE_URL,
+      brokerURL: DARTS_MATCHER_WEB_SOCKET_BASE_URL,
       reconnectDelay: 2000,
       heartbeatIncoming: 10000,
       heartbeatOutgoing: 10000
@@ -161,7 +184,7 @@ export class DartsMatcherWebsocketService {
    * @returns An observable emitting both the single response (on connect) and broadcast messages,
    *          filtered to avoid duplicate emissions.
    */
-  private watchBroadcast<T>(destination: string, singleResponse$: Observable<T>) {
+  private watchBroadcast<T>(destination: string, singleResponse$: Observable<T>): Observable<T> {
     // Create the broadcast observable.
     const broadcast$ = this.watch(destination).pipe(
       map(message => JSON.parse(message.body) as T)
@@ -199,7 +222,7 @@ export class DartsMatcherWebsocketService {
    * @param destination - The destination to which the message should be sent.
    * @param body - The message payload to be serialized and sent.
    */
-  private publish(destination: string, body: object) {
+  private publish(destination: string, body?: any) {
     console.log('ws outgoing: ', destination);
     console.log(body);
     this.rxStomp.publish({

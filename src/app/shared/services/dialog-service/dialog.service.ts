@@ -5,12 +5,16 @@ import {BasicDialogComponent} from '../../components/basic-dialog/basic-dialog.c
 import {InternalErrorDialogComponent} from '../../components/internal-error-dialog/internal-error-dialog.component';
 import {X01Checkout} from '../../../models/x01-match/x01-checkout';
 import {
-  NumberSelectionDialogComponent, NumberSelectionDialogData
+  NumberSelectionDialogComponent,
+  NumberSelectionDialogData
 } from '../../components/number-selection-dialog/number-selection-dialog.component';
-import {
-  X01EditScoreDialogComponent,
-} from '../../components/x01-edit-score-dialog/x01-edit-score-dialog.component';
+import {X01EditScoreDialogComponent,} from '../../components/x01-edit-score-dialog/x01-edit-score-dialog.component';
 import {X01EditScoreDialogData} from '../../components/x01-edit-score-dialog/x01-edit-score-dialog.types';
+import {
+  X01MatchActionsDialogComponent,
+  X01MatchActionsDialogData
+} from '../../components/x01-match-actions-dialog/x01-match-actions-dialog.component';
+import {ConfirmDialogComponent, ConfirmDialogData} from '../../components/confirm-dialog/confirm-dialog.component';
 
 @Injectable({
   providedIn: 'root'
@@ -84,6 +88,14 @@ export class DialogService {
 
   public openX01EditScoreDialog(dialogData: X01EditScoreDialogData): MatDialogRef<X01EditScoreDialogComponent> {
     return this.matDialog.open(X01EditScoreDialogComponent, {data: dialogData, restoreFocus: false});
+  }
+
+  public openX01MatchActionsDialog(dialogData: X01MatchActionsDialogData): MatDialogRef<X01MatchActionsDialogComponent> {
+    return this.matDialog.open(X01MatchActionsDialogComponent, {data: dialogData, restoreFocus: false});
+  }
+
+  public openConfirmDialog(dialogData: ConfirmDialogData): MatDialogRef<ConfirmDialogComponent> {
+    return this.matDialog.open(ConfirmDialogComponent, {data: dialogData, restoreFocus: false});
   }
 
   private isDialogOpen(): boolean {

@@ -1,8 +1,15 @@
 <mat-toolbar>
-  <span (click)="navigateToHome()" style="cursor: pointer">X01 Match</span>
+  <span class=navigate-home-btn (click)="navigateToHome()" style="cursor: pointer">X01 Match</span>
+  <button class="delete-match-btn" *ngIf="match" mat-icon-button (click)="openMatchActionsDialog()" matTooltip="Match options">
+    <mat-icon>build</mat-icon>
+  </button>
 </mat-toolbar>
 
 <div class="x01-match-page-component-container">
   <p class="match-not-found" *ngIf="matchNotFound">The match could not be found</p>
+  <div class="match-deleted-container" *ngIf="matchDeleteEvent">
+    <p class="match-deleted">The match was deleted</p>
+    <button mat-button (click)="navigateToHome()">Go to home</button>
+  </div>
   <app-x01-match [match]="match"></app-x01-match>
 </div>

@@ -1,5 +1,5 @@
 import {Component, ElementRef, Input, OnChanges, SimpleChanges} from '@angular/core';
-import {trigger, style, transition, animate} from '@angular/animations';
+import {animate, style, transition, trigger} from '@angular/animations';
 import {NgIf} from '@angular/common';
 
 @Component({

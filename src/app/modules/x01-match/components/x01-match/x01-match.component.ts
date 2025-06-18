@@ -10,19 +10,21 @@ import {X01MatchLegTableComponent} from '../x01-match-leg-table/x01-match-leg-ta
 import {LegSelection} from '../../../../models/common/leg-selection';
 import {X01ScoreInputComponent} from '../x01-score-input/x01-score-input.component';
 import {SelectLegFormComponent} from '../select-leg-form/select-leg-form.component';
-import {DartsMatcherWebsocketService} from '../../../../api/services/darts-matcher-websocket.service';
+import {DartsMatcherWebSocketService} from '../../../../api/services/darts-matcher-web-socket.service';
 import {firstValueFrom, Subscription} from 'rxjs';
 import {
   getLeg,
   getLegInPlay,
-  getRemainingForCurrentPlayer, getRemainingForPlayer, getSet,
+  getRemainingForCurrentPlayer,
+  getRemainingForPlayer,
+  getSet,
   getSetInPlay
 } from '../../../../shared/utils/x01-match.utils';
 import {X01CheckoutService} from '../../../../shared/services/x01-checkout-service/x01-checkout-service';
 import {DialogService} from '../../../../shared/services/dialog-service/dialog.service';
 import {ApiWsErrorBody} from '../../../../api/error/api-ws-error-body';
 import {ApiErrorEnum} from '../../../../api/error/api-error-enum';
-import {DARTS_MATCHER_WS_DESTINATIONS} from '../../../../api/endpoints/darts-matcher-websocket.endpoints';
+import {DARTS_MATCHER_WS_DESTINATIONS} from '../../../../api/endpoints/darts-matcher-web-socket.endpoints';
 import {ApiErrorBodyHandler} from '../../../../api/services/api-error-body-handler.service';
 import {MatchStatus} from '../../../../models/basematch/match-status';
 import {MatTooltip} from '@angular/material/tooltip';
@@ -31,6 +33,7 @@ import {
 } from '../../../../shared/components/x01-edit-score-dialog/x01-edit-score-dialog.types';
 import {X01LegRoundScore} from '../../../../models/x01-match/x01-leg-round-score';
 import {X01EditTurn} from '../../../../models/x01-match/x01-edit-turn';
+import {X01Turn} from '../../../../models/x01-match/x01-turn';
 
 @Component({
   selector: 'app-x01-match',
@@ -60,7 +63,7 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
   displayScoreInput: boolean = false;
   displayUndoScore: boolean = false;
 
-  constructor(private websocketService: DartsMatcherWebsocketService, private checkoutService: X01CheckoutService,
+  constructor(private webSocketService: DartsMatcherWebSocketService, private checkoutService: X01CheckoutService,
               private dialogService: DialogService, private apiErrorBodyHandler: ApiErrorBodyHandler, private destroyRef: DestroyRef) {
   }
 
@@ -68,7 +71,7 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
    * Establishes a WebSocket connection and subscribes to the error queue after component initialization.
    */
   ngOnInit() {
-    this.websocketService.connect(this.destroyRef);
+    this.webSocketService.connect(this.destroyRef);
     this.subscribeErrorQueue();
   }
 
@@ -133,7 +136,7 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
   deleteLastTurn() {
     if (!this.match) return;
 
-    this.websocketService.publishX01DeleteLastTurn({matchId: this.match.id});
+    this.webSocketService.publishX01DeleteLastTurn(this.match.id);
   }
 
   /**
@@ -158,7 +161,7 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
     // When necessary prompt the user for darts used and doubles missed input. Use the result to publish the edited turn.
     this.createRoundScore(dialogResult.newScore, remainingAfterEdit, this.match.matchSettings.trackDoubles).then(roundScore => {
       if (roundScore == null) return;
-      this.websocketService.publishX01EditTurn(this.createEditTurn(dialogResult, roundScore));
+      this.webSocketService.publishX01EditTurn(dialogResult.matchId, this.createEditTurn(dialogResult, roundScore));
     });
   }
 
@@ -227,7 +230,6 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
    */
   private createEditTurn(dialogResult: X01EditScoreDialogResult, roundScore: X01LegRoundScore): X01EditTurn {
     return {
-      matchId: dialogResult.matchId,
       playerId: dialogResult.playerId,
       set: dialogResult.set,
       leg: dialogResult.leg,
@@ -248,13 +250,13 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
   private publishX01MatchTurn(score: number, dartsUsed: number, doublesMissed: number) {
     if (!this.match) return;
 
-    this.websocketService.publishX01AddTurn({
-      matchId: this.match.id,
+    const turn: X01Turn = {
       score: score,
       dartsUsed: dartsUsed,
       doublesMissed: doublesMissed
-    });
+    };
 
+    this.webSocketService.publishX01AddTurn(this.match.id, turn);
     this.scoreInputComponent?.clearScoreInput();
   }
 
@@ -326,7 +328,7 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
    * Subscribes to the websocket error queue. Delegates the errors to the ws error body handler.
    */
   private subscribeErrorQueue() {
-    this.websocketService.getErrorQueue().subscribe({
+    this.webSocketService.getErrorQueue().subscribe({
       next: (apiWsErrorBody) => {
         this.handleApiWsErrorBody(apiWsErrorBody);
       }
@@ -368,11 +370,12 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
    */
   private getErrorDestinations(): string[] {
     if (!this.match) return [];
+    const matchId = this.match.id;
 
     return [
-      DARTS_MATCHER_WS_DESTINATIONS.PUBLISH.X01_ADD_TURN,
-      DARTS_MATCHER_WS_DESTINATIONS.PUBLISH.X01_EDIT_TURN,
-      DARTS_MATCHER_WS_DESTINATIONS.PUBLISH.X01_DELETE_LAST_TURN
+      DARTS_MATCHER_WS_DESTINATIONS.PUBLISH.X01_ADD_TURN(matchId),
+      DARTS_MATCHER_WS_DESTINATIONS.PUBLISH.X01_EDIT_TURN(matchId),
+      DARTS_MATCHER_WS_DESTINATIONS.PUBLISH.X01_DELETE_LAST_TURN(matchId)
     ];
   }
 }

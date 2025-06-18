@@ -6,19 +6,33 @@ import {NgIf} from '@angular/common';
 import {MatToolbar} from '@angular/material/toolbar';
 import {X01MatchComponent} from '../../components/x01-match/x01-match.component';
 import {isValidObjectId} from '../../../../shared/utils/object-id.utils';
-import {DartsMatcherWebsocketService} from '../../../../api/services/darts-matcher-websocket.service';
+import {DartsMatcherWebSocketService} from '../../../../api/services/darts-matcher-web-socket.service';
 import {ApiErrorEnum} from '../../../../api/error/api-error-enum';
 import {ApiErrorBodyHandler} from '../../../../api/services/api-error-body-handler.service';
-import {DARTS_MATCHER_WS_DESTINATIONS, WsDestType} from '../../../../api/endpoints/darts-matcher-websocket.endpoints';
+import {DARTS_MATCHER_WS_DESTINATIONS, WsDestType} from '../../../../api/endpoints/darts-matcher-web-socket.endpoints';
 import {ApiWsErrorBody} from '../../../../api/error/api-ws-error-body';
 import {AppEndpoints} from '../../../../core/app.endpoints';
+import {X01WebSocketEvent} from '../../../../api/dto/base-x01-web-socket-event';
+import {X01WebSocketEventType} from '../../../../api/dto/x01-web-socket-event-type';
+import {MatButton, MatIconButton} from '@angular/material/button';
+import {MatIcon} from '@angular/material/icon';
+import {DialogService} from '../../../../shared/services/dialog-service/dialog.service';
+import {
+  X01MatchActionsDialogResult,
+  X01MatchDialogAction
+} from '../../../../shared/components/x01-match-actions-dialog/x01-match-actions-dialog.component';
+import {MatTooltip} from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-x01-match-page',
   imports: [
     NgIf,
     MatToolbar,
-    X01MatchComponent
+    X01MatchComponent,
+    MatButton,
+    MatIconButton,
+    MatIcon,
+    MatTooltip,
   ],
   standalone: true,
   templateUrl: './x01-match-page.component.html',
@@ -29,11 +43,13 @@ export class X01MatchPageComponent implements OnInit, OnDestroy {
   private readonly matchIdParamKey = 'matchId';
   private getMatchSubscription: Subscription = new Subscription();
   matchNotFound: boolean = false;
+  matchDeleteEvent: boolean = false;
 
   public match: X01Match | null = null;
 
-  constructor(private route: ActivatedRoute, private websocketService: DartsMatcherWebsocketService,
-              private apiErrorBodyHandler: ApiErrorBodyHandler, private destroyRef: DestroyRef, private router: Router) {
+  constructor(private route: ActivatedRoute, private webSocketService: DartsMatcherWebSocketService,
+              private apiErrorBodyHandler: ApiErrorBodyHandler, private destroyRef: DestroyRef, private router: Router,
+              private dialogService: DialogService) {
   }
 
   /**
@@ -41,7 +57,7 @@ export class X01MatchPageComponent implements OnInit, OnDestroy {
    * Initiates the retrieval of the match using route parameters.
    */
   ngOnInit(): void {
-    this.websocketService.connect(this.destroyRef)
+    this.webSocketService.connect(this.destroyRef);
     this.subscribeErrorQueue();
     this.getMatch();
   }
@@ -58,7 +74,30 @@ export class X01MatchPageComponent implements OnInit, OnDestroy {
    * Navigates the user to the home page.
    */
   navigateToHome() {
-    this.router.navigateByUrl(AppEndpoints.home()).catch(e => {});
+    this.router.navigateByUrl(AppEndpoints.home()).catch(() => {
+    });
+  }
+
+  /**
+   * Opens a dialog allowing the user to choose match actions (e.g., reset or delete).
+   * If the user selects an action, a confirmation dialog is opened.
+   */
+  openMatchActionsDialog() {
+    if (!this.match) return;
+    const dialogRef = this.dialogService.openX01MatchActionsDialog({matchId: this.match.id});
+    dialogRef.afterClosed().subscribe((result: X01MatchActionsDialogResult | null | undefined) => {
+      if (result === null || result === undefined) return;
+      switch (result.action) {
+        case X01MatchDialogAction.RESET_MATCH: {
+          this.openConfirmResetMatchDialog();
+          break;
+        }
+        case X01MatchDialogAction.DELETE_MATCH: {
+          this.openConfirmDeleteMatchDialog();
+          break;
+        }
+      }
+    });
   }
 
   /**
@@ -67,9 +106,9 @@ export class X01MatchPageComponent implements OnInit, OnDestroy {
    */
   private getMatch() {
     this.getMatchSubscription.add(this.getAndValidateMatchIdFromRoute().pipe(
-        switchMap(matchId => this.websocketService.getX01MatchBroadcast(matchId))
+        switchMap(matchId => this.webSocketService.getX01MatchBroadcast(matchId))
       ).subscribe({
-        next: (match: X01Match) => this.handleGetMatchSuccess(match),
+        next: (event: X01WebSocketEvent) => this.handleWebSocketEvent(event),
       })
     );
   }
@@ -93,12 +132,35 @@ export class X01MatchPageComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Handles incoming WebSocket events by dispatching actions based on the event type.
+   *
+   * @param {X01WebSocketEvent} event - The WebSocket event object containing the event type and payload.
+   */
+  private handleWebSocketEvent(event: X01WebSocketEvent) {
+    switch (event.eventType) {
+      case X01WebSocketEventType.UPDATE_MATCH: {
+        this.handleGetMatchSuccess(event.payload);
+        break;
+      }
+      case X01WebSocketEventType.DELETE_MATCH: {
+        this.handleDeleteMatchEvent();
+        break;
+      }
+    }
+  }
+
+  /**
    * Initializes the component property `match` with the retrieved X01Match.
    *
    * @param match - The retrieved X01 match
    */
   private handleGetMatchSuccess(match: X01Match) {
     this.match = match;
+  }
+
+  private handleDeleteMatchEvent() {
+    this.match = null;
+    this.matchDeleteEvent = true;
   }
 
   /**
@@ -109,10 +171,50 @@ export class X01MatchPageComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Opens a confirmation dialog for resetting the match.
+   * If the user confirms, triggers the `publishResetMatch()` method to publish the reset event.
+   */
+  private openConfirmResetMatchDialog() {
+    const dialogRef = this.dialogService.openConfirmDialog({action: 'Reset Match'});
+    dialogRef.afterClosed().subscribe((result: boolean) => {
+      if (result) this.publishResetMatch();
+    });
+  }
+
+  /**
+   * Opens a confirmation dialog for deleting the match.
+   * If the user confirms, triggers the `publishDeleteMatch()` method to publish the delete event.
+   */
+  private openConfirmDeleteMatchDialog() {
+    const dialogRef = this.dialogService.openConfirmDialog({action: 'Delete Match'});
+    dialogRef.afterClosed().subscribe((result: boolean) => {
+      if (result) this.publishDeleteMatch();
+    });
+  }
+
+  /**
+   * Publishes a delete event for the current match over WebSocket.
+   */
+  private publishDeleteMatch() {
+    if (!this.match) return;
+
+    this.webSocketService.publishDeleteMatch(this.match.id);
+  }
+
+  /**
+   * Publishes a reset event for the current match over WebSocket.
+   */
+  private publishResetMatch() {
+    if (!this.match) return;
+
+    this.webSocketService.publishResetMatch(this.match.id);
+  }
+
+  /**
    * Subscribes to the websocket error queue. Delegates the errors to the ws error body handler.
    */
   private subscribeErrorQueue() {
-    this.websocketService.getErrorQueue().subscribe({
+    this.webSocketService.getErrorQueue().subscribe({
       next: (apiWsErrorBody) => {
         this.handleApiWsErrorBody(apiWsErrorBody);
       }
@@ -150,7 +252,8 @@ export class X01MatchPageComponent implements OnInit, OnDestroy {
 
     return [
       DARTS_MATCHER_WS_DESTINATIONS.SUBSCRIBE.X01_GET_MATCH(matchId, WsDestType.BROADCAST),
-      DARTS_MATCHER_WS_DESTINATIONS.SUBSCRIBE.X01_GET_MATCH(matchId, WsDestType.SINGLE_RESPONSE)
+      DARTS_MATCHER_WS_DESTINATIONS.SUBSCRIBE.X01_GET_MATCH(matchId, WsDestType.SINGLE_RESPONSE),
+      DARTS_MATCHER_WS_DESTINATIONS.PUBLISH.X01_DELETE_MATCH(matchId)
     ];
   }
 

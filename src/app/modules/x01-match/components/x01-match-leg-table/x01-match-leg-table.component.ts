@@ -3,16 +3,17 @@ import {X01Match} from '../../../../models/x01-match/x01-match';
 import {KeyValuePipe, NgIf} from '@angular/common';
 import {
   MatCell,
-  MatCellDef, MatColumnDef,
+  MatCellDef,
+  MatColumnDef,
   MatHeaderCell,
   MatHeaderCellDef,
-  MatHeaderRow, MatHeaderRowDef,
-  MatRow, MatRowDef,
+  MatHeaderRow,
+  MatHeaderRowDef,
+  MatRow,
+  MatRowDef,
   MatTable
 } from '@angular/material/table';
-import {
-  X01MatchLegTableViewDataTransformer
-} from './view-data-transformer/x01-match-leg-table-view-data-transformer';
+import {X01MatchLegTableViewDataTransformer} from './view-data-transformer/x01-match-leg-table-view-data-transformer';
 import {X01MatchLegTableViewData} from './view-data-transformer/x01-match-leg-table-view-data';
 import {LegSelection} from '../../../../models/common/leg-selection';
 import {MatIconButton} from '@angular/material/button';

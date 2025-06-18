@@ -1,0 +1,8 @@
+@use "@angular/material" as mat;
+
+.content-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+

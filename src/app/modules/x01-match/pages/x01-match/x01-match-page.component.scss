@@ -7,9 +7,28 @@
   flex-direction: column;
   max-height: 100vh;
 
+
+}
+
+mat-toolbar {
+  display: flex;
+
+  .delete-match-btn {
+    order: 2;
+    margin-left: auto;
+  }
+
+  .navigate-home-btn {
+    order: 1;
+  }
+
   @include mat.toolbar-overrides((
     container-background-color: var(--mat-sys-primary),
     container-text-color: var(--mat-sys-on-primary)
+  ));
+
+  @include mat.icon-overrides((
+    color:var(--mat-sys-on-primary)
   ));
 }
 
@@ -20,4 +39,19 @@
 
 .match-not-found {
   font: var(--mat-sys-title-large);
+}
+
+.match-deleted-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  p {
+    font: var(--mat-sys-title-large);
+  }
+
+  @include mat.button-overrides((
+    text-label-text-size: var(--mat-sys-title-large-size),
+    text-container-height: calc(var(--mat-sys-title-large-size) + 20px)
+  ));
 }
