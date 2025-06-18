@@ -1,6 +1,7 @@
 import {Component, ElementRef, Input, OnChanges, SimpleChanges} from '@angular/core';
 import {animate, style, transition, trigger} from '@angular/animations';
 import {NgIf} from '@angular/common';
+import {BaseComponent} from '../base/base.component';
 
 @Component({
   selector: 'app-error',
@@ -30,11 +31,12 @@ import {NgIf} from '@angular/common';
     ])
   ]
 })
-export class ErrorComponent implements OnChanges {
+export class ErrorComponent extends BaseComponent implements OnChanges {
   @Input() errorMsg: string | null = '';
   animationParams = {startHeight: 0};
 
   constructor(private el: ElementRef) {
+    super();
   }
 
   ngOnChanges(changes: SimpleChanges) {

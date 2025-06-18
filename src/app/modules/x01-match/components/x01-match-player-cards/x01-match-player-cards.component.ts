@@ -8,6 +8,7 @@ import {MatCard} from '@angular/material/card';
 import {LegSelection} from '../../../../models/common/leg-selection';
 import {X01PlayerCardsViewData} from './view-data-transformer/x01-player-cards-view-data';
 import {ResultType} from '../../../../models/basematch/result-type';
+import {BaseComponent} from '../../../../shared/components/base/base.component';
 
 @Component({
   selector: 'app-x01-match-player-cards',
@@ -21,13 +22,14 @@ import {ResultType} from '../../../../models/basematch/result-type';
   templateUrl: './x01-match-player-cards.component.html',
   styleUrl: './x01-match-player-cards.component.scss'
 })
-export class X01MatchPlayerCardsComponent implements OnChanges {
+export class X01MatchPlayerCardsComponent extends BaseComponent implements OnChanges {
   @Input() match: X01Match | null = null;
   @Input() legSelection: LegSelection | null = null;
   protected readonly ResultType = ResultType;
   viewData: X01PlayerCardsViewData | null = null;
 
   constructor(private viewDataTransformer: X01MatchPlayerCardsViewDataTransformer) {
+    super();
   }
 
   /**

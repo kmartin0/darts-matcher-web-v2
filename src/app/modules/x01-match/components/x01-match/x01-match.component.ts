@@ -1,4 +1,4 @@
-import {Component, DestroyRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild} from '@angular/core';
+import {Component, DestroyRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild} from '@angular/core';
 import {X01Match} from '../../../../models/x01-match/x01-match';
 import {NgIf} from '@angular/common';
 import {MatIconButton} from '@angular/material/button';
@@ -11,7 +11,7 @@ import {LegSelection} from '../../../../models/common/leg-selection';
 import {X01ScoreInputComponent} from '../x01-score-input/x01-score-input.component';
 import {SelectLegFormComponent} from '../select-leg-form/select-leg-form.component';
 import {DartsMatcherWebSocketService} from '../../../../api/services/darts-matcher-web-socket.service';
-import {firstValueFrom, Subscription} from 'rxjs';
+import {firstValueFrom} from 'rxjs';
 import {
   getLeg,
   getLegInPlay,
@@ -34,6 +34,7 @@ import {
 import {X01LegRoundScore} from '../../../../models/x01-match/x01-leg-round-score';
 import {X01EditTurn} from '../../../../models/x01-match/x01-edit-turn';
 import {X01Turn} from '../../../../models/x01-match/x01-turn';
+import {BaseComponent} from '../../../../shared/components/base/base.component';
 
 @Component({
   selector: 'app-x01-match',
@@ -53,10 +54,9 @@ import {X01Turn} from '../../../../models/x01-match/x01-turn';
   templateUrl: './x01-match.component.html',
   styleUrl: './x01-match.component.scss'
 })
-export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
+export class X01MatchComponent extends BaseComponent implements OnInit, OnChanges {
   @Input() match: X01Match | null = null;
   @ViewChild('scoreInputComponent') scoreInputComponent!: X01ScoreInputComponent;
-  private subscription = new Subscription();
   selectedLeg: LegSelection = {set: 0, leg: 0};
   errorMsg: string | undefined = undefined;
   editScoreMode: boolean = false;
@@ -65,6 +65,7 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
 
   constructor(private webSocketService: DartsMatcherWebSocketService, private checkoutService: X01CheckoutService,
               private dialogService: DialogService, private apiErrorBodyHandler: ApiErrorBodyHandler, private destroyRef: DestroyRef) {
+    super();
   }
 
   /**
@@ -88,13 +89,6 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   /**
-   * Cleans up all active subscriptions just before the component is destroyed.
-   */
-  ngOnDestroy() {
-    this.subscription.unsubscribe();
-  }
-
-  /**
    * Handles logic when the selected leg changes.
    * Updates visibility flags for score input and undo score controls.
    */
@@ -105,7 +99,7 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
 
   /**
    * Handles a submitted score by checking match state and determining the next step.
-   * Could result in sending a turn directly, or opening dialogs for checkout or doubles.
+   * Could result in publishing a turn directly, or opening dialogs for checkout or doubles.
    *
    * @param score - The score submitted by the user
    * @returns {Promise<void>} Promise that resolves after processing the score
@@ -328,11 +322,12 @@ export class X01MatchComponent implements OnInit, OnChanges, OnDestroy {
    * Subscribes to the websocket error queue. Delegates the errors to the ws error body handler.
    */
   private subscribeErrorQueue() {
-    this.webSocketService.getErrorQueue().subscribe({
+    const sub = this.webSocketService.getErrorQueue().subscribe({
       next: (apiWsErrorBody) => {
         this.handleApiWsErrorBody(apiWsErrorBody);
       }
     });
+    this.subscription.add(sub);
   }
 
   /**

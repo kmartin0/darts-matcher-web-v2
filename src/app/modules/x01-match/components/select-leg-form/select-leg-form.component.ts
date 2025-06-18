@@ -1,12 +1,12 @@
-import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
 import {MatFormField} from '@angular/material/input';
 import {MatOptgroup, MatOption, MatSelect} from '@angular/material/select';
 import {MatLabel} from '@angular/material/form-field';
 import {FormControl, ReactiveFormsModule} from '@angular/forms';
 import {LegSelection} from '../../../../models/common/leg-selection';
-import {Subscription} from 'rxjs';
 import {X01Match} from '../../../../models/x01-match/x01-match';
 import {NgIf} from '@angular/common';
+import {BaseComponent} from '../../../../shared/components/base/base.component';
 
 @Component({
   selector: 'app-select-leg-form',
@@ -23,10 +23,8 @@ import {NgIf} from '@angular/common';
   templateUrl: './select-leg-form.component.html',
   styleUrl: './select-leg-form.component.scss'
 })
-export class SelectLegFormComponent implements OnInit, OnChanges, OnDestroy {
+export class SelectLegFormComponent extends BaseComponent implements OnInit, OnChanges {
   readonly selectedLegControl = new FormControl<LegSelection>({set: 0, leg: 0});
-
-  private subscription = new Subscription();
 
   @Input() match: X01Match | null = null;
   @Input() selectedLeg: LegSelection = {set: 0, leg: 0};
@@ -41,17 +39,9 @@ export class SelectLegFormComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if(changes['selectedLeg']) {
+    if (changes['selectedLeg']) {
       this.selectedLegControl.setValue(this.selectedLeg, {emitEvent: false});
     }
-  }
-
-  /**
-   * Lifecycle hook that is called just before the component's view has been destroyed.
-   * Used to clean up subscriptions and avoid memory leaks.
-   */
-  ngOnDestroy(): void {
-    this.subscription.unsubscribe();
   }
 
   /**
@@ -72,14 +62,13 @@ export class SelectLegFormComponent implements OnInit, OnChanges, OnDestroy {
   private initSelectedLegControl(): void {
     this.selectedLegControl.setValue(this.selectedLeg, {emitEvent: false});
 
-    this.subscription.add(
-      this.selectedLegControl.valueChanges.subscribe(value => {
-        if (value) {
-          this.selectedLeg = value;
-          this.selectedLegChange.emit(value);
-        }
-      })
-    );
+    const sub = this.selectedLegControl.valueChanges.subscribe(value => {
+      if (value) {
+        this.selectedLeg = value;
+        this.selectedLegChange.emit(value);
+      }
+    });
+    this.subscription.add(sub);
   }
 
 }

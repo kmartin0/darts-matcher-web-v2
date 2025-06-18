@@ -4,12 +4,13 @@ import {AbstractControl, FormArray, FormGroup, NgForm} from '@angular/forms';
 import {ApiErrorBody} from '../../../api/error/api-error-body';
 import {ErrorMessageUtil} from '../../utils/validator-error-message.utils';
 import {ApiErrorEnum} from '../../../api/error/api-error-enum';
+import {BaseComponent} from '../base/base.component';
 
 
 @Component({
   template: ''
 })
-export abstract class BaseFormComponent<T> {
+export abstract class BaseFormComponent<T> extends BaseComponent {
 
   @ViewChild('formDirective') protected formDirective!: NgForm;
   @Input() loading$?: Subject<boolean>;
@@ -19,6 +20,7 @@ export abstract class BaseFormComponent<T> {
   submitFormTrigger$ = new EventEmitter<void>;
 
   protected constructor(protected errorMessageUtil: ErrorMessageUtil) {
+    super();
   }
 
   abstract get form(): FormGroup;

@@ -1,6 +1,7 @@
 import {Component, DestroyRef, EventEmitter, Output} from '@angular/core';
 import {MatButton} from '@angular/material/button';
 import {KeydownEventDispatcherService} from '../../services/keydown-event-dispatcher/keydown-event-dispatcher.service';
+import {BaseComponent} from '../base/base.component';
 
 export enum KeypadButton {
   ONE = 1,
@@ -26,7 +27,7 @@ export enum KeypadButton {
   templateUrl: './keypad-component.component.html',
   styleUrl: './keypad-component.component.scss'
 })
-export class KeypadComponentComponent {
+export class KeypadComponentComponent extends BaseComponent {
   /**
    * The ordered list of keypad buttons to be displayed in the template.
    */
@@ -40,6 +41,7 @@ export class KeypadComponentComponent {
   @Output() keyPress = new EventEmitter<KeypadButton>();
 
   constructor(private keydownEventDispatcher: KeydownEventDispatcherService, private destroyRef: DestroyRef) {
+    super();
     this.initKeyDownListener();
   }
 
@@ -48,8 +50,9 @@ export class KeypadComponentComponent {
    * Subscribes to `keydown` events and handles them with internal logic.
    */
   private initKeyDownListener() {
-    this.keydownEventDispatcher.getKeyDownObservable(this.destroyRef)
+    const keyDownSub = this.keydownEventDispatcher.getKeyDownObservable(this.destroyRef)
       .subscribe(event => this.handleKeyboardEvent(event));
+    this.subscription.add(keyDownSub);
   }
 
   /**

@@ -71,7 +71,7 @@ export class KeydownEventDispatcherService {
     const lastSubscriber = this.subscriberStack.at(-1);
 
     const openDialogs = this.matDialog.openDialogs;
-    if(openDialogs.length === 0 || (lastSubscriber?.dialogRef && openDialogs.includes(lastSubscriber.dialogRef))) {
+    if (openDialogs.length === 0 || (lastSubscriber?.dialogRef && openDialogs.includes(lastSubscriber.dialogRef))) {
       lastSubscriber?.subject.next(event);
     }
   }
@@ -82,9 +82,14 @@ export class KeydownEventDispatcherService {
    * @param subject - The subscriber to remove
    */
   private removeSubscriber(subject: Subject<KeyboardEvent>) {
+    // Get the index from the subject in the subscriber stack.
+    const index = this.subscriberStack.findIndex(sub => sub.subject === subject);
+
+    // Return when the subject is not in the subscriber stack
+    if (index === -1) return;
+
     subject.complete();
-    subject.unsubscribe();
-    this.subscriberStack = this.subscriberStack.filter(sub => sub.subject !== subject);
+    this.subscriberStack.splice(index, 1);
     this.stopKeydownSubscription();
   }
 

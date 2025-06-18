@@ -1,5 +1,6 @@
 import {Component, Input, OnChanges, SimpleChanges} from '@angular/core';
 import {X01Match} from '../../../../models/x01-match/x01-match';
+import {BaseComponent} from '../../../../shared/components/base/base.component';
 
 @Component({
   selector: 'app-x01-match-info',
@@ -8,7 +9,7 @@ import {X01Match} from '../../../../models/x01-match/x01-match';
   templateUrl: './x01-match-info.component.html',
   styleUrl: './x01-match-info.component.scss'
 })
-export class X01MatchInfoComponent implements OnChanges {
+export class X01MatchInfoComponent extends BaseComponent implements OnChanges {
   @Input() match: X01Match | null = null;
   matchInfoHeader: string | null = null;
 

@@ -2,6 +2,7 @@ import {Component} from '@angular/core';
 import {MatDialogActions, MatDialogClose, MatDialogContent} from '@angular/material/dialog';
 import {MatButton} from '@angular/material/button';
 import {MatIcon} from '@angular/material/icon';
+import {BaseComponent} from '../base/base.component';
 
 /**
  * Dialog component with static text specific for internal errors. Angular component lifecycle may be disrupted in certain
@@ -21,6 +22,6 @@ import {MatIcon} from '@angular/material/icon';
   templateUrl: './internal-error-dialog.component.html',
   styleUrl: './internal-error-dialog.component.scss'
 })
-export class InternalErrorDialogComponent {
+export class InternalErrorDialogComponent extends BaseComponent {
 
 }

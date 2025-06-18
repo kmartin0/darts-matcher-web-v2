@@ -8,6 +8,6 @@ export abstract class BaseComponent implements OnDestroy {
   protected subscription: Subscription = new Subscription();
 
   ngOnDestroy() {
-    this.subscription.unsubscribe();
+    this.subscription?.unsubscribe();
   }
 }

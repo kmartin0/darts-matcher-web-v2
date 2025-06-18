@@ -1,8 +1,9 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {ErrorComponent} from '../error/error.component';
 import {AbstractControl, ValidationErrors} from '@angular/forms';
 import {Subscription} from 'rxjs';
 import {ErrorMessageUtil} from '../../utils/validator-error-message.utils';
+import {BaseComponent} from '../base/base.component';
 
 @Component({
   selector: 'app-form-error',
@@ -13,15 +14,13 @@ import {ErrorMessageUtil} from '../../utils/validator-error-message.utils';
   templateUrl: './form-error.component.html',
   styleUrl: './form-error.component.scss'
 })
-export class FormErrorComponent implements OnInit, OnDestroy {
+export class FormErrorComponent extends BaseComponent implements OnInit {
   @Input() control!: AbstractControl;
-
-  private controlSubscription = new Subscription();
-  private submitSubscription = new Subscription();
-
   private _errorMessage: string | null = null;
+  private controlStatusSubscription?: Subscription;
 
   constructor(private errorMessageUtil: ErrorMessageUtil) {
+    super();
   }
 
   get errorMessage(): string | null {
@@ -37,20 +36,12 @@ export class FormErrorComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Lifecycle hook that cleans up all subscriptions to prevent memory leaks.
-   */
-  ngOnDestroy() {
-    this.controlSubscription.unsubscribe();
-    this.submitSubscription.unsubscribe();
-  }
-
-  /**
    * Subscribes to `statusChanges` and `valueChanges` of the control, updating error messages accordingly.
    */
   private subscribeToControl(): void {
-    this.controlSubscription.unsubscribe();
-    this.controlSubscription = new Subscription();
-    this.controlSubscription.add(this.control.statusChanges.subscribe(() => this.updateErrorMessage()));
+    this.controlStatusSubscription?.unsubscribe();
+    this.controlStatusSubscription = this.control.statusChanges.subscribe(() => this.updateErrorMessage());
+    this.subscription.add(this.controlStatusSubscription);
   }
 
   /**

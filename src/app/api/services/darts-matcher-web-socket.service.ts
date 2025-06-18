@@ -107,7 +107,7 @@ export class DartsMatcherWebSocketService {
    * Publishes a new X01 turn to the server via WebSocket.
    *
    * @param matchId - ID of the match the turn needs to be added to
-   * @param {X01Turn} turn - The turn data to send.
+   * @param {X01Turn} turn - The turn data to publish.
    */
   publishX01AddTurn(matchId: string, turn: X01Turn) {
     const destination = DARTS_MATCHER_WS_DESTINATIONS.PUBLISH.X01_ADD_TURN(matchId);
@@ -119,7 +119,7 @@ export class DartsMatcherWebSocketService {
    * Publishes an edited X01 turn to the server via WebSocket.
    *
    * @param matchId - ID of the match the turn needs to be edited in
-   * @param {X01EditTurn} editTurn - The edit turn data to send.
+   * @param {X01EditTurn} editTurn - The edit turn data to publish.
    */
   publishX01EditTurn(matchId: string, editTurn: X01EditTurn) {
     const destination = DARTS_MATCHER_WS_DESTINATIONS.PUBLISH.X01_EDIT_TURN(matchId);
@@ -217,7 +217,7 @@ export class DartsMatcherWebSocketService {
   }
 
   /**
-   * Sends a message to the specified WebSocket destination.
+   * publishes a message to the specified WebSocket destination.
    *
    * @param destination - The destination to which the message should be sent.
    * @param body - The message payload to be serialized and sent.

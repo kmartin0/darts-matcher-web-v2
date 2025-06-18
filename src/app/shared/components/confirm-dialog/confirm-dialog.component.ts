@@ -7,6 +7,7 @@ import {
   MatDialogRef,
   MatDialogTitle
 } from '@angular/material/dialog';
+import {BaseComponent} from '../base/base.component';
 
 export interface ConfirmDialogData {
   action: string;
@@ -24,10 +25,11 @@ export interface ConfirmDialogData {
   templateUrl: './confirm-dialog.component.html',
   styleUrl: './confirm-dialog.component.scss'
 })
-export class ConfirmDialogComponent {
+export class ConfirmDialogComponent extends BaseComponent {
 
   constructor(@Inject(MAT_DIALOG_DATA) public dialogData: ConfirmDialogData,
               private dialogRef: MatDialogRef<ConfirmDialogComponent>,) {
+    super();
     if (!dialogData) throw Error('Confirm Dialog Data Missing.');
   }
 

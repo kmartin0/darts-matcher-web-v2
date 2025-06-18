@@ -5,6 +5,7 @@ import {
 } from '../../../../shared/components/keypad-component/keypad-component.component';
 import {MatCard, MatCardContent} from '@angular/material/card';
 import {appendInteger, removeLastDigit} from '../../../../shared/utils/number.utils';
+import {BaseComponent} from '../../../../shared/components/base/base.component';
 
 @Component({
   selector: 'app-x01-score-input',
@@ -17,7 +18,7 @@ import {appendInteger, removeLastDigit} from '../../../../shared/utils/number.ut
   templateUrl: './x01-score-input.component.html',
   styleUrl: './x01-score-input.component.scss'
 })
-export class X01ScoreInputComponent {
+export class X01ScoreInputComponent extends BaseComponent {
   @Output() submitScoreEvent = new EventEmitter<number>();
   score?: number = undefined;
   isWindowFocused: boolean = document.hasFocus();

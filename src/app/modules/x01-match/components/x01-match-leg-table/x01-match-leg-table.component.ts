@@ -24,6 +24,7 @@ import {
   X01EditScoreDialogResult
 } from '../../../../shared/components/x01-edit-score-dialog/x01-edit-score-dialog.types';
 import {X01LegTableRow} from './x01-leg-table-data-source';
+import {BaseComponent} from '../../../../shared/components/base/base.component';
 
 @Component({
   selector: 'app-x01-match-leg-table',
@@ -47,7 +48,7 @@ import {X01LegTableRow} from './x01-leg-table-data-source';
   templateUrl: './x01-match-leg-table.component.html',
   styleUrl: './x01-match-leg-table.component.scss'
 })
-export class X01MatchLegTableComponent implements OnChanges {
+export class X01MatchLegTableComponent extends BaseComponent implements OnChanges {
   @Input() match: X01Match | null = null;
   @Input() legSelection: LegSelection | null = null;
   @Input() editMode: boolean = false;
@@ -56,6 +57,7 @@ export class X01MatchLegTableComponent implements OnChanges {
   viewData: X01MatchLegTableViewData | null = null;
 
   constructor(private viewDataTransformer: X01MatchLegTableViewDataTransformer, private dialogService: DialogService) {
+    super();
   }
 
   /**
@@ -118,10 +120,11 @@ export class X01MatchLegTableComponent implements OnChanges {
    */
   private openEditScoreDialog(dialogData: X01EditScoreDialogData) {
     const dialogRef = this.dialogService.openX01EditScoreDialog(dialogData);
-    dialogRef.afterClosed().subscribe((result: X01EditScoreDialogResult | null | undefined) => {
+    const sub = dialogRef.afterClosed().subscribe((result: X01EditScoreDialogResult | null | undefined) => {
       if (result === null || result === undefined) return;
       this.submitScoreEdit.emit(result);
     });
+    this.subscription.add(sub);
   }
 
   /**

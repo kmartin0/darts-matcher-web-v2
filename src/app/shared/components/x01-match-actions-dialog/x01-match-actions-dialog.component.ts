@@ -9,6 +9,7 @@ import {
   MatDialogTitle
 } from '@angular/material/dialog';
 import {MatIcon} from '@angular/material/icon';
+import {BaseComponent} from '../base/base.component';
 
 export interface X01MatchActionsDialogData {
   matchId: string;
@@ -37,10 +38,11 @@ export enum X01MatchDialogAction {
   templateUrl: './x01-match-actions-dialog.component.html',
   styleUrl: './x01-match-actions-dialog.component.scss'
 })
-export class X01MatchActionsDialogComponent {
+export class X01MatchActionsDialogComponent extends BaseComponent {
   constructor(@Inject(MAT_DIALOG_DATA) public dialogData: X01MatchActionsDialogData,
               private dialogRef: MatDialogRef<X01MatchActionsDialogComponent>,) {
     if (!dialogData) throw Error('Match Actions Dialog Data Missing.');
+    super();
   }
 
   /**

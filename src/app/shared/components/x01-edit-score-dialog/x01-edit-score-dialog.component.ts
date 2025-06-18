@@ -17,6 +17,7 @@ import {
   X01EditScoreDialogResult
 } from './x01-edit-score-dialog.types';
 import {KeydownEventDispatcherService} from '../../services/keydown-event-dispatcher/keydown-event-dispatcher.service';
+import {BaseComponent} from '../base/base.component';
 
 @Component({
   selector: 'app-x01-edit-score-dialog',
@@ -35,7 +36,7 @@ import {KeydownEventDispatcherService} from '../../services/keydown-event-dispat
   templateUrl: './x01-edit-score-dialog.component.html',
   styleUrl: './x01-edit-score-dialog.component.scss'
 })
-export class X01EditScoreDialogComponent {
+export class X01EditScoreDialogComponent extends BaseComponent {
 
   scoreFormControl = new FormControl<string | undefined>(undefined, {
     validators: [Validators.required, Validators.min(0), Validators.max(180)]
@@ -46,15 +47,16 @@ export class X01EditScoreDialogComponent {
               private keydownDispatcherService: KeydownEventDispatcherService,
               private destroyRef: DestroyRef) {
     if (!isX01EditScoreDialogData(dialogData)) throw Error('X01 Edit Score Dialog Data Missing.');
-
+    super();
     this.scoreFormControl.setValue(dialogData.currentScore.toString());
     this.initEnterKeyListener();
   }
 
   initEnterKeyListener() {
-    this.keydownDispatcherService.getKeyDownObservable(this.destroyRef, this.dialogRef).subscribe(event => {
+    const keyDownSub = this.keydownDispatcherService.getKeyDownObservable(this.destroyRef, this.dialogRef).subscribe(event => {
       if (event.key === 'Enter') this.submitDialog(this.scoreFormControl.value);
     });
+    this.subscription.add(keyDownSub);
   }
 
   submitDialog(newScore: any) {

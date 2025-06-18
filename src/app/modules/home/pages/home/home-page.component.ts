@@ -8,6 +8,7 @@ import {ApiErrorBody, isApiErrorBody} from '../../../../api/error/api-error-body
 import {DtoMapperService} from '../../../../api/services/dto-mapper.service';
 import {Router} from '@angular/router';
 import {AppEndpoints} from '../../../../core/app.endpoints';
+import {BaseComponent} from '../../../../shared/components/base/base.component';
 
 
 @Component({
@@ -19,13 +20,14 @@ import {AppEndpoints} from '../../../../core/app.endpoints';
   styleUrl: './home-page.component.scss',
   standalone: true
 })
-export class HomePageComponent {
+export class HomePageComponent extends BaseComponent {
 
   @ViewChild(MatchFormComponent) matchFormComponent!: MatchFormComponent;
 
   constructor(private dartsMatcherApi: DartsMatcherApiService,
               private router: Router,
               private dtoMapperService: DtoMapperService) {
+    super();
   }
 
   /**
@@ -37,10 +39,11 @@ export class HomePageComponent {
    */
   onMatchFormResult(matchFormResult: MatchFormResult) {
     console.log(`This is emitted: ${JSON.stringify(matchFormResult)}`);
-    this.dartsMatcherApi.createMatch(this.dtoMapperService.fromMatchFormResult(matchFormResult)).subscribe({
+    const sub = this.dartsMatcherApi.createMatch(this.dtoMapperService.fromMatchFormResult(matchFormResult)).subscribe({
       next: (match: X01Match) => this.handleCreateMatchSuccess(match),
       error: (err: HttpErrorResponse) => this.handleCreateMatchError(err)
     });
+    this.subscription.add(sub);
   }
 
   /**
@@ -50,7 +53,7 @@ export class HomePageComponent {
    */
   private handleCreateMatchSuccess(match: X01Match) {
     this.router.navigateByUrl(AppEndpoints.match(match.id)).then(success => {
-      if (!success) throw new Error("Navigate url failed");
+      if (!success) throw new Error('Navigate url failed');
     });
   }
 

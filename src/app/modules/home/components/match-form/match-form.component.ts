@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {MatRadioButton, MatRadioGroup} from '@angular/material/radio';
 import {BaseFormComponent} from '../../../../shared/components/base-form/base-form.component';
 import {AbstractControl, FormArray, FormGroup, ReactiveFormsModule} from '@angular/forms';
@@ -48,10 +48,9 @@ import {ErrorMessageUtil} from '../../../../shared/utils/validator-error-message
   styleUrl: './match-form.component.scss',
   standalone: true
 })
-export class MatchFormComponent extends BaseFormComponent<MatchFormResult> implements OnInit, OnDestroy {
+export class MatchFormComponent extends BaseFormComponent<MatchFormResult> implements OnInit {
 
   private playerSubscriptions = new Map<FormGroup<PlayerGroup>, Subscription>();
-  private bestOfSubscription = new Subscription();
 
   protected readonly PlayerType = PlayerType;
   protected readonly BestOfType = BestOfType;
@@ -77,18 +76,6 @@ export class MatchFormComponent extends BaseFormComponent<MatchFormResult> imple
    */
   ngOnInit() {
     this.subscribeBestOfListener();
-  }
-
-  /**
-   * Lifecycle hook that is called when the component is about to be destroyed.
-   * Unsubscribes from all active subscriptions.
-   */
-  ngOnDestroy() {
-    this.playerSubscriptions.forEach((subscription) => {
-      subscription.unsubscribe();
-    });
-
-    this.bestOfSubscription.unsubscribe();
   }
 
   /**
@@ -143,7 +130,13 @@ export class MatchFormComponent extends BaseFormComponent<MatchFormResult> imple
   removePlayer(index: number) {
     if (this.playersFormArray.length > 1) {
       const playerGroup = this.playersFormArray.at(index);
-      this.playerSubscriptions.get(playerGroup)?.unsubscribe();
+      const sub = this.playerSubscriptions.get(playerGroup);
+
+      if (sub) {
+        sub.unsubscribe();
+        this.subscription.remove(sub);
+      }
+
       this.playerSubscriptions.delete(playerGroup);
       this.playersFormArray.removeAt(index);
     }
@@ -190,7 +183,7 @@ export class MatchFormComponent extends BaseFormComponent<MatchFormResult> imple
       const control = this.findControlForApiField(apiTargetKey);
 
       if (errorMsg) this.setError(control, errorMsg);
-    })
+    });
   }
 
   /**
@@ -208,7 +201,7 @@ export class MatchFormComponent extends BaseFormComponent<MatchFormResult> imple
     };
 
     // Try finding the control using the static error map first.
-    let control: AbstractControl | null = errorMap[apiTargetKey]
+    let control: AbstractControl | null = errorMap[apiTargetKey];
 
     // If the key doesn't match any of the static fields, try mapping to player array items.
     const playersPrefix = 'players[';
@@ -254,7 +247,7 @@ export class MatchFormComponent extends BaseFormComponent<MatchFormResult> imple
       }
     });
 
-    this.bestOfSubscription.add(subscription);
+    this.subscription.add(subscription);
   }
 
   /**
@@ -285,5 +278,6 @@ export class MatchFormComponent extends BaseFormComponent<MatchFormResult> imple
     });
 
     this.playerSubscriptions.set(playerGroup, subscription);
+    this.subscription.add(subscription);
   }
 }

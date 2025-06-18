@@ -10,6 +10,7 @@ import {
 import {MatButton} from '@angular/material/button';
 import {MatRadioButton, MatRadioGroup} from '@angular/material/radio';
 import {KeydownEventDispatcherService} from '../../services/keydown-event-dispatcher/keydown-event-dispatcher.service';
+import {BaseComponent} from '../base/base.component';
 
 export interface NumberSelectionDialogData {
   title: string;
@@ -37,7 +38,7 @@ export interface NumberSelectionDialogData {
   templateUrl: './number-selection-dialog.component.html',
   styleUrl: './number-selection-dialog.component.scss'
 })
-export class NumberSelectionDialogComponent {
+export class NumberSelectionDialogComponent extends BaseComponent {
 
   numberOptionsFormControl = new FormControl<number | null>(null);
 
@@ -58,7 +59,7 @@ export class NumberSelectionDialogComponent {
               private keydownEventDispatcher: KeydownEventDispatcherService,
               private destroyRef: DestroyRef) {
     if (!dialogData) throw Error('Number Selection Dialog Data Missing.');
-
+    super();
     this.initKeyDownListener();
     this.initAcceptedKeyStrokes();
   }
@@ -81,8 +82,9 @@ export class NumberSelectionDialogComponent {
    * Subscribes to global keyboard events and handles numeric or special keys.
    */
   private initKeyDownListener() {
-    this.keydownEventDispatcher.getKeyDownObservable(this.destroyRef, this.dialogRef)
+    const keyDownSub = this.keydownEventDispatcher.getKeyDownObservable(this.destroyRef, this.dialogRef)
       .subscribe(event => this.handleKeyboardEvent(event));
+    this.subscription.add(keyDownSub);
   }
 
   /**

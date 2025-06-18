@@ -1,6 +1,6 @@
-import {Component, DestroyRef, OnDestroy, OnInit} from '@angular/core';
+import {Component, DestroyRef, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {EMPTY, Observable, of, Subscription, switchMap} from 'rxjs';
+import {EMPTY, Observable, of, switchMap} from 'rxjs';
 import {X01Match} from '../../../../models/x01-match/x01-match';
 import {NgIf} from '@angular/common';
 import {MatToolbar} from '@angular/material/toolbar';
@@ -22,6 +22,7 @@ import {
   X01MatchDialogAction
 } from '../../../../shared/components/x01-match-actions-dialog/x01-match-actions-dialog.component';
 import {MatTooltip} from '@angular/material/tooltip';
+import {BaseComponent} from '../../../../shared/components/base/base.component';
 
 @Component({
   selector: 'app-x01-match-page',
@@ -38,10 +39,9 @@ import {MatTooltip} from '@angular/material/tooltip';
   templateUrl: './x01-match-page.component.html',
   styleUrl: './x01-match-page.component.scss'
 })
-export class X01MatchPageComponent implements OnInit, OnDestroy {
+export class X01MatchPageComponent extends BaseComponent implements OnInit {
 
   private readonly matchIdParamKey = 'matchId';
-  private getMatchSubscription: Subscription = new Subscription();
   matchNotFound: boolean = false;
   matchDeleteEvent: boolean = false;
 
@@ -50,6 +50,7 @@ export class X01MatchPageComponent implements OnInit, OnDestroy {
   constructor(private route: ActivatedRoute, private webSocketService: DartsMatcherWebSocketService,
               private apiErrorBodyHandler: ApiErrorBodyHandler, private destroyRef: DestroyRef, private router: Router,
               private dialogService: DialogService) {
+    super();
   }
 
   /**
@@ -63,18 +64,11 @@ export class X01MatchPageComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Lifecycle hook that triggers when the component is destroyed.
-   * Cleans up all subscriptions and deactivates WebSocket connection.
-   */
-  ngOnDestroy() {
-    this.getMatchSubscription.unsubscribe();
-  }
-
-  /**
    * Navigates the user to the home page.
    */
   navigateToHome() {
-    this.router.navigateByUrl(AppEndpoints.home()).catch(() => {
+    this.router.navigateByUrl(AppEndpoints.home()).catch(e => {
+      console.log(e);
     });
   }
 
@@ -85,7 +79,7 @@ export class X01MatchPageComponent implements OnInit, OnDestroy {
   openMatchActionsDialog() {
     if (!this.match) return;
     const dialogRef = this.dialogService.openX01MatchActionsDialog({matchId: this.match.id});
-    dialogRef.afterClosed().subscribe((result: X01MatchActionsDialogResult | null | undefined) => {
+    const sub = dialogRef.afterClosed().subscribe((result: X01MatchActionsDialogResult | null | undefined) => {
       if (result === null || result === undefined) return;
       switch (result.action) {
         case X01MatchDialogAction.RESET_MATCH: {
@@ -98,6 +92,7 @@ export class X01MatchPageComponent implements OnInit, OnDestroy {
         }
       }
     });
+    this.subscription.add(sub);
   }
 
   /**
@@ -105,12 +100,12 @@ export class X01MatchPageComponent implements OnInit, OnDestroy {
    * and the broadcast for match updates.
    */
   private getMatch() {
-    this.getMatchSubscription.add(this.getAndValidateMatchIdFromRoute().pipe(
-        switchMap(matchId => this.webSocketService.getX01MatchBroadcast(matchId))
-      ).subscribe({
-        next: (event: X01WebSocketEvent) => this.handleWebSocketEvent(event),
-      })
-    );
+    const sub = this.getAndValidateMatchIdFromRoute().pipe(
+      switchMap(matchId => this.webSocketService.getX01MatchBroadcast(matchId))
+    ).subscribe({
+      next: (event: X01WebSocketEvent) => this.handleWebSocketEvent(event),
+    });
+    this.subscription.add(sub);
   }
 
   /**
@@ -176,9 +171,10 @@ export class X01MatchPageComponent implements OnInit, OnDestroy {
    */
   private openConfirmResetMatchDialog() {
     const dialogRef = this.dialogService.openConfirmDialog({action: 'Reset Match'});
-    dialogRef.afterClosed().subscribe((result: boolean) => {
+    const sub = dialogRef.afterClosed().subscribe((result: boolean) => {
       if (result) this.publishResetMatch();
     });
+    this.subscription.add(sub);
   }
 
   /**
@@ -187,9 +183,10 @@ export class X01MatchPageComponent implements OnInit, OnDestroy {
    */
   private openConfirmDeleteMatchDialog() {
     const dialogRef = this.dialogService.openConfirmDialog({action: 'Delete Match'});
-    dialogRef.afterClosed().subscribe((result: boolean) => {
+    const sub = dialogRef.afterClosed().subscribe((result: boolean) => {
       if (result) this.publishDeleteMatch();
     });
+    this.subscription.add(sub);
   }
 
   /**
@@ -214,11 +211,12 @@ export class X01MatchPageComponent implements OnInit, OnDestroy {
    * Subscribes to the websocket error queue. Delegates the errors to the ws error body handler.
    */
   private subscribeErrorQueue() {
-    this.webSocketService.getErrorQueue().subscribe({
+    const sub = this.webSocketService.getErrorQueue().subscribe({
       next: (apiWsErrorBody) => {
         this.handleApiWsErrorBody(apiWsErrorBody);
       }
     });
+    this.subscription.add(sub);
   }
 
   /**
