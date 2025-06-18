@@ -120,11 +120,13 @@ export class X01MatchLegTableComponent extends BaseComponent implements OnChange
    */
   private openEditScoreDialog(dialogData: X01EditScoreDialogData) {
     const dialogRef = this.dialogService.openX01EditScoreDialog(dialogData);
-    const sub = dialogRef.afterClosed().subscribe((result: X01EditScoreDialogResult | null | undefined) => {
-      if (result === null || result === undefined) return;
-      this.submitScoreEdit.emit(result);
-    });
-    this.subscription.add(sub);
+    if (dialogRef) {
+      const sub = dialogRef.afterClosed().subscribe(result => {
+        if (!result) return;
+        this.submitScoreEdit.emit(result);
+      });
+      this.subscription.add(sub);
+    }
   }
 
   /**

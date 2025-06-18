@@ -11,7 +11,7 @@ import {LegSelection} from '../../../../models/common/leg-selection';
 import {X01ScoreInputComponent} from '../x01-score-input/x01-score-input.component';
 import {SelectLegFormComponent} from '../select-leg-form/select-leg-form.component';
 import {DartsMatcherWebSocketService} from '../../../../api/services/darts-matcher-web-socket.service';
-import {firstValueFrom} from 'rxjs';
+import {firstValueFrom, takeUntil} from 'rxjs';
 import {
   getLeg,
   getLegInPlay,
@@ -188,7 +188,10 @@ export class X01MatchComponent extends BaseComponent implements OnInit, OnChange
    */
   private async openDoublesMissedDialog(score: number, dartsUsed: number): Promise<X01LegRoundScore | null> {
     const dialogRef = this.dialogService.openDoublesMissedDialog();
-    const doublesMissed = await firstValueFrom<number | undefined>(dialogRef.afterClosed()); // TODO $ondestroy basecomponent
+    if (!dialogRef) return null;
+
+    const dialogResult$ = dialogRef.afterClosed().pipe(takeUntil(this.destroy$));
+    const doublesMissed = await firstValueFrom(dialogResult$, {defaultValue: undefined});
 
     if (doublesMissed === undefined || doublesMissed === null) return null;
 
@@ -207,8 +210,10 @@ export class X01MatchComponent extends BaseComponent implements OnInit, OnChange
   private async openDartsUsedDialog(score: number, trackDoubles: boolean): Promise<X01LegRoundScore | null> {
     const checkout = await this.checkoutService.getCheckout(score);
     const dialogRef = this.dialogService.openDartsUsedDialog(checkout ?? null);
-    const dartsUsed = await firstValueFrom<number | undefined>(dialogRef.afterClosed()); // TODO $ondestroy basecomponent
+    if (!dialogRef) return null;
 
+    const dialogResult$ = dialogRef.afterClosed().pipe(takeUntil(this.destroy$));
+    const dartsUsed = await firstValueFrom(dialogResult$, {defaultValue: undefined});
     if (dartsUsed === undefined || dartsUsed === null) return null;
 
     if (trackDoubles) return await this.openDoublesMissedDialog(score, dartsUsed);

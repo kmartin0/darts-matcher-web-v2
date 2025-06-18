@@ -1,12 +1,12 @@
 import {Component, Inject} from '@angular/core';
 import {MatIcon} from '@angular/material/icon';
 import {MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent} from '@angular/material/dialog';
-import {BasicDialogData} from './basic-dialog-data';
+import {TextDialogData} from './text-dialog-data';
 import {NgIf} from '@angular/common';
 import {MatButton} from '@angular/material/button';
 
 @Component({
-  selector: 'app-basic-dialog',
+  selector: 'app-text-dialog',
   imports: [
     MatIcon,
     NgIf,
@@ -17,12 +17,12 @@ import {MatButton} from '@angular/material/button';
     MatDialogClose
   ],
   standalone: true,
-  templateUrl: './basic-dialog.component.html',
-  styleUrl: './basic-dialog.component.scss'
+  templateUrl: './text-dialog.component.html',
+  styleUrl: './text-dialog.component.scss'
 })
-export class BasicDialogComponent {
+export class TextDialogComponent {
 
-  constructor(@Inject(MAT_DIALOG_DATA) public data: BasicDialogData) {
+  constructor(@Inject(MAT_DIALOG_DATA) public data: TextDialogData) {
   }
 
   get title(): string {

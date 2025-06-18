@@ -79,20 +79,33 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
   openMatchActionsDialog() {
     if (!this.match) return;
     const dialogRef = this.dialogService.openX01MatchActionsDialog({matchId: this.match.id});
-    const sub = dialogRef.afterClosed().subscribe((result: X01MatchActionsDialogResult | null | undefined) => {
-      if (result === null || result === undefined) return;
-      switch (result.action) {
-        case X01MatchDialogAction.RESET_MATCH: {
-          this.openConfirmResetMatchDialog();
-          break;
-        }
-        case X01MatchDialogAction.DELETE_MATCH: {
-          this.openConfirmDeleteMatchDialog();
-          break;
-        }
+    if (dialogRef) {
+      const sub = dialogRef.afterClosed().subscribe(result => {
+        if (!result) return;
+        this.handleMatchActionsDialogResult(result);
+      });
+      this.subscription.add(sub);
+    }
+  }
+
+  /**
+   * Handles the result from the X01 match actions dialog.
+   * Depending on the selected action, opens a confirmation dialog
+   * to either reset or delete the match.
+   *
+   * @param result - The result object containing the selected action.
+   */
+  private handleMatchActionsDialogResult(result: X01MatchActionsDialogResult) {
+    switch (result.action) {
+      case X01MatchDialogAction.RESET_MATCH: {
+        this.openConfirmResetMatchDialog();
+        break;
       }
-    });
-    this.subscription.add(sub);
+      case X01MatchDialogAction.DELETE_MATCH: {
+        this.openConfirmDeleteMatchDialog();
+        break;
+      }
+    }
   }
 
   /**
@@ -171,10 +184,12 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
    */
   private openConfirmResetMatchDialog() {
     const dialogRef = this.dialogService.openConfirmDialog({action: 'Reset Match'});
-    const sub = dialogRef.afterClosed().subscribe((result: boolean) => {
-      if (result) this.publishResetMatch();
-    });
-    this.subscription.add(sub);
+    if (dialogRef) {
+      const sub = dialogRef.afterClosed().subscribe(result => {
+        if (result) this.publishResetMatch();
+      });
+      this.subscription.add(sub);
+    }
   }
 
   /**
@@ -183,10 +198,12 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
    */
   private openConfirmDeleteMatchDialog() {
     const dialogRef = this.dialogService.openConfirmDialog({action: 'Delete Match'});
-    const sub = dialogRef.afterClosed().subscribe((result: boolean) => {
-      if (result) this.publishDeleteMatch();
-    });
-    this.subscription.add(sub);
+    if (dialogRef) {
+      const sub = dialogRef.afterClosed().subscribe(result => {
+        if (result) this.publishDeleteMatch();
+      });
+      this.subscription.add(sub);
+    }
   }
 
   /**

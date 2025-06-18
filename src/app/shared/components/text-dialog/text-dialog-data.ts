@@ -1,4 +1,4 @@
-export interface BasicDialogData {
+export interface TextDialogData {
   title?: string;
   subtitle?: string;
   contentText?: string;
