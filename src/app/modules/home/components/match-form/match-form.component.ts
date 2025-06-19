@@ -19,7 +19,6 @@ import {ApiErrorBody} from '../../../../api/error/api-error-body';
 import {FormErrorComponent} from '../../../../shared/components/form-error/form-error.component';
 import {MatchFormFactory} from './match-form.factory';
 import {TargetErrors} from '../../../../api/error/target-errors';
-import {ErrorMessageUtil} from '../../../../shared/utils/validator-error-message.utils';
 
 @Component({
   selector: 'app-match-form',
@@ -55,10 +54,10 @@ export class MatchFormComponent extends BaseFormComponent<MatchFormResult> imple
   protected readonly PlayerType = PlayerType;
   protected readonly BestOfType = BestOfType;
 
-  matchForm!: FormGroup<MatchForm>;
+  private matchForm!: FormGroup<MatchForm>;
 
-  constructor(errorMessageUtil: ErrorMessageUtil, public matchFormFactory: MatchFormFactory) {
-    super(errorMessageUtil);
+  constructor(public matchFormFactory: MatchFormFactory) {
+    super();
     this.initMatchForm();
   }
 

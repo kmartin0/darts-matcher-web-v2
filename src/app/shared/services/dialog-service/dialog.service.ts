@@ -13,11 +13,6 @@ import {
   X01EditScoreDialogData,
   X01EditScoreDialogResult
 } from '../../components/x01-edit-score-dialog/x01-edit-score-dialog.types';
-import {
-  X01MatchActionsDialogComponent,
-  X01MatchActionsDialogData,
-  X01MatchActionsDialogResult
-} from '../../components/x01-match-actions-dialog/x01-match-actions-dialog.component';
 import {ConfirmDialogComponent, ConfirmDialogData} from '../../components/confirm-dialog/confirm-dialog.component';
 import {ComponentType} from '@angular/cdk/portal';
 
@@ -101,13 +96,6 @@ export class DialogService {
     stackable: boolean = false
   ): MatDialogRef<X01EditScoreDialogComponent, (X01EditScoreDialogResult)> | null {
     return this._open(X01EditScoreDialogComponent, {data: dialogData}, stackable);
-  }
-
-  public openX01MatchActionsDialog(
-    dialogData: X01MatchActionsDialogData,
-    stackable: boolean = false
-  ): MatDialogRef<X01MatchActionsDialogComponent, X01MatchActionsDialogResult> | null {
-    return this._open(X01MatchActionsDialogComponent, {data: dialogData}, stackable);
   }
 
   public openConfirmDialog(

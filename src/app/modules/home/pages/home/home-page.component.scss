@@ -3,10 +3,11 @@
 
 .home-page-component-container {
   @include helpers.module-page();
+  gap: 24px;
 }
 
 .header-container {
-  margin-bottom: 32px;
+  margin-bottom: 8px;
 }
 
 .title {
@@ -28,4 +29,9 @@
 .title, .subtitle {
   margin: 4px;
   text-align: center;
+}
+
+.form-container {
+  width: 100%;
+  max-width: 575px;
 }

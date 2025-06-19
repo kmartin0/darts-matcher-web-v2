@@ -1,4 +1,5 @@
 import {AbstractControl, ValidationErrors, ValidatorFn} from '@angular/forms';
+import {isValidObjectId} from '../utils/object-id.utils';
 
 export class CustomValidators {
 
@@ -26,5 +27,11 @@ export class CustomValidators {
         }
       };
     };
+  }
+
+  static validObjectId(control: AbstractControl): ValidationErrors | null {
+    if (!control.value) return null;
+
+    return isValidObjectId(control.value) ? null : {invalidObjectId: true};
   }
 }

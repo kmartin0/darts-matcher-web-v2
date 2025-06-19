@@ -2,10 +2,27 @@
   <span class=navigate-home-btn (click)="navigateToHome()" style="cursor: pointer">X01 Match</span>
   <span class="spacer"></span>
   <mat-spinner *ngIf="webSocketClosed" [diameter]="40"></mat-spinner>
-  <button class="delete-match-btn" *ngIf="match" mat-icon-button (click)="openMatchActionsDialog()"
-          matTooltip="Match options">
-    <mat-icon>build</mat-icon>
+  <button mat-icon-button [matMenuTriggerFor]="menu" matTooltip="More Options" *ngIf="this.match">
+    <mat-icon>more_vert</mat-icon>
   </button>
+  <mat-menu #menu="matMenu">
+    <button mat-menu-item (click)="copyUrlToClipboard()">
+      <mat-icon>content_copy</mat-icon>
+      <span>Copy match link</span>
+    </button>
+    <button mat-menu-item (click)="copyMatchIdToClipboard()">
+      <mat-icon>content_copy</mat-icon>
+      <span>Copy match id</span>
+    </button>
+    <button mat-menu-item (click)="openConfirmResetMatchDialog()">
+      <mat-icon>replay</mat-icon>
+      <span>Reset Match</span>
+    </button>
+    <button mat-menu-item (click)="openConfirmDeleteMatchDialog()">
+      <mat-icon>delete</mat-icon>
+      <span>Delete Match</span>
+    </button>
+  </mat-menu>
 </mat-toolbar>
 
 <div class="x01-match-page-component-container">

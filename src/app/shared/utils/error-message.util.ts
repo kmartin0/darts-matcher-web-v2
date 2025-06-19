@@ -26,6 +26,7 @@ export class ErrorMessageUtil {
     CONFIRM_PASSWORD: 'confirmPassword',
     MIN_LENGTH_ARRAY: 'minLengthArray',
     MAX_LENGTH_ARRAY: 'maxLengthArray',
+    INVALID_OBJECT_ID: 'invalidObjectId',
     CUSTOM_ERROR: 'customError',
     UNKNOWN: 'unknown',
   };
@@ -43,6 +44,7 @@ export class ErrorMessageUtil {
     [ErrorMessageUtil.errorKeys.CONFIRM_PASSWORD]: () => 'Passwords must match.',
     [ErrorMessageUtil.errorKeys.MIN_LENGTH_ARRAY]: (value) => `Must be at least ${value?.min} ${value?.name}`,
     [ErrorMessageUtil.errorKeys.MAX_LENGTH_ARRAY]: (value) => `Must not be more than ${value?.max} ${value?.name}`,
+    [ErrorMessageUtil.errorKeys.INVALID_OBJECT_ID]: () => `Invalid Match ID`,
     [ErrorMessageUtil.errorKeys.CUSTOM_ERROR]: (value) => `${value}`,
     [ErrorMessageUtil.errorKeys.UNKNOWN]: () => 'An unknown error has occurred.',
   };

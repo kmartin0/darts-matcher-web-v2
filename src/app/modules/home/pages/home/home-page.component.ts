@@ -9,12 +9,14 @@ import {DtoMapperService} from '../../../../api/services/dto-mapper.service';
 import {Router} from '@angular/router';
 import {AppEndpoints} from '../../../../core/app.endpoints';
 import {BaseComponent} from '../../../../shared/components/base/base.component';
+import {MatchIdFormComponent} from '../../components/match-id-form/match-id-form.component';
 
 
 @Component({
   selector: 'app-home',
   imports: [
-    MatchFormComponent
+    MatchFormComponent,
+    MatchIdFormComponent
   ],
   templateUrl: './home-page.component.html',
   styleUrl: './home-page.component.scss',
@@ -23,6 +25,7 @@ import {BaseComponent} from '../../../../shared/components/base/base.component';
 export class HomePageComponent extends BaseComponent {
 
   @ViewChild(MatchFormComponent) matchFormComponent!: MatchFormComponent;
+  @ViewChild(MatchIdFormComponent) matchIdFormComponent!: MatchIdFormComponent;
 
   constructor(private dartsMatcherApi: DartsMatcherApiService,
               private router: Router,
@@ -38,35 +41,60 @@ export class HomePageComponent extends BaseComponent {
    * @param matchFormResult - The form result for creating a x01 match
    */
   onMatchFormResult(matchFormResult: MatchFormResult) {
-    console.log(`This is emitted: ${JSON.stringify(matchFormResult)}`);
     const sub = this.dartsMatcherApi.createMatch(this.dtoMapperService.fromMatchFormResult(matchFormResult)).subscribe({
-      next: (match: X01Match) => this.handleCreateMatchSuccess(match),
+      next: (match: X01Match) => this.navigateToMatch(match.id),
       error: (err: HttpErrorResponse) => this.handleCreateMatchError(err)
     });
     this.subscription.add(sub);
   }
 
   /**
-   * When a match is successfully created the app will navigate to match component.
+   * Handler for when a match id form is submitted.
+   * Uses the api to check whether the match exists. If it does it will navigate towards it. Otherwise, Display an error.
    *
-   * @param match - The newly created match
+   * @param matchId - The form result containing the match id in string format.
    */
-  private handleCreateMatchSuccess(match: X01Match) {
-    this.router.navigateByUrl(AppEndpoints.match(match.id)).then(success => {
+  onMatchIdResult(matchId: string) {
+    const sub = this.dartsMatcherApi.getMatchExists(matchId).subscribe({
+      next: () => this.navigateToMatch(matchId),
+      error: (err: HttpErrorResponse) => this.handleMatchExistsError(err)
+    });
+    this.subscription.add(sub);
+  }
+
+  /**
+   * Navigate to match component for a match id.
+   *
+   * @param matchId - The match id to navigate to.
+   */
+  private navigateToMatch(matchId: string) {
+    this.router.navigateByUrl(AppEndpoints.match(matchId)).then(success => {
       if (!success) throw new Error('Navigate url failed');
     });
   }
 
   /**
-   * When an error occurred creating a match. The form component will display the error message at the corresponding
-   * form field.
+   * When an error occurred creating a match.
+   * The form component will display the error message at the corresponding form field.
    *
    * @param err - The http error response.
    */
   private handleCreateMatchError(err: HttpErrorResponse) {
-    if (isApiErrorBody(err)) {
+    if (isApiErrorBody(err.error)) {
       const apiErrorBody = err.error as ApiErrorBody;
       this.matchFormComponent.handleApiError(apiErrorBody);
+    }
+  }
+
+  /**
+   * When an error occurred while checking whether a match exists.
+   * The form component will display the error message at the corresponding form field.
+   * @param err - The http error response.
+   */
+  private handleMatchExistsError(err: HttpErrorResponse) {
+    if (isApiErrorBody(err.error)) {
+      const apiErrorBody = err.error as ApiErrorBody;
+      this.matchIdFormComponent.handleApiError(apiErrorBody);
     }
   }
 }

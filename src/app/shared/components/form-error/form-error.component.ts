@@ -1,8 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {ErrorComponent} from '../error/error.component';
 import {AbstractControl, ValidationErrors} from '@angular/forms';
-import {Subscription} from 'rxjs';
-import {ErrorMessageUtil} from '../../utils/validator-error-message.utils';
+import {ErrorMessageUtil} from '../../utils/error-message.util';
 import {BaseComponent} from '../base/base.component';
 
 @Component({
@@ -17,7 +16,6 @@ import {BaseComponent} from '../base/base.component';
 export class FormErrorComponent extends BaseComponent implements OnInit {
   @Input() control!: AbstractControl;
   private _errorMessage: string | null = null;
-  private controlStatusSubscription?: Subscription;
 
   constructor(private errorMessageUtil: ErrorMessageUtil) {
     super();
@@ -39,16 +37,17 @@ export class FormErrorComponent extends BaseComponent implements OnInit {
    * Subscribes to `statusChanges` and `valueChanges` of the control, updating error messages accordingly.
    */
   private subscribeToControl(): void {
-    this.controlStatusSubscription?.unsubscribe();
-    this.controlStatusSubscription = this.control.statusChanges.subscribe(() => this.updateErrorMessage());
-    this.subscription.add(this.controlStatusSubscription);
+    this.subscription?.unsubscribe();
+    this.subscription = this.control.statusChanges.subscribe(e => this.updateErrorMessage(e));
   }
 
   /**
    * Converts the first validation error to a user-friendly string and updates the error message property with the value.
    */
-  private updateErrorMessage() {
+  private updateErrorMessage(e: any) {
+    const isDirtyOrTouched = this.control.dirty || this.control.touched;
+
     const controlError: ValidationErrors | null = this.control.errors;
-    this._errorMessage = this.errorMessageUtil.getFirstErrorMessage(controlError);
+    this._errorMessage = isDirtyOrTouched ? this.errorMessageUtil.getFirstErrorMessage(controlError) : null;
   }
 }

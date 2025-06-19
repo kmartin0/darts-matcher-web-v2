@@ -26,4 +26,8 @@ export class DartsMatcherApiService {
     return this.api.makeGet(DARTS_MATCHER_API_ENDPOINTS.GET_X01_CHECKOUTS);
   }
 
+  getMatchExists(matchId: string): Observable<null> {
+    return this.api.makeGet(DARTS_MATCHER_API_ENDPOINTS.X01_MATCH_EXISTS(matchId));
+  }
+
 }

@@ -1,6 +1,6 @@
 import {Component, DestroyRef, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {debounce, debounceTime, EMPTY, Observable, of, switchMap} from 'rxjs';
+import {debounceTime, EMPTY, Observable, of, switchMap} from 'rxjs';
 import {X01Match} from '../../../../models/x01-match/x01-match';
 import {NgIf} from '@angular/common';
 import {MatToolbar} from '@angular/material/toolbar';
@@ -17,14 +17,12 @@ import {X01WebSocketEventType} from '../../../../api/dto/x01-web-socket-event-ty
 import {MatButton, MatIconButton} from '@angular/material/button';
 import {MatIcon} from '@angular/material/icon';
 import {DialogService} from '../../../../shared/services/dialog-service/dialog.service';
-import {
-  X01MatchActionsDialogResult,
-  X01MatchDialogAction
-} from '../../../../shared/components/x01-match-actions-dialog/x01-match-actions-dialog.component';
 import {MatTooltip} from '@angular/material/tooltip';
 import {BaseComponent} from '../../../../shared/components/base/base.component';
 import {RxStompState} from '@stomp/rx-stomp';
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
+import {MatMenu, MatMenuItem, MatMenuTrigger} from '@angular/material/menu';
+import {MatSnackBar} from '@angular/material/snack-bar';
 
 
 @Component({
@@ -38,6 +36,9 @@ import {MatProgressSpinner} from '@angular/material/progress-spinner';
     MatIcon,
     MatTooltip,
     MatProgressSpinner,
+    MatMenuTrigger,
+    MatMenu,
+    MatMenuItem,
   ],
   standalone: true,
   templateUrl: './x01-match-page.component.html',
@@ -54,7 +55,7 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
 
   constructor(private route: ActivatedRoute, private webSocketService: DartsMatcherWebSocketService,
               private apiErrorBodyHandler: ApiErrorBodyHandler, private destroyRef: DestroyRef, private router: Router,
-              private dialogService: DialogService) {
+              private dialogService: DialogService, private snackBar: MatSnackBar) {
     super();
   }
 
@@ -79,16 +80,55 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
   }
 
   /**
-   * Opens a dialog allowing the user to choose match actions (e.g., reset or delete).
-   * If the user selects an action, a confirmation dialog is opened.
+   * Copies the current page URL (match URL) to the clipboard.
+   * Shows a snackbar notification indicating success or failure.
    */
-  openMatchActionsDialog() {
-    if (!this.match) return;
-    const dialogRef = this.dialogService.openX01MatchActionsDialog({matchId: this.match.id});
+  copyUrlToClipboard() {
+    navigator.clipboard.writeText(window.location.href)
+      .then(() => this.openSnackBar('Link copied'))
+      .catch(err => this.openSnackBar('Failed to copy url'));
+  }
+
+  /**
+   * Copies the current match ID to the clipboard.
+   * Only runs if `match` is defined.
+   * Shows a snackbar notification indicating success or failure.
+   */
+  copyMatchIdToClipboard() {
+    const errorHandler = () => this.openSnackBar('Failed to copy match ID');
+    if (!this.match) {
+      errorHandler();
+      return;
+    }
+
+    navigator.clipboard.writeText(this.match.id)
+      .then(() => this.openSnackBar('Match ID copied'))
+      .catch(err => errorHandler());
+  }
+
+  /**
+   * Opens a confirmation dialog for resetting the match.
+   * If the user confirms, triggers the `publishResetMatch()` method to publish the reset event.
+   */
+  openConfirmResetMatchDialog() {
+    const dialogRef = this.dialogService.openConfirmDialog({action: 'Reset Match'});
     if (dialogRef) {
       const sub = dialogRef.afterClosed().subscribe(result => {
-        if (!result) return;
-        this.handleMatchActionsDialogResult(result);
+        if (result) this.publishResetMatch();
+      });
+      this.subscription.add(sub);
+    }
+  }
+
+  /**
+   * Opens a confirmation dialog for deleting the match.
+   * If the user confirms, triggers the `publishDeleteMatch()` method to publish the delete event.
+   */
+  openConfirmDeleteMatchDialog() {
+    const dialogRef = this.dialogService.openConfirmDialog({action: 'Delete Match'});
+    if (dialogRef) {
+      const sub = dialogRef.afterClosed().subscribe(result => {
+        if (result) this.publishDeleteMatch();
       });
       this.subscription.add(sub);
     }
@@ -109,26 +149,6 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
         this.webSocketClosed = rxStompState !== RxStompState.OPEN;
       });
     this.subscription.add(sub);
-  }
-
-  /**
-   * Handles the result from the X01 match actions dialog.
-   * Depending on the selected action, opens a confirmation dialog
-   * to either reset or delete the match.
-   *
-   * @param result - The result object containing the selected action.
-   */
-  private handleMatchActionsDialogResult(result: X01MatchActionsDialogResult) {
-    switch (result.action) {
-      case X01MatchDialogAction.RESET_MATCH: {
-        this.openConfirmResetMatchDialog();
-        break;
-      }
-      case X01MatchDialogAction.DELETE_MATCH: {
-        this.openConfirmDeleteMatchDialog();
-        break;
-      }
-    }
   }
 
   /**
@@ -202,34 +222,6 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
   }
 
   /**
-   * Opens a confirmation dialog for resetting the match.
-   * If the user confirms, triggers the `publishResetMatch()` method to publish the reset event.
-   */
-  private openConfirmResetMatchDialog() {
-    const dialogRef = this.dialogService.openConfirmDialog({action: 'Reset Match'});
-    if (dialogRef) {
-      const sub = dialogRef.afterClosed().subscribe(result => {
-        if (result) this.publishResetMatch();
-      });
-      this.subscription.add(sub);
-    }
-  }
-
-  /**
-   * Opens a confirmation dialog for deleting the match.
-   * If the user confirms, triggers the `publishDeleteMatch()` method to publish the delete event.
-   */
-  private openConfirmDeleteMatchDialog() {
-    const dialogRef = this.dialogService.openConfirmDialog({action: 'Delete Match'});
-    if (dialogRef) {
-      const sub = dialogRef.afterClosed().subscribe(result => {
-        if (result) this.publishDeleteMatch();
-      });
-      this.subscription.add(sub);
-    }
-  }
-
-  /**
    * Publishes a delete event for the current match over WebSocket.
    */
   private publishDeleteMatch() {
@@ -293,6 +285,15 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
       DARTS_MATCHER_WS_DESTINATIONS.SUBSCRIBE.X01_GET_MATCH(matchId, WsDestType.SINGLE_RESPONSE),
       DARTS_MATCHER_WS_DESTINATIONS.PUBLISH.X01_DELETE_MATCH(matchId)
     ];
+  }
+
+  /**
+   * Displays a snackbar message to the user.
+   *
+   * @param message - The message to display in the snackbar.
+   */
+  private openSnackBar(message: string) {
+    this.snackBar.open(message, undefined, {duration: 1250});
   }
 
 }

@@ -1,0 +1,12 @@
+<form [formGroup]="form" (ngSubmit)="onSubmitForm()">
+  <div class="container-vertical">
+    <mat-form-field subscriptSizing="dynamic" appearance="outline">
+      <mat-label>Match ID</mat-label>
+      <input matInput formControlName="matchId">
+      <button matSuffix mat-icon-button aria-label="Clear" matTooltip="Go to match">
+        <mat-icon>arrow_forward</mat-icon>
+      </button>
+    </mat-form-field>
+    <app-form-error [control]="form.controls.matchId"/>
+  </div>
+</form>

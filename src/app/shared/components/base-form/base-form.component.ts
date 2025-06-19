@@ -1,8 +1,8 @@
-import {Component, EventEmitter, Input, Output, ViewChild} from '@angular/core';
+import {Component, EventEmitter, inject, Input, Output} from '@angular/core';
 import {Subject} from 'rxjs';
-import {AbstractControl, FormArray, FormGroup, NgForm} from '@angular/forms';
+import {AbstractControl, FormArray, FormGroup} from '@angular/forms';
 import {ApiErrorBody} from '../../../api/error/api-error-body';
-import {ErrorMessageUtil} from '../../utils/validator-error-message.utils';
+import {ErrorMessageUtil} from '../../utils/error-message.util';
 import {ApiErrorEnum} from '../../../api/error/api-error-enum';
 import {BaseComponent} from '../base/base.component';
 
@@ -12,14 +12,14 @@ import {BaseComponent} from '../base/base.component';
 })
 export abstract class BaseFormComponent<T> extends BaseComponent {
 
-  @ViewChild('formDirective') protected formDirective!: NgForm;
   @Input() loading$?: Subject<boolean>;
   @Input() submitText = 'Submit';
   @Input() showSubmitButton = true;
   @Output() validForm = new EventEmitter<T>();
+  protected errorMessageUtil = inject(ErrorMessageUtil);
   submitFormTrigger$ = new EventEmitter<void>;
 
-  protected constructor(protected errorMessageUtil: ErrorMessageUtil) {
+  protected constructor() {
     super();
   }
 
@@ -32,7 +32,7 @@ export abstract class BaseFormComponent<T> extends BaseComponent {
   onSubmitForm() {
     this.submitFormTrigger$.emit();
     this.updateFormValidity(this.form);
-    console.log("Is Form Valid: " + this.form.valid);
+    console.log('Is Form Valid: ' + this.form.valid);
     if (this.form.valid) {
       console.log(this.createFormResult());
       this.validForm.emit(this.createFormResult());
@@ -44,9 +44,7 @@ export abstract class BaseFormComponent<T> extends BaseComponent {
    * @param value – the new value for the form.
    */
   resetForm(value?: any) {
-    if (!this.formDirective) throw new Error('Form must have a directive\'#formDirective="ngForm"\' to reset');
-    console.log("Reset FORM");
-    this.formDirective.resetForm(value);
+    this.form.reset(value);
   }
 
   /**
@@ -56,15 +54,12 @@ export abstract class BaseFormComponent<T> extends BaseComponent {
    * If the control is not found, the error is applied to the form group itself.
    *
    * @param control - The control to which the error should be assigned.
-   * @param errorKey - The validation error key.
    * @param error - The error message to assign. If empty, the method does nothing.
    */
   setError(control: AbstractControl | null, error?: string) {
     if (!error) return;
-
     if (!control) control = this.form;
 
-    // const control = this.form.get(formControlKey) || this.form;
     const tmpErrors = control.errors ?? {};
     Object.assign(tmpErrors, {[ErrorMessageUtil.errorKeys.CUSTOM_ERROR]: error});
     control.setErrors(tmpErrors);
@@ -85,8 +80,9 @@ export abstract class BaseFormComponent<T> extends BaseComponent {
    * @param control - The root form control (FormGroup, FormArray, or FormControl) to validate and mark.
    */
   updateFormValidity(control: AbstractControl): void {
-    control.updateValueAndValidity({onlySelf: true});
     control.markAsTouched();
+    control.markAsDirty();
+    control.updateValueAndValidity({onlySelf: true});
 
     if (control instanceof FormGroup || control instanceof FormArray) {
       Object.values(control.controls).forEach(child => this.updateFormValidity(child));
