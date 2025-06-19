@@ -1,6 +1,9 @@
 <mat-toolbar>
   <span class=navigate-home-btn (click)="navigateToHome()" style="cursor: pointer">X01 Match</span>
-  <button class="delete-match-btn" *ngIf="match" mat-icon-button (click)="openMatchActionsDialog()" matTooltip="Match options">
+  <span class="spacer"></span>
+  <mat-spinner *ngIf="webSocketClosed" [diameter]="40"></mat-spinner>
+  <button class="delete-match-btn" *ngIf="match" mat-icon-button (click)="openMatchActionsDialog()"
+          matTooltip="Match options">
     <mat-icon>build</mat-icon>
   </button>
 </mat-toolbar>

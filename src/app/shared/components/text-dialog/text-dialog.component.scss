@@ -7,6 +7,7 @@
 
 .subtitle {
   font: var(--mat-sys-title-medium);
+  text-align: left;
 }
 
 .icon {
@@ -18,4 +19,5 @@
   margin-top: 20px;
   align-items: center;
   gap: 6px;
+  padding: 12px;
 }

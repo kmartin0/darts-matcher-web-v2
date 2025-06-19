@@ -1,21 +1,29 @@
 import {DestroyRef, Injectable} from '@angular/core';
-import {IMessage, RxStomp, RxStompConfig, RxStompState} from '@stomp/rx-stomp';
+import {IMessage, IRxStompPublishParams, RxStomp, RxStompConfig, RxStompState} from '@stomp/rx-stomp';
 import {
   DARTS_MATCHER_WEB_SOCKET_BASE_URL,
   DARTS_MATCHER_WS_DESTINATIONS,
   WsDestType
 } from '../endpoints/darts-matcher-web-socket.endpoints';
-import {distinctUntilChanged, filter, map, merge, Observable, switchMap, take, tap} from 'rxjs';
+import {distinctUntilChanged, filter, map, merge, Observable, Subject, switchMap, take, tap} from 'rxjs';
 import {X01Turn} from '../../models/x01-match/x01-turn';
 import {ApiWsErrorBody, isApiWsErrorBody} from '../error/api-ws-error-body';
 import {X01EditTurn} from '../../models/x01-match/x01-edit-turn';
 import {X01WebSocketEvent} from '../dto/base-x01-web-socket-event';
+import {ApiErrorEnum} from '../error/api-error-enum';
 
 @Injectable({providedIn: 'root'})
 export class DartsMatcherWebSocketService {
 
   private readonly rxStomp: RxStomp;
   private activeConnections: Set<DestroyRef> = new Set<DestroyRef>();
+  private readonly publishErrorSubject = new Subject<ApiWsErrorBody>();
+
+  public readonly errorQueue$: Observable<ApiWsErrorBody>;
+
+  public get connectionStatus$(): Observable<RxStompState> {
+    return this.rxStomp.connectionState$;
+  }
 
   /**
    * Initializes the WebSocket service with RxStomp configuration and activates the connection.
@@ -23,6 +31,11 @@ export class DartsMatcherWebSocketService {
   constructor() {
     this.rxStomp = new RxStomp();
     this.rxStomp.configure(this.createRxStompConfig());
+
+    this.errorQueue$ = merge(
+      this.getErrorQueue(),
+      this.publishErrorSubject.asObservable()
+    );
   }
 
   /**
@@ -51,27 +64,6 @@ export class DartsMatcherWebSocketService {
         console.error('WebSocket deactivation error:', err);
       });
     });
-  }
-
-  /**
-   * Subscribes to the WebSocket error queue and emits API WebSocket error messages.
-   *
-   * Parses incoming messages and validates them against the `ApiWsErrorBody` type guard. If a message
-   * doesn't match the expected structure, an error is thrown.
-   *
-   * @returns An observable emitting validated `ApiWsErrorBody` objects received from the error queue destination.
-   * @throws An error if the received message body does not conform to the `ApiWsErrorBody` format.
-   */
-  getErrorQueue(): Observable<ApiWsErrorBody> {
-    const destination = DARTS_MATCHER_WS_DESTINATIONS.SUBSCRIBE.ERROR_QUEUE;
-    return this.watch(destination).pipe(
-      map(message => {
-        const parsedBody = JSON.parse(message.body);
-        if (!isApiWsErrorBody(parsedBody)) throw new Error('An unknown error occurred');
-
-        return parsedBody as ApiWsErrorBody;
-      })
-    );
   }
 
   /**
@@ -161,6 +153,26 @@ export class DartsMatcherWebSocketService {
   }
 
   /**
+   * Subscribes to the WebSocket error queue and emits API WebSocket error messages.
+   *
+   * Parses incoming messages and validates them against the `ApiWsErrorBody` type guard. If a message
+   * doesn't match the expected structure, an error is thrown.
+   *
+   * @returns An observable emitting validated `ApiWsErrorBody` objects received from the error queue destination.
+   * @throws An error if the received message body does not conform to the `ApiWsErrorBody` format.
+   */
+  private getErrorQueue(): Observable<ApiWsErrorBody> {
+    const destination = DARTS_MATCHER_WS_DESTINATIONS.SUBSCRIBE.ERROR_QUEUE;
+    return this.watch(destination).pipe(
+      map(message => {
+        const parsedBody = JSON.parse(message.body);
+        if (!isApiWsErrorBody(parsedBody)) throw new Error('Received unknown error format from server.');
+        return parsedBody as ApiWsErrorBody;
+      })
+    );
+  }
+
+  /**
    * Creates and returns the configuration object for RxStomp.
    *
    * @returns {RxStompConfig} The configuration for the RxStomp client.
@@ -168,9 +180,9 @@ export class DartsMatcherWebSocketService {
   private createRxStompConfig(): RxStompConfig {
     return {
       brokerURL: DARTS_MATCHER_WEB_SOCKET_BASE_URL,
-      reconnectDelay: 2000,
+      reconnectDelay: 4000,
       heartbeatIncoming: 10000,
-      heartbeatOutgoing: 10000
+      heartbeatOutgoing: 10000,
     };
   }
 
@@ -225,9 +237,50 @@ export class DartsMatcherWebSocketService {
   private publish(destination: string, body?: any) {
     console.log('ws outgoing: ', destination);
     console.log(body);
-    this.rxStomp.publish({
+
+    try {
+      this.rxStomp.publish(this.createPublishParams(destination, body));
+    } catch (e) {
+      this.handlePublishError(e, destination);
+    }
+  }
+
+  /**
+   * Builds the STOMP request parameters
+   *
+   * @param destination The WebSocket destination.
+   * @param body The optional payload for the message.
+   * @returns The parameters for the rxStomp publish call.
+   */
+  private createPublishParams(destination: string, body?: any): IRxStompPublishParams {
+    const publishParams: IRxStompPublishParams = {
       destination: destination,
-      body: JSON.stringify(body)
-    });
+      retryIfDisconnected: false
+    };
+
+    if (body != null) {
+      publishParams.body = typeof body === 'object' ? JSON.stringify(body) : String(body);
+    }
+
+    return publishParams;
+  }
+
+  /**
+   * Handles any error that occurs during a `publish` attempt.
+   * It creates a generic internal error object, pushes it to the error subject,
+   * and logs the original error for developers.
+   *
+   * @param error The original error caught from the `publish` attempt.
+   * @param destination The destination that the failed publish call was targeting.
+   */
+  private handlePublishError(error: any, destination: string): void {
+    const apiError: ApiWsErrorBody = {
+      error: ApiErrorEnum.UNAVAILABLE,
+      destination: destination,
+      code: 503
+    };
+
+    this.publishErrorSubject.next(apiError);
+    console.warn(`A publish error to destination [${destination}] was caught and handled:`, error);
   }
 }

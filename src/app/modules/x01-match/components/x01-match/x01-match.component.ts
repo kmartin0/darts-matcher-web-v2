@@ -327,7 +327,7 @@ export class X01MatchComponent extends BaseComponent implements OnInit, OnChange
    * Subscribes to the websocket error queue. Delegates the errors to the ws error body handler.
    */
   private subscribeErrorQueue() {
-    const sub = this.webSocketService.getErrorQueue().subscribe({
+    const sub = this.webSocketService.errorQueue$.subscribe({
       next: (apiWsErrorBody) => {
         this.handleApiWsErrorBody(apiWsErrorBody);
       }

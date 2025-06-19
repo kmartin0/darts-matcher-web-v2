@@ -1,6 +1,6 @@
 import {Component, DestroyRef, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {EMPTY, Observable, of, switchMap} from 'rxjs';
+import {debounce, debounceTime, EMPTY, Observable, of, switchMap} from 'rxjs';
 import {X01Match} from '../../../../models/x01-match/x01-match';
 import {NgIf} from '@angular/common';
 import {MatToolbar} from '@angular/material/toolbar';
@@ -23,6 +23,9 @@ import {
 } from '../../../../shared/components/x01-match-actions-dialog/x01-match-actions-dialog.component';
 import {MatTooltip} from '@angular/material/tooltip';
 import {BaseComponent} from '../../../../shared/components/base/base.component';
+import {RxStompState} from '@stomp/rx-stomp';
+import {MatProgressSpinner} from '@angular/material/progress-spinner';
+
 
 @Component({
   selector: 'app-x01-match-page',
@@ -34,6 +37,7 @@ import {BaseComponent} from '../../../../shared/components/base/base.component';
     MatIconButton,
     MatIcon,
     MatTooltip,
+    MatProgressSpinner,
   ],
   standalone: true,
   templateUrl: './x01-match-page.component.html',
@@ -44,6 +48,7 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
   private readonly matchIdParamKey = 'matchId';
   matchNotFound: boolean = false;
   matchDeleteEvent: boolean = false;
+  webSocketClosed: boolean = false;
 
   public match: X01Match | null = null;
 
@@ -58,7 +63,8 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
    * Initiates the retrieval of the match using route parameters.
    */
   ngOnInit(): void {
-    this.webSocketService.connect(this.destroyRef);
+    this.connectWebSocket();
+
     this.subscribeErrorQueue();
     this.getMatch();
   }
@@ -86,6 +92,23 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
       });
       this.subscription.add(sub);
     }
+  }
+
+  /**
+   * Establishes a WebSocket connection using the WebSocketService
+   * and observes the connection status to update the `webSocketClosed` flag.
+   */
+  private connectWebSocket() {
+    // Connect to the web socket service.
+    this.webSocketService.connect(this.destroyRef);
+
+    // Signal `webSocketClosed` flag when there is no connection to the web socket.
+    const sub = this.webSocketService.connectionStatus$
+      .pipe(debounceTime(1000))
+      .subscribe(rxStompState => {
+        this.webSocketClosed = rxStompState !== RxStompState.OPEN;
+      });
+    this.subscription.add(sub);
   }
 
   /**
@@ -228,7 +251,7 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
    * Subscribes to the websocket error queue. Delegates the errors to the ws error body handler.
    */
   private subscribeErrorQueue() {
-    const sub = this.webSocketService.getErrorQueue().subscribe({
+    const sub = this.webSocketService.errorQueue$.subscribe({
       next: (apiWsErrorBody) => {
         this.handleApiWsErrorBody(apiWsErrorBody);
       }
