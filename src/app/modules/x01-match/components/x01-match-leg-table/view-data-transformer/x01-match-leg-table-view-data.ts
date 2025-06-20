@@ -6,6 +6,6 @@ export interface X01MatchLegTableViewData {
   columnDefinitions: X01MatchLegTableColumnDefinitions;
   displayedColumns: string[];
   matchTableDataSource: X01LegTableDataSource;
-  tables: X01LegTableSetsMap
+  tables: X01LegTableSetsMap;
 }
 

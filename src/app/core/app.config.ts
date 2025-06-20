@@ -7,6 +7,7 @@ import {provideAnimations} from '@angular/platform-browser/animations';
 import {ApiLoggingInterceptor} from '../api/interceptors/api-logging.interceptor';
 import {ApiErrorInterceptor} from '../api/interceptors/api-error.interceptor';
 import {GlobalErrorHandler} from './global-error-handler';
+import {MAT_ICON_DEFAULT_OPTIONS} from '@angular/material/icon';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -19,5 +20,6 @@ export const appConfig: ApplicationConfig = {
     {provide: HTTP_INTERCEPTORS, useClass: ApiLoggingInterceptor, multi: true},
     {provide: HTTP_INTERCEPTORS, useClass: ApiErrorInterceptor, multi: true},
     {provide: ErrorHandler, useClass: GlobalErrorHandler},
+    {provide: MAT_ICON_DEFAULT_OPTIONS, useValue: {fontSet: 'material-symbols-outlined'}}
   ],
 };
