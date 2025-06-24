@@ -46,6 +46,6 @@ export class X01MatchPlayerCardsComponent extends BaseComponent implements OnCha
    * Replaces the view data with a newly constructed view data object reflecting the `X01Match` object of the class.
    */
   private async updateViewData() {
-    this.viewData = await this.viewDataTransformer.createPlayerCardsViewData(this.match);
+    this.viewData = await this.viewDataTransformer.transform(this.match);
   }
 }

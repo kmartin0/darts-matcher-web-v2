@@ -28,7 +28,7 @@ export class X01MatchPlayerCardsViewDataTransformer {
    * @param match The X01 match data.
    * @returns A promise resolving to the view data or null if no match.
    */
-  async createPlayerCardsViewData(match: X01Match | null): Promise<X01PlayerCardsViewData | null> {
+  async transform(match: X01Match | null): Promise<X01PlayerCardsViewData | null> {
     if (!match) return null;
 
     return {

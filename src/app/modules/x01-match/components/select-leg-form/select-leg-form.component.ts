@@ -24,23 +24,23 @@ import {BaseComponent} from '../../../../shared/components/base/base.component';
   styleUrl: './select-leg-form.component.scss'
 })
 export class SelectLegFormComponent extends BaseComponent implements OnInit, OnChanges {
-  readonly selectedLegControl = new FormControl<LegSelection>({set: 0, leg: 0});
+  readonly legSelectionControl = new FormControl<LegSelection | null>(null);
 
   @Input() match: X01Match | null = null;
-  @Input() selectedLeg: LegSelection = {set: 0, leg: 0};
-  @Output() selectedLegChange = new EventEmitter<LegSelection>();
+  @Input() legSelection: LegSelection | null = null;
+  @Output() legSelectionChange: EventEmitter<LegSelection | null> = new EventEmitter<LegSelection | null>();
 
   /**
    * Lifecycle hook that is called after the component's view has been initialized.
    * Initializes the selected leg FormControl and its value change handling.
    */
   ngOnInit(): void {
-    this.initSelectedLegControl();
+    this.initLegSelectionControl();
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['selectedLeg']) {
-      this.selectedLegControl.setValue(this.selectedLeg, {emitEvent: false});
+    if (changes['legSelection']) {
+      this.legSelectionControl.setValue(this.legSelection, {emitEvent: false});
     }
   }
 
@@ -59,14 +59,12 @@ export class SelectLegFormComponent extends BaseComponent implements OnInit, OnC
   /**
    * Initializes the FormControl for selected leg and sets up value change handling.
    */
-  private initSelectedLegControl(): void {
-    this.selectedLegControl.setValue(this.selectedLeg, {emitEvent: false});
+  private initLegSelectionControl(): void {
+    this.legSelectionControl.setValue(this.legSelection, {emitEvent: false});
 
-    const sub = this.selectedLegControl.valueChanges.subscribe(value => {
-      if (value) {
-        this.selectedLeg = value;
-        this.selectedLegChange.emit(value);
-      }
+    const sub = this.legSelectionControl.valueChanges.subscribe(value => {
+      this.legSelection = value;
+      this.legSelectionChange.emit(value);
     });
     this.subscription.add(sub);
   }

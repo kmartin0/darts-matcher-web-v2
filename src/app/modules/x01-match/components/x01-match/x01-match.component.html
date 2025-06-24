@@ -1,23 +1,23 @@
-<div *ngIf="match" class="x01-match-component-container" [class.keyboard-visible]="displayScoreInput">
+<div *ngIf="match && viewData.legSelection" class="x01-match-component-container" [class.keyboard-visible]="viewData.displayScoreInput">
   <div class="scrollable-content">
     <app-x01-match-info [match]="match"/>
-    <app-x01-match-player-cards [match]="match" [legSelection]="selectedLeg"/>
+    <app-x01-match-player-cards [match]="match" [legSelection]="viewData.legSelection"/>
     <div class="app-edit-options">
       <div>
-        <button *ngIf="displayUndoScore" class="open-edit-dialog-btn" mat-icon-button (click)="deleteLastTurn()" matTooltip="Undo last score">
+        <button *ngIf="viewData.displayUndoScore" class="open-edit-dialog-btn" mat-icon-button (click)="deleteLastTurn()" matTooltip="Undo last score">
           <mat-icon>undo</mat-icon>
         </button>
       </div>
-      <app-select-leg-form [match]="match" [(selectedLeg)]="selectedLeg" (selectedLegChange)="onSelectedLegChange()"/>
-      <button class="toggle-edit-mode-btn" mat-icon-button matTooltip="Edit score" (click)="editScoreMode = !editScoreMode">
+      <app-select-leg-form [match]="match" [(legSelection)]="viewData.legSelection" (legSelectionChange)="onLegSelectionChange()"/>
+      <button class="toggle-edit-mode-btn" mat-icon-button matTooltip="Edit score" (click)="viewData.editScoreMode = !viewData.editScoreMode">
         <mat-icon>content_cut</mat-icon>
       </button>
     </div>
     <div class="app-leg-table">
-      <app-x01-match-leg-table [match]="match" [legSelection]="selectedLeg" [(editMode)]="editScoreMode" (submitScoreEdit)="onEditScoreResult($event)"/>
+      <app-x01-match-leg-table [match]="match" [legSelection]="viewData.legSelection" [(editMode)]="viewData.editScoreMode" (submitScoreEdit)="onEditScoreResult($event)"/>
     </div>
   </div>
-  <div class="error-label">{{ errorMsg }}</div>
+  <div class="error-label">{{ viewData.errorMsg }}</div>
 
-  <app-x01-score-input *ngIf="displayScoreInput" (submitScoreEvent)="onSubmitScore($event)" #scoreInputComponent/>
+  <app-x01-score-input *ngIf="viewData.displayScoreInput" (submitScoreEvent)="onSubmitScore($event)" #scoreInputComponent/>
 </div>

@@ -7,7 +7,6 @@ import {ReactiveFormsModule} from '@angular/forms';
 import {X01MatchInfoComponent} from '../x01-match-info/x01-match-info.component';
 import {X01MatchPlayerCardsComponent} from '../x01-match-player-cards/x01-match-player-cards.component';
 import {X01MatchLegTableComponent} from '../x01-match-leg-table/x01-match-leg-table.component';
-import {LegSelection} from '../../../../models/common/leg-selection';
 import {X01ScoreInputComponent} from '../x01-score-input/x01-score-input.component';
 import {SelectLegFormComponent} from '../select-leg-form/select-leg-form.component';
 import {DartsMatcherWebSocketService} from '../../../../api/services/darts-matcher-web-socket.service';
@@ -15,11 +14,9 @@ import {firstValueFrom, takeUntil} from 'rxjs';
 import {
   findLastPlayerScore,
   getLeg,
-  getLegInPlay,
   getRemainingForCurrentPlayer,
   getRemainingForPlayer,
   getSet,
-  getSetInPlay
 } from '../../../../shared/utils/x01-match.utils';
 import {X01CheckoutService} from '../../../../shared/services/x01-checkout-service/x01-checkout-service';
 import {DialogService} from '../../../../shared/services/dialog-service/dialog.service';
@@ -36,6 +33,7 @@ import {X01EditTurn} from '../../../../models/x01-match/x01-edit-turn';
 import {X01Turn} from '../../../../models/x01-match/x01-turn';
 import {BaseComponent} from '../../../../shared/components/base/base.component';
 import {X01Leg} from '../../../../models/x01-match/x01-leg';
+import {X01MatchViewData, X01MatchViewDataTransformer} from './x01-match-view-data-transformer';
 
 @Component({
   selector: 'app-x01-match',
@@ -58,15 +56,13 @@ import {X01Leg} from '../../../../models/x01-match/x01-leg';
 export class X01MatchComponent extends BaseComponent implements OnInit, OnChanges {
   @Input() match: X01Match | null = null;
   @ViewChild('scoreInputComponent') scoreInputComponent!: X01ScoreInputComponent;
-  selectedLeg: LegSelection = {set: 0, leg: 0};
-  errorMsg: string | undefined = undefined;
-  editScoreMode: boolean = false;
-  displayScoreInput: boolean = false;
-  displayUndoScore: boolean = false;
+  viewData: X01MatchViewData;
 
   constructor(private webSocketService: DartsMatcherWebSocketService, private checkoutService: X01CheckoutService,
-              private dialogService: DialogService, private apiErrorBodyHandler: ApiErrorBodyHandler, private destroyRef: DestroyRef) {
+              private dialogService: DialogService, private apiErrorBodyHandler: ApiErrorBodyHandler,
+              private destroyRef: DestroyRef, private viewDataTransformer: X01MatchViewDataTransformer) {
     super();
+    this.viewData = viewDataTransformer.transform(null);
   }
 
   /**
@@ -80,22 +76,18 @@ export class X01MatchComponent extends BaseComponent implements OnInit, OnChange
   /**
    * Watches for changes to `match` input to update view data and selected leg.
    * @param changes - Object containing changes to input properties
-   * @returns {Promise<void>} Promise that resolves when changes are handled
    */
-  async ngOnChanges(changes: SimpleChanges): Promise<void> {
+  ngOnChanges(changes: SimpleChanges) {
     if (changes['match']) {
-      this.errorMsg = undefined;
-      this.selectCurrentOrLastLeg();
+      this.viewData = this.viewDataTransformer.transform(this.match);
     }
   }
 
   /**
-   * Handles logic when the selected leg changes.
-   * Updates visibility flags for score input and undo score controls.
+   * Updates the view data for a new leg selection using the transformer.
    */
-  onSelectedLegChange() {
-    this.updateDisplayScoreInput();
-    this.updateDisplayUndoScore();
+  onLegSelectionChange() {
+    this.viewData = this.viewDataTransformer.updateForNewLegSelection(this.viewData, this.match);
   }
 
   /**
@@ -108,7 +100,7 @@ export class X01MatchComponent extends BaseComponent implements OnInit, OnChange
   async onSubmitScore(score: number): Promise<void> {
     if (!this.match) return;
     if (this.match.matchStatus === MatchStatus.CONCLUDED) {
-      this.errorMsg = 'Match is concluded';
+      this.viewData.errorMsg = 'Match is concluded';
       return;
     }
 
@@ -301,70 +293,6 @@ export class X01MatchComponent extends BaseComponent implements OnInit, OnChange
   }
 
   /**
-   * Updates the visibility of the score input.
-   * The score input is shown only if the match is in progress and the selected leg matches the current leg in play.
-   */
-  private updateDisplayScoreInput() {
-    if (!this.match) {
-      this.displayScoreInput = false;
-      return;
-    }
-
-    this.displayScoreInput =
-      this.match.matchStatus === MatchStatus.IN_PLAY &&
-      this.match.matchProgress.currentSet === this.selectedLeg.set &&
-      this.match.matchProgress.currentLeg === this.selectedLeg.leg;
-  }
-
-  /**
-   * Updates the visibility of the undo score control.
-   * The undo option is shown only if the selected leg matches the last recorded set and leg in the match.
-   */
-  private updateDisplayUndoScore() {
-    const lastSet = getSet(this.match, Math.max(...this.match?.sets.map(s => s.set) ?? []));
-    const lastLeg = getLeg(lastSet, Math.max(...lastSet?.legs.map(l => l.leg) ?? []));
-
-    this.displayUndoScore =
-      lastSet?.set === this.selectedLeg.set &&
-      lastLeg?.leg === this.selectedLeg.leg;
-  }
-
-  /**
-   * Selects the current leg in play if available; otherwise selects the last leg in the match.
-   * Updates the `selectedLeg` component property with the current set/leg number.
-   */
-  private selectCurrentOrLastLeg() {
-    let selection: LegSelection = {set: 0, leg: 0};
-    if (this.match) {
-      const setAndLegInPlay = this.createSetAndLegInPlaySelection(this.match);
-      if (setAndLegInPlay) { // Set the selection the current set and leg in play.
-        selection = setAndLegInPlay;
-      } else { // If no set or leg is in play. Get the last leg.
-        const lastSet = this.match.sets.at(-1);
-        const lastLeg = lastSet?.legs.at(-1);
-
-        if (lastSet && lastLeg) {
-          selection = {set: lastSet.set, leg: lastLeg.leg};
-        }
-      }
-    }
-    this.selectedLeg = selection;
-    this.onSelectedLegChange();
-  }
-
-  /**
-   * Retrieves the set and leg currently in play based on the match progress.
-   *
-   * @param match - The current match
-   * @returns The current set and leg numbers, or null if none are in play
-   */
-  private createSetAndLegInPlaySelection(match: X01Match): LegSelection | null {
-    const setInPlay = getSetInPlay(match);
-    const legInPlay = getLegInPlay(match, setInPlay);
-    return (setInPlay && legInPlay) ? {set: setInPlay.set, leg: legInPlay.leg} : null;
-  }
-
-  /**
    * Subscribes to the websocket error queue. Delegates the errors to the ws error body handler.
    */
   private subscribeErrorQueue() {
@@ -388,13 +316,13 @@ export class X01MatchComponent extends BaseComponent implements OnInit, OnChange
     if (errorDestinations.includes(apiWsErrorBody.destination)) {
       switch (apiWsErrorBody.error) {
         case ApiErrorEnum.RESOURCE_NOT_FOUND: {
-          this.errorMsg = 'Couldn\'t find the match';
+          this.viewData.errorMsg = 'Couldn\'t find the match';
           break;
         }
 
         case ApiErrorEnum.INVALID_ARGUMENTS: {
           const errorKey = Object.keys(apiWsErrorBody.details ?? {})[0];
-          this.errorMsg = apiWsErrorBody.details?.[errorKey];
+          this.viewData.errorMsg = apiWsErrorBody.details?.[errorKey];
           break;
         }
 

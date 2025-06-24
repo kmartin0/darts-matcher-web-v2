@@ -134,7 +134,7 @@ export class X01MatchLegTableComponent extends BaseComponent implements OnChange
    * Updates the full view data (columns, tables, and initial leg data).
    */
   private updateViewData() {
-    this.viewData = this.viewDataTransformer.createLegTableViewData(this.match, this.legSelection);
+    this.viewData = this.viewDataTransformer.transform(this.match, this.legSelection);
   }
 
 }

@@ -23,7 +23,7 @@ export class X01MatchLegTableViewDataTransformer {
    * @param legSelection The currently selected set/leg combination.
    * @returns The view data structure or null if no match is provided.
    */
-  createLegTableViewData(match: X01Match | null, legSelection: LegSelection | null): X01MatchLegTableViewData | null {
+  transform(match: X01Match | null, legSelection: LegSelection | null): X01MatchLegTableViewData | null {
     if (!match) return null;
 
     const columnDefinitions = this.createColumnDefinitions(match.players);
