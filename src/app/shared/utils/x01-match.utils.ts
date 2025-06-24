@@ -2,6 +2,7 @@ import {X01Match} from '../../models/x01-match/x01-match';
 import {X01Set} from '../../models/x01-match/x01-set';
 import {X01Leg} from '../../models/x01-match/x01-leg';
 import {X01LegRound} from '../../models/x01-match/x01-leg-round';
+import {X01LegRoundScore} from '../../models/x01-match/x01-leg-round-score';
 
 export function getSetInPlay(match: X01Match): X01Set | null {
   const currentSetNumber = match.matchProgress.currentSet;
@@ -50,5 +51,14 @@ export function getLeg(set: X01Set | null, legNumber: number): X01Leg | null {
 export function getRound(leg: X01Leg | null, roundNumber: number): X01LegRound | null {
   if (!leg) return null;
   return leg.rounds.find(round => round.round === roundNumber) ?? null;
+}
+
+export function findLastPlayerScore(leg: X01Leg, playerId: string): X01LegRoundScore | null {
+  for (const round of leg.rounds.slice().reverse()) {
+    if (Object.hasOwn(round.scores, playerId)) {
+      return round.scores[playerId];
+    }
+  }
+  return null;
 }
 

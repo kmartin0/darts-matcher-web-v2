@@ -34,4 +34,13 @@ export class CustomValidators {
 
     return isValidObjectId(control.value) ? null : {invalidObjectId: true};
   }
+
+  static isNumber(control: AbstractControl): ValidationErrors | null {
+    // If there's no value, don't run the validator. Let `Validators.required` handle it.
+    if (control.value === null || control.value === undefined || control.value === '') {
+      return null;
+    }
+
+    return isFinite(control.value) ? null : { isNotNumber: true };
+  }
 }

@@ -184,10 +184,14 @@ export class X01MatchPlayerCardsViewDataTransformer {
         legProgressMap[playerId] = {
           remaining: (legProgressMap[playerId]?.remaining ?? x01) - roundScore.score,
           lastScore: roundScore.score,
-          dartsUsed: (legProgressMap[playerId]?.dartsUsed ?? 0) + roundScore.dartsUsed
+          dartsUsed: (legProgressMap[playerId]?.dartsUsed ?? 0) + 3
         };
       });
     });
+
+    if(leg.winner != null && leg.checkoutDartsUsed != null && Object.hasOwn(legProgressMap, leg.winner)) {
+      legProgressMap[leg.winner].dartsUsed += leg.checkoutDartsUsed - 3;
+    }
 
     return legProgressMap;
   }

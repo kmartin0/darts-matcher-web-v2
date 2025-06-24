@@ -1,5 +1,4 @@
 export interface X01LegRoundScore {
-  doublesMissed: number;
-  dartsUsed: number;
+  doublesMissed: number | null;
   score: number;
 }

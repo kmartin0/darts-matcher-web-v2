@@ -6,13 +6,14 @@ import {PlayerMap} from '../../../../types/player-map';
 export interface X01LegTableRow {
   round: number;
   dartsThrown: number;
-  players: PlayerMap<X01LegTableRowPlayerData>
+  players: PlayerMap<X01LegTableRowPlayerData>;
   currentThrower?: string;
 }
 
 export interface X01LegTableRowPlayerData {
   score: number;
   remaining: number;
+  doublesMissed: number | null;
 }
 
 /**

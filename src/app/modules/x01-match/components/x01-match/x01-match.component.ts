@@ -13,6 +13,7 @@ import {SelectLegFormComponent} from '../select-leg-form/select-leg-form.compone
 import {DartsMatcherWebSocketService} from '../../../../api/services/darts-matcher-web-socket.service';
 import {firstValueFrom, takeUntil} from 'rxjs';
 import {
+  findLastPlayerScore,
   getLeg,
   getLegInPlay,
   getRemainingForCurrentPlayer,
@@ -31,10 +32,10 @@ import {MatTooltip} from '@angular/material/tooltip';
 import {
   X01EditScoreDialogResult
 } from '../../../../shared/components/x01-edit-score-dialog/x01-edit-score-dialog.types';
-import {X01LegRoundScore} from '../../../../models/x01-match/x01-leg-round-score';
 import {X01EditTurn} from '../../../../models/x01-match/x01-edit-turn';
 import {X01Turn} from '../../../../models/x01-match/x01-turn';
 import {BaseComponent} from '../../../../shared/components/base/base.component';
+import {X01Leg} from '../../../../models/x01-match/x01-leg';
 
 @Component({
   selector: 'app-x01-match',
@@ -118,9 +119,9 @@ export class X01MatchComponent extends BaseComponent implements OnInit, OnChange
     const remainingAfterScore = remainingBeforeScore - score;
 
     // Create the round score (if necessary prompts user for darts used and doubles missed). And publish the turn to the API via Websocket.
-    this.createRoundScore(score, remainingAfterScore, this.match.matchSettings.trackDoubles).then(roundScore => {
-      if (roundScore == null) return;
-      this.publishX01MatchTurn(roundScore.score, roundScore.dartsUsed, roundScore.doublesMissed);
+    this.createTurn(score, remainingAfterScore, this.match.matchSettings.trackDoubles).then(turn => {
+      if (turn == null) return;
+      this.publishX01MatchTurn(turn);
     });
   }
 
@@ -153,49 +154,121 @@ export class X01MatchComponent extends BaseComponent implements OnInit, OnChange
     const remainingAfterEdit = (remainingBeforeEdit + dialogResult.oldScore) - dialogResult.newScore;
 
     // When necessary prompt the user for darts used and doubles missed input. Use the result to publish the edited turn.
-    this.createRoundScore(dialogResult.newScore, remainingAfterEdit, this.match.matchSettings.trackDoubles).then(roundScore => {
-      if (roundScore == null) return;
-      this.webSocketService.publishX01EditTurn(dialogResult.matchId, this.createEditTurn(dialogResult, roundScore));
+    this.createEditTurn(dialogResult, remainingAfterEdit, leg).then(editTurn => {
+      if (editTurn == null) return;
+      this.webSocketService.publishX01EditTurn(dialogResult.matchId, editTurn);
     });
   }
 
   /**
-   * Handles the outcome of a submitted score by determining the appropriate follow-up action.
+   * Creates a new turn.
    *
-   * Depending on the remaining score and whether double tracking is enabled, this method:
-   * - Opens the "darts used" dialog if the player checked out (remaining score is 0).
-   * - Opens the "doubles missed" dialog if double tracking is enabled and the remaining score is <= 50.
-   * - Otherwise, callback a regular round (3 darts used, 0 doubles missed).
-   *
-   * @param score - The submitted score by the player.
-   * @param remainingAfterScore - The player's score after applying the submitted value.
-   * @param trackDoubles - Whether double tracking is enabled in the match settings.
-   * @returns {Promise<X01LegRoundScore | null>} The round score data or null if cancelled
+   * @param {number} score - The score achieved during the turn.
+   * @param {number} remainingAfterScore - The remaining score after this turn's score is applied.
+   * @param {boolean} trackDoubles - Whether to prompt for doubles missed.
+   * @returns {Promise<X01Turn | null>} - A promise that resolves to the created X01Turn or null if the turn was cancelled.
    */
-  private async createRoundScore(score: number, remainingAfterScore: number, trackDoubles: boolean): Promise<X01LegRoundScore | null> {
-    if (remainingAfterScore === 0) return this.openDartsUsedDialog(score, trackDoubles);
-    else if (trackDoubles && remainingAfterScore <= 50) return this.openDoublesMissedDialog(score, 3);
-    else return {score: score, dartsUsed: 3, doublesMissed: 0};
+  private async createTurn(score: number, remainingAfterScore: number, trackDoubles: boolean): Promise<X01Turn | null> {
+    const dialogsResult = await this.openDialogsForCreateTurn(score, remainingAfterScore, trackDoubles);
+    if (dialogsResult == null) return null;
+
+    return {
+      score: score,
+      checkoutDartsUsed: dialogsResult.checkoutDartsUsed,
+      doublesMissed: dialogsResult.doublesMissed
+    };
+  }
+
+  /**
+   * Opens dialog prompts to gather additional information when creating a new turn (darts used for checkout, doubles missed).
+   *
+   * @param {number} score - The score achieved during the turn.
+   * @param {number} remainingAfterScore - The score left after the current score is deducted.
+   * @param {boolean} trackDoubles - Whether to track doubles missed.
+   * @returns {Promise<{ checkoutDartsUsed: number | null, doublesMissed: number } | null>} - A promise that resolves to the user input or null if the dialog was cancelled.
+   */
+  private async openDialogsForCreateTurn(score: number, remainingAfterScore: number, trackDoubles: boolean)
+    : Promise<{ checkoutDartsUsed: number | null, doublesMissed: number | null } | null> {
+    let checkoutDartsUsed: number | null | undefined = null;
+    let doublesMissed: number | null | undefined = null;
+
+    // On checkout prompt darts used.
+    if (remainingAfterScore === 0) {
+      checkoutDartsUsed = await this.openDartsUsedDialog(score);
+      if (checkoutDartsUsed === undefined) return null;
+    }
+
+    // when in doubles range and double tracking is enabled prompt for doubles
+    if (trackDoubles && remainingAfterScore <= 50) {
+      doublesMissed = await this.openDoublesMissedDialog();
+      if (doublesMissed === undefined) return null;
+    }
+
+    return {checkoutDartsUsed, doublesMissed};
+  }
+
+  /**
+   * Creates an edit turn object using the result from an edit score dialog.
+   *
+   * @param {X01EditScoreDialogResult} dialogResult - The result from the edit score dialog.
+   * @param {number} remainingAfterEdit - The score left after the new score is applied.
+   * @param {X01Leg} leg - The current leg containing the turn being edited.
+   * @returns {Promise<X01EditTurn | null>} - A promise that resolves to the edited turn data or null if cancelled.
+   */
+  private async createEditTurn(dialogResult: X01EditScoreDialogResult, remainingAfterEdit: number, leg: X01Leg): Promise<X01EditTurn | null> {
+    const isLastRound = dialogResult.round === leg.rounds.length - 1; // Determine if the edit is for the last round
+    const userPrompt = await this.openDialogsForEditTurn(dialogResult.newScore, remainingAfterEdit, leg, dialogResult.playerId, isLastRound);
+    if (userPrompt == null) return null;
+
+    return {
+      playerId: dialogResult.playerId,
+      set: dialogResult.set,
+      leg: dialogResult.leg,
+      round: dialogResult.round,
+      score: dialogResult.newScore,
+      checkoutDartsUsed: userPrompt.checkoutDartsUsed,
+      doublesMissed: dialogResult.newDoublesMissed
+    };
+  }
+
+  /**
+   * Opens dialog prompts to gather additional data (checkout darts used) when editing an existing turn.
+   *
+   * @param {number} newScore - The updated score being set for the edited turn.
+   * @param {number} remainingAfterEdit - The score left after the new score is applied.
+   * @param {X01Leg} leg - The current leg of the match.
+   * @param {string} playerId - The ID of the player whose turn is being edited.
+   * @param {boolean} isLastRound - Whether this is the last round in the leg.
+   * @returns {Promise<{ checkoutDartsUsed: number | null } | null>} - A promise that resolves to the user input or null if cancelled.
+   */
+  private async openDialogsForEditTurn(newScore: number, remainingAfterEdit: number, leg: X01Leg, playerId: string, isLastRound: boolean)
+    : Promise<{ checkoutDartsUsed: number | null } | null> {
+    let checkoutDartsUsed: number | null | undefined = null;
+
+    if (remainingAfterEdit === 0) {
+      // Use the actual last score (real checkout) to open the dialog
+      let checkoutScore = isLastRound ? newScore : findLastPlayerScore(leg, playerId)?.score ?? null;
+      if (!checkoutScore) return null;
+
+      checkoutDartsUsed = await this.openDartsUsedDialog(checkoutScore);
+    }
+
+    // When checkoutDartsUsed is undefined the dialog was cancelled.
+    return checkoutDartsUsed === undefined ? null : {checkoutDartsUsed};
   }
 
   /**
    * Opens a dialog prompting the user to input the number of missed doubles.
    * If a value is provided, it sends the full match turn data using the provided score and darts used.
    *
-   * @param score - The score thrown in the current turn
-   * @param dartsUsed - The number of darts used during the turn
-   * @returns {Promise<X01LegRoundScore | null>} The round score data or null if cancelled
+   * @returns {Promise<X01LegRoundScore | undefined>} The round score data or undefined if cancelled
    */
-  private async openDoublesMissedDialog(score: number, dartsUsed: number): Promise<X01LegRoundScore | null> {
+  private async openDoublesMissedDialog(): Promise<number | undefined> {
     const dialogRef = this.dialogService.openDoublesMissedDialog();
-    if (!dialogRef) return null;
+    if (!dialogRef) return undefined;
 
     const dialogResult$ = dialogRef.afterClosed().pipe(takeUntil(this.destroy$));
-    const doublesMissed = await firstValueFrom(dialogResult$, {defaultValue: undefined});
-
-    if (doublesMissed === undefined || doublesMissed === null) return null;
-
-    return {score: score, dartsUsed: dartsUsed, doublesMissed: doublesMissed};
+    return await firstValueFrom(dialogResult$, {defaultValue: undefined});
   }
 
   /**
@@ -204,56 +277,24 @@ export class X01MatchComponent extends BaseComponent implements OnInit, OnChange
    * If a value is provided, proceeds to prompt for missed doubles.
    *
    * @param score - The checkout score submitted
-   * @param trackDoubles - Whether the match is tracking doubles
-   * @returns {Promise<X01LegRoundScore | null>} The round score data or null if cancelled
+   * @returns {Promise<X01LegRoundScore | undefined>} The round score data or undefined if cancelled
    */
-  private async openDartsUsedDialog(score: number, trackDoubles: boolean): Promise<X01LegRoundScore | null> {
+  private async openDartsUsedDialog(score: number): Promise<number | undefined> {
     const checkout = await this.checkoutService.getCheckout(score);
     const dialogRef = this.dialogService.openDartsUsedDialog(checkout ?? null);
-    if (!dialogRef) return null;
+    if (!dialogRef) return undefined;
 
     const dialogResult$ = dialogRef.afterClosed().pipe(takeUntil(this.destroy$));
-    const dartsUsed = await firstValueFrom(dialogResult$, {defaultValue: undefined});
-    if (dartsUsed === undefined || dartsUsed === null) return null;
-
-    if (trackDoubles) return await this.openDoublesMissedDialog(score, dartsUsed);
-    else return {score: score, dartsUsed: dartsUsed, doublesMissed: 0};
-  }
-
-  /**
-   * Creates an X01EditTurn object based on dialog result and round score.
-   *
-   * @param dialogResult X01EditScoreDialogResult - The dialog result containing match and player info.
-   * @param roundScore X01LegRoundScore - The round score with darts used, doubles missed and the score.
-   * @returns X01EditTurn - object representing the edited turn.
-   */
-  private createEditTurn(dialogResult: X01EditScoreDialogResult, roundScore: X01LegRoundScore): X01EditTurn {
-    return {
-      playerId: dialogResult.playerId,
-      set: dialogResult.set,
-      leg: dialogResult.leg,
-      round: dialogResult.round,
-      score: roundScore.score,
-      dartsUsed: roundScore.dartsUsed,
-      doublesMissed: roundScore.doublesMissed
-    };
+    return await firstValueFrom(dialogResult$, {defaultValue: undefined});
   }
 
   /**
    * Sends a completed match turn to the api via WebSocket and clears the score input field.
    *
-   * @param score - The score achieved in the turn
-   * @param dartsUsed - Number of darts used in the turn
-   * @param doublesMissed - Number of missed double attempts
+   * @param turn - The turn to publish
    */
-  private publishX01MatchTurn(score: number, dartsUsed: number, doublesMissed: number) {
-    if (!this.match) return;
-
-    const turn: X01Turn = {
-      score: score,
-      dartsUsed: dartsUsed,
-      doublesMissed: doublesMissed
-    };
+  private publishX01MatchTurn(turn: X01Turn) {
+    if (!this.match || !turn) return;
 
     this.webSocketService.publishX01AddTurn(this.match.id, turn);
     this.scoreInputComponent?.clearScoreInput();

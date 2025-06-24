@@ -8,8 +8,14 @@
   </mat-form-field>
   <app-form-error [control]="scoreFormControl"/>
 
+  <mat-form-field *ngIf="dialogData.doublesMissed != null" appearance="outline" subscriptSizing="dynamic">
+    <mat-label>Doubles Missed</mat-label>
+    <input matInput [formControl]="doublesMissedFormControl"/>
+  </mat-form-field>
+  <app-form-error [control]="doublesMissedFormControl"/>
+
   <mat-dialog-actions align="end">
     <button mat-button (click)="cancelDialog()">Cancel</button>
-    <button mat-button (click)="submitDialog(scoreFormControl.value)">Ok</button>
+    <button mat-button (click)="submitDialog()">Ok</button>
   </mat-dialog-actions>
 </mat-dialog-content>

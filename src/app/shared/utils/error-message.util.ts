@@ -27,6 +27,7 @@ export class ErrorMessageUtil {
     MIN_LENGTH_ARRAY: 'minLengthArray',
     MAX_LENGTH_ARRAY: 'maxLengthArray',
     INVALID_OBJECT_ID: 'invalidObjectId',
+    IS_NOT_NUMBER: 'isNotNumber',
     CUSTOM_ERROR: 'customError',
     UNKNOWN: 'unknown',
   };
@@ -45,6 +46,7 @@ export class ErrorMessageUtil {
     [ErrorMessageUtil.errorKeys.MIN_LENGTH_ARRAY]: (value) => `Must be at least ${value?.min} ${value?.name}`,
     [ErrorMessageUtil.errorKeys.MAX_LENGTH_ARRAY]: (value) => `Must not be more than ${value?.max} ${value?.name}`,
     [ErrorMessageUtil.errorKeys.INVALID_OBJECT_ID]: () => `Invalid Match ID`,
+    [ErrorMessageUtil.errorKeys.IS_NOT_NUMBER]: () => `Invalid number`,
     [ErrorMessageUtil.errorKeys.CUSTOM_ERROR]: (value) => `${value}`,
     [ErrorMessageUtil.errorKeys.UNKNOWN]: () => 'An unknown error has occurred.',
   };

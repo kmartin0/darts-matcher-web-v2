@@ -18,6 +18,8 @@ import {
 } from './x01-edit-score-dialog.types';
 import {KeydownEventDispatcherService} from '../../services/keydown-event-dispatcher/keydown-event-dispatcher.service';
 import {BaseComponent} from '../base/base.component';
+import {NgIf} from '@angular/common';
+import {CustomValidators} from '../../validators/custom-validators';
 
 @Component({
   selector: 'app-x01-edit-score-dialog',
@@ -30,7 +32,8 @@ import {BaseComponent} from '../base/base.component';
     MatInput,
     MatLabel,
     ReactiveFormsModule,
-    FormErrorComponent
+    FormErrorComponent,
+    NgIf
   ],
   standalone: true,
   templateUrl: './x01-edit-score-dialog.component.html',
@@ -39,7 +42,11 @@ import {BaseComponent} from '../base/base.component';
 export class X01EditScoreDialogComponent extends BaseComponent {
 
   scoreFormControl = new FormControl<string | undefined>(undefined, {
-    validators: [Validators.required, Validators.min(0), Validators.max(180)]
+    validators: [Validators.required, CustomValidators.isNumber, Validators.min(0), Validators.max(180)]
+  });
+
+  doublesMissedFormControl = new FormControl<string | undefined>(undefined, {
+    validators: [Validators.required, CustomValidators.isNumber, Validators.min(0), Validators.max(3)]
   });
 
   constructor(@Inject(MAT_DIALOG_DATA) public dialogData: X01EditScoreDialogData,
@@ -49,17 +56,20 @@ export class X01EditScoreDialogComponent extends BaseComponent {
     if (!isX01EditScoreDialogData(dialogData)) throw Error('X01 Edit Score Dialog Data Missing.');
     super();
     this.scoreFormControl.setValue(dialogData.currentScore.toString());
+    this.doublesMissedFormControl.setValue(dialogData.doublesMissed?.toString());
     this.initEnterKeyListener();
   }
 
   initEnterKeyListener() {
     const keyDownSub = this.keydownDispatcherService.getKeyDownObservable(this.destroyRef, this.dialogRef).subscribe(event => {
-      if (event.key === 'Enter') this.submitDialog(this.scoreFormControl.value);
+      if (event.key === 'Enter') this.submitDialog();
     });
     this.subscription.add(keyDownSub);
   }
 
-  submitDialog(newScore: any) {
+  submitDialog() {
+    if (!this.isFormValid()) return;
+
     const result: X01EditScoreDialogResult = {
       playerId: this.dialogData.playerId,
       matchId: this.dialogData.matchId,
@@ -67,13 +77,22 @@ export class X01EditScoreDialogComponent extends BaseComponent {
       leg: this.dialogData.leg,
       round: this.dialogData.round,
       oldScore: this.dialogData.currentScore,
-      newScore: Number(newScore) || 0
+      newScore: Number(this.scoreFormControl.value) || 0,
+      oldDoublesMissed: this.dialogData.doublesMissed,
+      newDoublesMissed: Number(this.doublesMissedFormControl.value) || 0
     };
     this.dialogRef.close(result);
   }
 
   cancelDialog() {
     this.dialogRef.close();
+  }
+
+  private isFormValid(): boolean {
+    const scoreValid = this.scoreFormControl.valid;
+    const doublesMissedValid = this.dialogData.doublesMissed != null && this.doublesMissedFormControl.valid;
+
+    return scoreValid && doublesMissedValid;
   }
 
 }

@@ -106,7 +106,8 @@ export class X01MatchLegTableComponent extends BaseComponent implements OnChange
       playerName: this.match.players.find(player => player.playerId === playerId)?.playerName ?? '',
       round: rowData.round,
       playerId: playerId,
-      currentScore: rowData.players[playerId]?.score ?? 0
+      currentScore: rowData.players[playerId]?.score ?? 0,
+      doublesMissed: rowData.players[playerId]?.doublesMissed ?? null
     };
 
     this.openEditScoreDialog(dialogData);

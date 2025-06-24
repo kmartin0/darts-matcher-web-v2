@@ -175,7 +175,6 @@ export class X01MatchLegTableViewDataTransformer {
   ): X01LegTableRow {
     // Initialize the players round info map and default number of darts thrown.
     const playersRoundInfoMap: PlayerMap<X01LegTableRowPlayerData> = {};
-    let minDartsThrown = 3;
 
     // Create row player round info for each player that scored in the round.
     Object.entries(round.scores).forEach(([playerId, roundScore]) => {
@@ -183,16 +182,19 @@ export class X01MatchLegTableViewDataTransformer {
       const remainingAfterScore = remainingBeforeScore - roundScore.score;
       playersRoundInfoMap[playerId] = {
         score: roundScore.score,
-        remaining: remainingAfterScore
+        remaining: remainingAfterScore,
+        doublesMissed: roundScore.doublesMissed
       };
-
-      // Set the darts thrown of the row to the least darts thrown.
-      minDartsThrown = Math.min(minDartsThrown, roundScore.dartsUsed);
     });
+
+    // Set the darts thrown of the row to the least darts thrown.
+    const dartsUsedThisRound = leg.winner != null && leg.checkoutDartsUsed != null // TODO: CHANGED
+      ? (round.round === leg.rounds.length ? leg.checkoutDartsUsed : 3)
+      : 3;
 
     return {
       round: round.round,
-      dartsThrown: (previousRow?.dartsThrown ?? 0) + minDartsThrown,
+      dartsThrown: (previousRow?.dartsThrown ?? 0) + dartsUsedThisRound,
       players: playersRoundInfoMap,
       currentThrower: this.getActiveThrowerForRound(match.matchProgress, set.set, leg.leg, round.round)
     };
