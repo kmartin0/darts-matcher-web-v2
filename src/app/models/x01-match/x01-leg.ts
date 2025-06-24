@@ -5,5 +5,5 @@ export interface X01Leg {
   winner: string;
   throwsFirst: string;
   checkoutDartsUsed: number | null;
-  rounds: X01LegRound[];
+  rounds: { [roundNumber: number]: X01LegRound };
 }

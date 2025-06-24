@@ -208,7 +208,7 @@ export class X01MatchComponent extends BaseComponent implements OnInit, OnChange
    * @returns {Promise<X01EditTurn | null>} - A promise that resolves to the edited turn data or null if cancelled.
    */
   private async createEditTurn(dialogResult: X01EditScoreDialogResult, remainingAfterEdit: number, leg: X01Leg): Promise<X01EditTurn | null> {
-    const isLastRound = dialogResult.round === leg.rounds.length - 1; // Determine if the edit is for the last round
+    const isLastRound = dialogResult.round === Number(Object.keys(leg.rounds).at(-1)); // Determine if the edit is for the last round
     const userPrompt = await this.openDialogsForEditTurn(dialogResult.newScore, remainingAfterEdit, leg, dialogResult.playerId, isLastRound);
     if (userPrompt == null) return null;
 

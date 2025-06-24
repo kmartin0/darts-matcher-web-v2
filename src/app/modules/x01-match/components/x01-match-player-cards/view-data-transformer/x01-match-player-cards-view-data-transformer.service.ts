@@ -179,7 +179,7 @@ export class X01MatchPlayerCardsViewDataTransformer {
     dartsUsed: number
   }> {
     const legProgressMap: PlayerMap<{ remaining: number, lastScore: number, dartsUsed: number }> = {};
-    leg.rounds.forEach(round => {
+    Object.entries(leg.rounds).forEach(([, round]) => {
       Object.entries(round.scores).forEach(([playerId, roundScore]) => {
         legProgressMap[playerId] = {
           remaining: (legProgressMap[playerId]?.remaining ?? x01) - roundScore.score,
@@ -187,7 +187,7 @@ export class X01MatchPlayerCardsViewDataTransformer {
           dartsUsed: (legProgressMap[playerId]?.dartsUsed ?? 0) + 3
         };
       });
-    });
+    })
 
     if(leg.winner != null && leg.checkoutDartsUsed != null && Object.hasOwn(legProgressMap, leg.winner)) {
       legProgressMap[leg.winner].dartsUsed += leg.checkoutDartsUsed - 3;

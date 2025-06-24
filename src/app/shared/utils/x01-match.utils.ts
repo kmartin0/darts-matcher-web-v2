@@ -27,7 +27,7 @@ export function getRemainingForCurrentPlayer(match: X01Match): number {
 
 export function getRemainingForPlayer(leg: X01Leg, x01: number, playerId: string) {
   let remaining = x01;
-  leg.rounds.forEach(round => {
+  Object.entries(leg.rounds).forEach(([, round]) => {
     if (Object.hasOwn(round.scores, playerId)) remaining -= round.scores[playerId].score;
   });
 
@@ -50,15 +50,17 @@ export function getLeg(set: X01Set | null, legNumber: number): X01Leg | null {
 
 export function getRound(leg: X01Leg | null, roundNumber: number): X01LegRound | null {
   if (!leg) return null;
-  return leg.rounds.find(round => round.round === roundNumber) ?? null;
+  return leg.rounds[roundNumber] ?? null;
 }
 
 export function findLastPlayerScore(leg: X01Leg, playerId: string): X01LegRoundScore | null {
-  for (const round of leg.rounds.slice().reverse()) {
+
+  for(const round of Object.values(leg.rounds).reverse()) {
     if (Object.hasOwn(round.scores, playerId)) {
       return round.scores[playerId];
     }
   }
+
   return null;
 }
 

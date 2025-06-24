@@ -90,7 +90,7 @@ export class X01EditScoreDialogComponent extends BaseComponent {
 
   private isFormValid(): boolean {
     const scoreValid = this.scoreFormControl.valid;
-    const doublesMissedValid = this.dialogData.doublesMissed != null && this.doublesMissedFormControl.valid;
+    const doublesMissedValid = this.dialogData.doublesMissed == null || this.doublesMissedFormControl.valid;
 
     return scoreValid && doublesMissedValid;
   }
