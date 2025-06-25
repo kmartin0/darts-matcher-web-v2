@@ -3,13 +3,14 @@ import {X01Set} from '../../models/x01-match/x01-set';
 import {X01Leg} from '../../models/x01-match/x01-leg';
 import {X01LegRound} from '../../models/x01-match/x01-leg-round';
 import {X01LegRoundScore} from '../../models/x01-match/x01-leg-round-score';
+import {X01LegEntry} from '../../models/x01-match/x01-leg-entry';
 
 export function getSetInPlay(match: X01Match): X01Set | null {
   const currentSetNumber = match.matchProgress.currentSet;
   return currentSetNumber !== null ? getSet(match, currentSetNumber) : null;
 }
 
-export function getLegInPlay(match: X01Match, setInPlay: X01Set | null): X01Leg | null {
+export function getLegInPlay(match: X01Match, setInPlay: X01Set | null): X01LegEntry | null {
   const currentLegNumber = match.matchProgress.currentLeg;
   if (setInPlay === null || currentLegNumber === null) return null;
   return getLeg(setInPlay, currentLegNumber);
@@ -17,12 +18,12 @@ export function getLegInPlay(match: X01Match, setInPlay: X01Set | null): X01Leg 
 
 export function getRemainingForCurrentPlayer(match: X01Match): number {
   const setInPlay = getSetInPlay(match);
-  const legInPlay = getLegInPlay(match, setInPlay);
+  const legInPlayEntry = getLegInPlay(match, setInPlay);
   const currentPlayer = match.matchProgress.currentThrower;
 
-  if (!setInPlay || !legInPlay || !currentPlayer) throw new Error('Remaining for current player not found.');
+  if (!setInPlay || !legInPlayEntry || !currentPlayer) throw new Error('Remaining for current player not found.');
 
-  return getRemainingForPlayer(legInPlay, match.matchSettings.x01, currentPlayer);
+  return getRemainingForPlayer(legInPlayEntry.leg, match.matchSettings.x01, currentPlayer);
 }
 
 export function getRemainingForPlayer(leg: X01Leg, x01: number, playerId: string) {
@@ -43,9 +44,9 @@ export function getSet(match: X01Match | null, setNumber: number): X01Set | null
   return match.sets.find(set => set.set === setNumber) ?? null;
 }
 
-export function getLeg(set: X01Set | null, legNumber: number): X01Leg | null {
+export function getLeg(set: X01Set | null, legNumber: number): X01LegEntry | null {
   if (!set) return null;
-  return set.legs.find(leg => leg.leg === legNumber) ?? null;
+  return set.legs.find(legEntry => legEntry.legNumber === legNumber) ?? null;
 }
 
 export function getRound(leg: X01Leg | null, roundNumber: number): X01LegRound | null {

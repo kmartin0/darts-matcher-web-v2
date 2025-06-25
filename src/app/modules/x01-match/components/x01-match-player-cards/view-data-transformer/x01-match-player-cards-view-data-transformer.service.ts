@@ -122,8 +122,8 @@ export class X01MatchPlayerCardsViewDataTransformer {
   private async createSetViewData(set: X01Set, players: X01MatchPlayer[], x01: number, playerWinTrackerMap: PlayerMap<PlayerWinTracker>): Promise<X01PlayerCardSet> {
     const legsMap: Record<number, X01PlayerCardLeg> = {};
 
-    for (const leg of set.legs) {
-      legsMap[leg.leg] = await this.createLegViewData(set, leg, players, x01, playerWinTrackerMap);
+    for (const legEntry of set.legs) {
+      legsMap[legEntry.legNumber] = await this.createLegViewData(set, legEntry.leg, players, x01, playerWinTrackerMap);
     }
 
     return {legs: legsMap};

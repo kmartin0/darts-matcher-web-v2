@@ -12,6 +12,7 @@ import {X01LegTableLegsMap} from './x01-leg-table-legs-map';
 import {LegSelection} from '../../../../../models/common/leg-selection';
 import {X01MatchLegTableColumnDefinitions} from './x01-match-leg-table-column-definitions';
 import {X01MatchProgress} from '../../../../../models/x01-match/x01-match-progress';
+import {X01LegEntry} from '../../../../../models/x01-match/x01-leg-entry';
 
 @Injectable({providedIn: 'root'})
 export class X01MatchLegTableViewDataTransformer {
@@ -29,7 +30,7 @@ export class X01MatchLegTableViewDataTransformer {
     const columnDefinitions = this.createColumnDefinitions(match.players);
     const displayedColumns = this.createDisplayedColumns(columnDefinitions);
     const tables = this.createMatchTablesMap(match);
-    const selectedLegTable = this.getSelectedLegTable(tables, legSelection?.set ?? 0, legSelection?.leg ?? 0);
+    const selectedLegTable = this.getSelectedLegTable(tables, legSelection?.set ?? 0, legSelection?.legEntry.legNumber ?? 0);
 
     return {
       columnDefinitions: columnDefinitions,
@@ -126,28 +127,28 @@ export class X01MatchLegTableViewDataTransformer {
    */
   private createLegsMap(match: X01Match, set: X01Set): X01LegTableLegsMap {
     const legTableMap: Record<number, X01LegTableRow[]> = {};
-    set.legs.forEach(leg => {
-      legTableMap[leg.leg] = this.createLegTable(match, set, leg);
+    set.legs.forEach(legEntry => {
+      legTableMap[legEntry.legNumber] = this.createLegTable(match, set, legEntry);
     });
 
     return {legs: legTableMap};
   }
 
   /**
-   * Builds a leg table for a leg.
+   * Builds a legEntry table for a legEntry.
    *
-   * @param match Match metadata for the leg table
-   * @param set Set metadata for the leg table
-   * @param leg The leg to transform into a table.
-   * @returns A list of rows representing each round in the leg.
+   * @param match Match metadata for the legEntry table
+   * @param set Set metadata for the legEntry table
+   * @param legEntry The legEntry to transform into a table.
+   * @returns A list of rows representing each round in the legEntry.
    */
-  private createLegTable(match: X01Match, set: X01Set, leg: X01Leg): X01LegTableRow[] {
+  private createLegTable(match: X01Match, set: X01Set, legEntry: X01LegEntry): X01LegTableRow[] {
     const legTable: X01LegTableRow[] = [];
     let previousRow: X01LegTableRow | null = null;
 
     // Each round represents a table row.
-    Object.entries(leg.rounds).forEach(([roundNumber, round]) => {
-      const row = this.createRoundTableRow(match, set, leg, round, Number(roundNumber), previousRow);
+    Object.entries(legEntry.leg.rounds).forEach(([roundNumber, round]) => {
+      const row = this.createRoundTableRow(match, set, legEntry, round, Number(roundNumber), previousRow);
       previousRow = row;
       legTable.push(row);
     });
@@ -161,7 +162,7 @@ export class X01MatchLegTableViewDataTransformer {
    *
    * @param match Match metadata for row
    * @param set Set metadata for the row
-   * @param leg Leg metadata for the row
+   * @param legEntry Leg metadata for the row
    * @param round The round to transform.
    * @param roundNumber The number of the round.
    * @param previousRow The previous round row (for cumulative data).
@@ -170,7 +171,7 @@ export class X01MatchLegTableViewDataTransformer {
   private createRoundTableRow(
     match: X01Match,
     set: X01Set,
-    leg: X01Leg,
+    legEntry: X01LegEntry,
     round: X01LegRound,
     roundNumber: number,
     previousRow: X01LegTableRow | null
@@ -190,7 +191,8 @@ export class X01MatchLegTableViewDataTransformer {
     });
 
     // Set the darts thrown of the row to the least darts thrown.
-    const dartsUsedThisRound = leg.winner != null && leg.checkoutDartsUsed != null // TODO: CHANGED
+    const leg = legEntry.leg;
+    const dartsUsedThisRound = leg.winner != null && leg.checkoutDartsUsed != null
       ? (roundNumber === Object.keys(leg.rounds).length ? leg.checkoutDartsUsed : 3)
       : 3;
 
@@ -198,7 +200,7 @@ export class X01MatchLegTableViewDataTransformer {
       round: roundNumber,
       dartsThrown: (previousRow?.dartsThrown ?? 0) + dartsUsedThisRound,
       players: playersRoundInfoMap,
-      currentThrower: this.getActiveThrowerForRound(match.matchProgress, set.set, leg.leg, roundNumber)
+      currentThrower: this.getActiveThrowerForRound(match.matchProgress, set.set, legEntry.legNumber, roundNumber)
     };
   }
 

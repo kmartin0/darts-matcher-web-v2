@@ -4,8 +4,8 @@
     <mat-select [formControl]="legSelectionControl" [compareWith]="compareLegSelection">
       @for (set of match.sets; track set.set) {
         <mat-optgroup label="Set {{set.set}}">
-          @for (leg of set.legs; track leg.leg) {
-            <mat-option [value]="{set: +set.set, leg: +leg.leg}">Leg {{ leg.leg }}</mat-option>
+          @for (legEntry of set.legs; track legEntry.legNumber) {
+            <mat-option [value]="{set: +set.set, legEntry: legEntry}">Leg {{ legEntry.legNumber }}</mat-option>
           }
         </mat-optgroup>
       }

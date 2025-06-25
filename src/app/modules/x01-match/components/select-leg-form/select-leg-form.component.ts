@@ -7,6 +7,7 @@ import {LegSelection} from '../../../../models/common/leg-selection';
 import {X01Match} from '../../../../models/x01-match/x01-match';
 import {NgIf} from '@angular/common';
 import {BaseComponent} from '../../../../shared/components/base/base.component';
+import {X01LegEntry} from '../../../../models/x01-match/x01-leg-entry';
 
 @Component({
   selector: 'app-select-leg-form',
@@ -52,8 +53,8 @@ export class SelectLegFormComponent extends BaseComponent implements OnInit, OnC
    * @param selection - Currently selected leg selection object
    * @returns True if both selections have the same set and leg numbers, false otherwise
    */
-  compareLegSelection(option: { set: number; leg: number }, selection: { set: number; leg: number }): boolean {
-    return option?.set === selection?.set && option?.leg === selection?.leg;
+  compareLegSelection(option: { set: number; legEntry: X01LegEntry }, selection: { set: number; legEntry: X01LegEntry }): boolean {
+    return option?.set === selection?.set && option?.legEntry.legNumber === selection?.legEntry.legNumber;
   }
 
   /**

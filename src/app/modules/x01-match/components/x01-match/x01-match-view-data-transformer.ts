@@ -75,8 +75,8 @@ export class X01MatchViewDataTransformer {
    */
   private createLegInPlaySelection(match: X01Match): LegSelection | null {
     const setInPlay = getSetInPlay(match);
-    const legInPlay = getLegInPlay(match, setInPlay);
-    return (setInPlay && legInPlay) ? {set: setInPlay.set, leg: legInPlay.leg} : null;
+    const legInPlayEntry = getLegInPlay(match, setInPlay);
+    return (setInPlay && legInPlayEntry) ? {set: setInPlay.set, legEntry: legInPlayEntry} : null;
   }
 
   /**
@@ -87,11 +87,11 @@ export class X01MatchViewDataTransformer {
    */
   private createLastLegSelection(match: X01Match): LegSelection | null {
     const lastSet = match.sets.at(-1);
-    const lastLeg = lastSet?.legs.at(-1);
+    const lastLegEntry = lastSet?.legs.at(-1);
 
-    if (!lastSet || !lastLeg) return null;
+    if (!lastSet || !lastLegEntry) return null;
 
-    return {set: lastSet.set, leg: lastLeg.leg};
+    return {set: lastSet.set, legEntry: lastLegEntry};
   }
 
   /**
@@ -103,7 +103,7 @@ export class X01MatchViewDataTransformer {
 
     return match.matchStatus === MatchStatus.IN_PLAY &&
       match.matchProgress.currentSet === legSelection.set &&
-      match.matchProgress.currentLeg === legSelection.leg;
+      match.matchProgress.currentLeg === legSelection.legEntry.legNumber;
   }
 
   /**
@@ -114,9 +114,9 @@ export class X01MatchViewDataTransformer {
     if (!match || !legSelection) return false;
 
     const lastSet = getSet(match, Math.max(...match.sets.map(s => s.set) ?? []));
-    const lastLeg = getLeg(lastSet, Math.max(...lastSet?.legs.map(l => l.leg) ?? []));
+    const lastLegEntry = lastSet?.legs.at(-1) ?? null;
 
     return lastSet?.set === legSelection.set &&
-      lastLeg?.leg === legSelection.leg;
+      lastLegEntry?.legNumber === legSelection.legEntry.legNumber;
   }
 }

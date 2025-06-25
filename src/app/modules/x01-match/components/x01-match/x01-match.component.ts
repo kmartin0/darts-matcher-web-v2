@@ -136,17 +136,17 @@ export class X01MatchComponent extends BaseComponent implements OnInit, OnChange
   onEditScoreResult(dialogResult: X01EditScoreDialogResult) {
     if (!this.match) return;
 
-    // Get the leg to edit, return if not found.
+    // Get the legEntry to edit, return if not found.
     const set = getSet(this.match, dialogResult.set);
-    const leg = getLeg(set, dialogResult.leg);
-    if (!leg) return;
+    const legEntry = getLeg(set, dialogResult.leg);
+    if (!legEntry) return;
 
     // Calculate the remaining score by replacing the old score with the new score.
-    const remainingBeforeEdit = getRemainingForPlayer(leg, this.match.matchSettings.x01, dialogResult.playerId);
+    const remainingBeforeEdit = getRemainingForPlayer(legEntry.leg, this.match.matchSettings.x01, dialogResult.playerId);
     const remainingAfterEdit = (remainingBeforeEdit + dialogResult.oldScore) - dialogResult.newScore;
 
     // When necessary prompt the user for darts used and doubles missed input. Use the result to publish the edited turn.
-    this.createEditTurn(dialogResult, remainingAfterEdit, leg).then(editTurn => {
+    this.createEditTurn(dialogResult, remainingAfterEdit, legEntry.leg).then(editTurn => {
       if (editTurn == null) return;
       this.webSocketService.publishX01EditTurn(dialogResult.matchId, editTurn);
     });
