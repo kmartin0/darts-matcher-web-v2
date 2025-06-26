@@ -3,8 +3,6 @@ import {X01LegTableDataSource, X01LegTableRow, X01LegTableRowPlayerData} from '.
 import {X01Match} from '../../../../../models/x01-match/x01-match';
 import {X01MatchPlayer} from '../../../../../models/x01-match/x01-match-player';
 import {X01Set} from '../../../../../models/x01-match/x01-set';
-import {X01Leg} from '../../../../../models/x01-match/x01-leg';
-import {X01LegRound} from '../../../../../models/x01-match/x01-leg-round';
 import {PlayerMap} from '../../../../../types/player-map';
 import {X01MatchLegTableViewData} from './x01-match-leg-table-view-data';
 import {X01LegTableSetsMap} from './x01-match-leg-table-sets-map';
@@ -13,6 +11,7 @@ import {LegSelection} from '../../../../../models/common/leg-selection';
 import {X01MatchLegTableColumnDefinitions} from './x01-match-leg-table-column-definitions';
 import {X01MatchProgress} from '../../../../../models/x01-match/x01-match-progress';
 import {X01LegEntry} from '../../../../../models/x01-match/x01-leg-entry';
+import {X01LegRoundEntry} from '../../../../../models/x01-match/x01-leg-round-entry';
 
 @Injectable({providedIn: 'root'})
 export class X01MatchLegTableViewDataTransformer {
@@ -147,8 +146,8 @@ export class X01MatchLegTableViewDataTransformer {
     let previousRow: X01LegTableRow | null = null;
 
     // Each round represents a table row.
-    Object.entries(legEntry.leg.rounds).forEach(([roundNumber, round]) => {
-      const row = this.createRoundTableRow(match, set, legEntry, round, Number(roundNumber), previousRow);
+    legEntry.leg.rounds.forEach(roundEntry => {
+      const row = this.createRoundTableRow(match, set, legEntry, roundEntry, previousRow);
       previousRow = row;
       legTable.push(row);
     });
@@ -163,8 +162,7 @@ export class X01MatchLegTableViewDataTransformer {
    * @param match Match metadata for row
    * @param set Set metadata for the row
    * @param legEntry Leg metadata for the row
-   * @param round The round to transform.
-   * @param roundNumber The number of the round.
+   * @param roundEntry The round to transform.
    * @param previousRow The previous round row (for cumulative data).
    * @returns A single table row representing the round.
    */
@@ -172,15 +170,14 @@ export class X01MatchLegTableViewDataTransformer {
     match: X01Match,
     set: X01Set,
     legEntry: X01LegEntry,
-    round: X01LegRound,
-    roundNumber: number,
+    roundEntry: X01LegRoundEntry,
     previousRow: X01LegTableRow | null
   ): X01LegTableRow {
     // Initialize the players round info map and default number of darts thrown.
     const playersRoundInfoMap: PlayerMap<X01LegTableRowPlayerData> = {};
 
     // Create row player round info for each player that scored in the round.
-    Object.entries(round.scores).forEach(([playerId, roundScore]) => {
+    Object.entries(roundEntry.round.scores).forEach(([playerId, roundScore]) => {
       const remainingBeforeScore = previousRow?.players?.[playerId]?.remaining ?? match.matchSettings.x01;
       const remainingAfterScore = remainingBeforeScore - roundScore.score;
       playersRoundInfoMap[playerId] = {
@@ -193,14 +190,14 @@ export class X01MatchLegTableViewDataTransformer {
     // Set the darts thrown of the row to the least darts thrown.
     const leg = legEntry.leg;
     const dartsUsedThisRound = leg.winner != null && leg.checkoutDartsUsed != null
-      ? (roundNumber === Object.keys(leg.rounds).length ? leg.checkoutDartsUsed : 3)
+      ? (roundEntry.roundNumber === leg.rounds.length ? leg.checkoutDartsUsed : 3)
       : 3;
 
     return {
-      round: roundNumber,
+      round: roundEntry.roundNumber,
       dartsThrown: (previousRow?.dartsThrown ?? 0) + dartsUsedThisRound,
       players: playersRoundInfoMap,
-      currentThrower: this.getActiveThrowerForRound(match.matchProgress, set.set, legEntry.legNumber, roundNumber)
+      currentThrower: this.getActiveThrowerForRound(match.matchProgress, set.set, legEntry.legNumber, roundEntry.roundNumber)
     };
   }
 

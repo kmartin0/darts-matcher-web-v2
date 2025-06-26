@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {LegSelection} from '../../../../models/common/leg-selection';
 import {X01Match} from '../../../../models/x01-match/x01-match';
-import {getLeg, getLegInPlay, getSet, getSetInPlay} from '../../../../shared/utils/x01-match.utils';
+import {getLegInPlay, getSet, getSetInPlay} from '../../../../shared/utils/x01-match.utils';
 import {MatchStatus} from '../../../../models/basematch/match-status';
 
 export interface X01MatchViewData {

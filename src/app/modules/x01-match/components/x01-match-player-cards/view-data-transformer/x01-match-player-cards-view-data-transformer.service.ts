@@ -179,8 +179,8 @@ export class X01MatchPlayerCardsViewDataTransformer {
     dartsUsed: number
   }> {
     const legProgressMap: PlayerMap<{ remaining: number, lastScore: number, dartsUsed: number }> = {};
-    Object.entries(leg.rounds).forEach(([, round]) => {
-      Object.entries(round.scores).forEach(([playerId, roundScore]) => {
+    leg.rounds.forEach(roundEntry => {
+      Object.entries(roundEntry.round.scores).forEach(([playerId, roundScore]) => {
         legProgressMap[playerId] = {
           remaining: (legProgressMap[playerId]?.remaining ?? x01) - roundScore.score,
           lastScore: roundScore.score,

@@ -1,9 +1,9 @@
 import {X01Match} from '../../models/x01-match/x01-match';
 import {X01Set} from '../../models/x01-match/x01-set';
 import {X01Leg} from '../../models/x01-match/x01-leg';
-import {X01LegRound} from '../../models/x01-match/x01-leg-round';
 import {X01LegRoundScore} from '../../models/x01-match/x01-leg-round-score';
 import {X01LegEntry} from '../../models/x01-match/x01-leg-entry';
+import {X01LegRoundEntry} from '../../models/x01-match/x01-leg-round-entry';
 
 export function getSetInPlay(match: X01Match): X01Set | null {
   const currentSetNumber = match.matchProgress.currentSet;
@@ -28,8 +28,8 @@ export function getRemainingForCurrentPlayer(match: X01Match): number {
 
 export function getRemainingForPlayer(leg: X01Leg, x01: number, playerId: string) {
   let remaining = x01;
-  Object.entries(leg.rounds).forEach(([, round]) => {
-    if (Object.hasOwn(round.scores, playerId)) remaining -= round.scores[playerId].score;
+  leg.rounds.forEach(roundEntry => {
+    if (Object.hasOwn(roundEntry.round.scores, playerId)) remaining -= roundEntry.round.scores[playerId].score;
   });
 
   return remaining;
@@ -49,16 +49,16 @@ export function getLeg(set: X01Set | null, legNumber: number): X01LegEntry | nul
   return set.legs.find(legEntry => legEntry.legNumber === legNumber) ?? null;
 }
 
-export function getRound(leg: X01Leg | null, roundNumber: number): X01LegRound | null {
+export function getRound(leg: X01Leg | null, roundNumber: number): X01LegRoundEntry | null {
   if (!leg) return null;
   return leg.rounds[roundNumber] ?? null;
 }
 
 export function findLastPlayerScore(leg: X01Leg, playerId: string): X01LegRoundScore | null {
 
-  for(const round of Object.values(leg.rounds).reverse()) {
-    if (Object.hasOwn(round.scores, playerId)) {
-      return round.scores[playerId];
+  for (const roundEntry of leg.rounds.slice().reverse()) {
+    if (Object.hasOwn(roundEntry.round.scores, playerId)) {
+      return roundEntry.round.scores[playerId];
     }
   }
 
