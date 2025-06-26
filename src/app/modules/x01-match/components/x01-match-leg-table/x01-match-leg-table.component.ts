@@ -81,7 +81,7 @@ export class X01MatchLegTableComponent extends BaseComponent implements OnChange
   updateTableDataSource() {
     if (!this.viewData) return;
 
-    const selectedSet = this.legSelection?.set ?? 0;
+    const selectedSet = this.legSelection?.setEntry.setNumber ?? 0;
     const selectedLeg = this.legSelection?.legEntry.legNumber ?? 0;
 
     const tables = this.viewData?.tables;
@@ -101,7 +101,7 @@ export class X01MatchLegTableComponent extends BaseComponent implements OnChange
 
     const dialogData: X01EditScoreDialogData = {
       matchId: this.match.id,
-      set: this.legSelection.set,
+      set: this.legSelection.setEntry.setNumber,
       leg: this.legSelection.legEntry.legNumber,
       playerName: this.match.players.find(player => player.playerId === playerId)?.playerName ?? '',
       round: rowData.round,

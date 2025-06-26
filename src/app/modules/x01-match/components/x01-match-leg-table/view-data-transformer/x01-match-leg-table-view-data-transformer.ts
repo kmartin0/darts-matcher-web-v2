@@ -12,6 +12,7 @@ import {X01MatchLegTableColumnDefinitions} from './x01-match-leg-table-column-de
 import {X01MatchProgress} from '../../../../../models/x01-match/x01-match-progress';
 import {X01LegEntry} from '../../../../../models/x01-match/x01-leg-entry';
 import {X01LegRoundEntry} from '../../../../../models/x01-match/x01-leg-round-entry';
+import {X01SetEntry} from '../../../../../models/x01-match/x01-set-entry';
 
 @Injectable({providedIn: 'root'})
 export class X01MatchLegTableViewDataTransformer {
@@ -29,7 +30,7 @@ export class X01MatchLegTableViewDataTransformer {
     const columnDefinitions = this.createColumnDefinitions(match.players);
     const displayedColumns = this.createDisplayedColumns(columnDefinitions);
     const tables = this.createMatchTablesMap(match);
-    const selectedLegTable = this.getSelectedLegTable(tables, legSelection?.set ?? 0, legSelection?.legEntry.legNumber ?? 0);
+    const selectedLegTable = this.getSelectedLegTable(tables, legSelection?.setEntry.setNumber ?? 0, legSelection?.legEntry.legNumber ?? 0);
 
     return {
       columnDefinitions: columnDefinitions,
@@ -110,8 +111,8 @@ export class X01MatchLegTableViewDataTransformer {
    */
   private createMatchTablesMap(match: X01Match): X01LegTableSetsMap {
     const setsMap: Record<number, X01LegTableLegsMap> = {};
-    match.sets.forEach(set => {
-      setsMap[set.set] = this.createLegsMap(match, set);
+    match.sets.forEach(setEntry => {
+      setsMap[setEntry.setNumber] = this.createLegsMap(match, setEntry);
     });
 
     return {sets: setsMap};
@@ -121,13 +122,13 @@ export class X01MatchLegTableViewDataTransformer {
    * Builds a map of leg tables for a specific set.
    *
    * @param match Match metadata for the legs map
-   * @param set The set containing multiple legs.
+   * @param setEntry The set containing multiple legs.
    * @returns A map of leg number to table rows.
    */
-  private createLegsMap(match: X01Match, set: X01Set): X01LegTableLegsMap {
+  private createLegsMap(match: X01Match, setEntry: X01SetEntry): X01LegTableLegsMap {
     const legTableMap: Record<number, X01LegTableRow[]> = {};
-    set.legs.forEach(legEntry => {
-      legTableMap[legEntry.legNumber] = this.createLegTable(match, set, legEntry);
+    setEntry.set.legs.forEach(legEntry => {
+      legTableMap[legEntry.legNumber] = this.createLegTable(match, setEntry, legEntry);
     });
 
     return {legs: legTableMap};
@@ -137,17 +138,17 @@ export class X01MatchLegTableViewDataTransformer {
    * Builds a legEntry table for a legEntry.
    *
    * @param match Match metadata for the legEntry table
-   * @param set Set metadata for the legEntry table
+   * @param setEntry Set metadata for the legEntry table
    * @param legEntry The legEntry to transform into a table.
    * @returns A list of rows representing each round in the legEntry.
    */
-  private createLegTable(match: X01Match, set: X01Set, legEntry: X01LegEntry): X01LegTableRow[] {
+  private createLegTable(match: X01Match, setEntry: X01SetEntry, legEntry: X01LegEntry): X01LegTableRow[] {
     const legTable: X01LegTableRow[] = [];
     let previousRow: X01LegTableRow | null = null;
 
     // Each round represents a table row.
     legEntry.leg.rounds.forEach(roundEntry => {
-      const row = this.createRoundTableRow(match, set, legEntry, roundEntry, previousRow);
+      const row = this.createRoundTableRow(match, setEntry, legEntry, roundEntry, previousRow);
       previousRow = row;
       legTable.push(row);
     });
@@ -160,7 +161,7 @@ export class X01MatchLegTableViewDataTransformer {
    * And for each player their score and remaining (after score).
    *
    * @param match Match metadata for row
-   * @param set Set metadata for the row
+   * @param setEntry Set metadata for the row
    * @param legEntry Leg metadata for the row
    * @param roundEntry The round to transform.
    * @param previousRow The previous round row (for cumulative data).
@@ -168,7 +169,7 @@ export class X01MatchLegTableViewDataTransformer {
    */
   private createRoundTableRow(
     match: X01Match,
-    set: X01Set,
+    setEntry: X01SetEntry,
     legEntry: X01LegEntry,
     roundEntry: X01LegRoundEntry,
     previousRow: X01LegTableRow | null
@@ -197,7 +198,7 @@ export class X01MatchLegTableViewDataTransformer {
       round: roundEntry.roundNumber,
       dartsThrown: (previousRow?.dartsThrown ?? 0) + dartsUsedThisRound,
       players: playersRoundInfoMap,
-      currentThrower: this.getActiveThrowerForRound(match.matchProgress, set.set, legEntry.legNumber, roundEntry.roundNumber)
+      currentThrower: this.getActiveThrowerForRound(match.matchProgress, setEntry.setNumber, legEntry.legNumber, roundEntry.roundNumber)
     };
   }
 

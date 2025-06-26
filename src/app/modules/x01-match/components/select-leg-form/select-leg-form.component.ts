@@ -42,6 +42,7 @@ export class SelectLegFormComponent extends BaseComponent implements OnInit, OnC
   ngOnChanges(changes: SimpleChanges) {
     if (changes['legSelection']) {
       this.legSelectionControl.setValue(this.legSelection, {emitEvent: false});
+      console.log(this.legSelection);
     }
   }
 
@@ -53,8 +54,9 @@ export class SelectLegFormComponent extends BaseComponent implements OnInit, OnC
    * @param selection - Currently selected leg selection object
    * @returns True if both selections have the same set and leg numbers, false otherwise
    */
-  compareLegSelection(option: { set: number; legEntry: X01LegEntry }, selection: { set: number; legEntry: X01LegEntry }): boolean {
-    return option?.set === selection?.set && option?.legEntry.legNumber === selection?.legEntry.legNumber;
+  compareLegSelection(option: LegSelection, selection: LegSelection): boolean {
+    return option?.setEntry.setNumber === selection?.setEntry.setNumber &&
+      option?.legEntry.legNumber === selection?.legEntry.legNumber;
   }
 
   /**

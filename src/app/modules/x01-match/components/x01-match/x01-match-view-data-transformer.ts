@@ -74,9 +74,9 @@ export class X01MatchViewDataTransformer {
    * @returns A LegSelection representing the current set and leg in play, or null if not determinable.
    */
   private createLegInPlaySelection(match: X01Match): LegSelection | null {
-    const setInPlay = getSetInPlay(match);
-    const legInPlayEntry = getLegInPlay(match, setInPlay);
-    return (setInPlay && legInPlayEntry) ? {set: setInPlay.set, legEntry: legInPlayEntry} : null;
+    const setInPlayEntry = getSetInPlay(match);
+    const legInPlayEntry = getLegInPlay(match, setInPlayEntry?.set ?? null);
+    return (setInPlayEntry && legInPlayEntry) ? {setEntry: setInPlayEntry, legEntry: legInPlayEntry} : null;
   }
 
   /**
@@ -86,12 +86,12 @@ export class X01MatchViewDataTransformer {
    * @returns A LegSelection representing the last set and leg, or null if none are found.
    */
   private createLastLegSelection(match: X01Match): LegSelection | null {
-    const lastSet = match.sets.at(-1);
-    const lastLegEntry = lastSet?.legs.at(-1);
+    const lastSetEntry = match.sets.at(-1);
+    const lastLegEntry = lastSetEntry?.set?.legs.at(-1);
 
-    if (!lastSet || !lastLegEntry) return null;
+    if (!lastSetEntry || !lastLegEntry) return null;
 
-    return {set: lastSet.set, legEntry: lastLegEntry};
+    return {setEntry: lastSetEntry, legEntry: lastLegEntry};
   }
 
   /**
@@ -102,7 +102,7 @@ export class X01MatchViewDataTransformer {
     if (!match || !legSelection) return false;
 
     return match.matchStatus === MatchStatus.IN_PLAY &&
-      match.matchProgress.currentSet === legSelection.set &&
+      match.matchProgress.currentSet === legSelection.setEntry.setNumber &&
       match.matchProgress.currentLeg === legSelection.legEntry.legNumber;
   }
 
@@ -113,10 +113,10 @@ export class X01MatchViewDataTransformer {
   private shouldDisplayUndoScore(match: X01Match | null, legSelection: LegSelection | null): boolean {
     if (!match || !legSelection) return false;
 
-    const lastSet = getSet(match, Math.max(...match.sets.map(s => s.set) ?? []));
-    const lastLegEntry = lastSet?.legs.at(-1) ?? null;
+    const lastSetEntry = match.sets.at(-1) ?? null;
+    const lastLegEntry = lastSetEntry?.set?.legs.at(-1) ?? null;
 
-    return lastSet?.set === legSelection.set &&
+    return lastSetEntry?.setNumber === legSelection.setEntry.setNumber &&
       lastLegEntry?.legNumber === legSelection.legEntry.legNumber;
   }
 }

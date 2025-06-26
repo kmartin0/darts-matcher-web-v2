@@ -1,5 +1,5 @@
 <div class="players-container" *ngIf="viewData && legSelection">
-  @let selectedSet = viewData.sets[legSelection.set] ;
+  @let selectedSet = viewData.sets[legSelection.setEntry.setNumber] ;
   @let selectedLeg = selectedSet?.legs?.[legSelection.legEntry.legNumber] ;
   @for (playerEntry of selectedLeg?.players ?? {} | keyvalue; track playerEntry.key) {
     @if (playerEntry.key && playerEntry.value) {

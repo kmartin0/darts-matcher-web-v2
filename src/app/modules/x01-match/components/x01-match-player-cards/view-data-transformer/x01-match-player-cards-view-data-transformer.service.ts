@@ -72,8 +72,8 @@ export class X01MatchPlayerCardsViewDataTransformer {
 
     // Create an entry of SetViewData in the sets map for each set.
     // Reset legs won tracker after each set to only keep track of legs won within a set.
-    for (const set of match.sets) {
-      setsMap[set.set] = await this.createSetViewData(set, players, x01, playerWinTrackerMap);
+    for (const setEntry of match.sets) {
+      setsMap[setEntry.setNumber] = await this.createSetViewData(setEntry.set, players, x01, playerWinTrackerMap);
       this.resetLegsWonTracker(playerWinTrackerMap);
     }
 
@@ -220,7 +220,7 @@ export class X01MatchPlayerCardsViewDataTransformer {
   /**
    * Generates a formatted checkout message (e.g., "T20, D10") based on remaining score.
    *
-   * @param remaining The score left to checkout.
+   * @param remaining The score left to check out.
    * @returns A promise resolving to a checkout string or an empty string.
    */
   private async createCheckoutMessage(remaining: number): Promise<string> {

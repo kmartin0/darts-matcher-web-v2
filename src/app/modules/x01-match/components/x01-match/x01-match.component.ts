@@ -137,8 +137,8 @@ export class X01MatchComponent extends BaseComponent implements OnInit, OnChange
     if (!this.match) return;
 
     // Get the legEntry to edit, return if not found.
-    const set = getSet(this.match, dialogResult.set);
-    const legEntry = getLeg(set, dialogResult.leg);
+    const setEntry = getSet(this.match, dialogResult.set);
+    const legEntry = getLeg(setEntry?.set ?? null, dialogResult.leg);
     if (!legEntry) return;
 
     // Calculate the remaining score by replacing the old score with the new score.
