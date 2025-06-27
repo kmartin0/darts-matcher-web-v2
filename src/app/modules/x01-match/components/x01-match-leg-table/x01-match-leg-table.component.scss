@@ -1,12 +1,16 @@
 @use "@angular/material" as mat;
 
 :host {
+  height: 100%;
+
   @include mat.table-overrides((
     row-item-outline-width: 0
-  ))
+  ));
 }
 
 .table-container {
+  height: 100%;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -15,7 +19,7 @@
 table {
   table-layout: fixed;
   width: 100%;
-  height: 100%;
+  height: min-content;
 
   tr, th, td {
     font-size: 20px;
@@ -23,26 +27,9 @@ table {
     font-weight: 500;
   }
 
-  tr {
-    width: 100%;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
-    grid-gap: 8px;
-  }
-
-  th {
-    position: sticky;
+  tr th {
     background-color: color-mix(in srgb, var(--mat-sys-primary) 100%, transparent);
     color: var(--mat-sys-on-primary);
-  }
-
-  td, th {
-    width: 100%;
-    height: 100%;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
-    align-items: center;
-    justify-items: center;
   }
 
   tr:nth-child(even) td {
@@ -52,4 +39,21 @@ table {
   tr:nth-child(odd) td {
     background-color: color-mix(in srgb, var(--mat-sys-primary) 40%, transparent);
   }
+
+  td:not(:first-child), th:not(:first-child) {
+    border-left: 4px solid var(--mat-sys-background);
+  }
+
+  td:not(:last-child), th:not(:last-child) {
+    border-right: 4px solid var(--mat-sys-background);
+  }
+}
+
+.cell-content-container {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  align-items: center;
+  justify-items: center;
 }

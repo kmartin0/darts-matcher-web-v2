@@ -7,7 +7,6 @@ import {LegSelection} from '../../../../models/common/leg-selection';
 import {X01Match} from '../../../../models/x01-match/x01-match';
 import {NgIf} from '@angular/common';
 import {BaseComponent} from '../../../../shared/components/base/base.component';
-import {X01LegEntry} from '../../../../models/x01-match/x01-leg-entry';
 
 @Component({
   selector: 'app-select-leg-form',

@@ -1,4 +1,15 @@
-import {Component, EventEmitter, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+  QueryList,
+  SimpleChanges,
+  ViewChild,
+  ViewChildren
+} from '@angular/core';
 import {X01Match} from '../../../../models/x01-match/x01-match';
 import {KeyValuePipe, NgIf} from '@angular/common';
 import {
@@ -49,6 +60,8 @@ import {BaseComponent} from '../../../../shared/components/base/base.component';
   styleUrl: './x01-match-leg-table.component.scss'
 })
 export class X01MatchLegTableComponent extends BaseComponent implements OnChanges {
+  @ViewChild('tableContainer', {static: false}) tableContainer!: ElementRef<HTMLDivElement>;
+  @ViewChildren('tableRows', {read: ElementRef}) rows!: QueryList<ElementRef<HTMLTableRowElement>>;
   @Input() match: X01Match | null = null;
   @Input() legSelection: LegSelection | null = null;
   @Input() editMode: boolean = false;
@@ -72,6 +85,7 @@ export class X01MatchLegTableComponent extends BaseComponent implements OnChange
     }
     if (changes['legSelection']) {
       this.updateTableDataSource();
+      this.scrollToRoundInPlay(this.match, this.legSelection);
     }
   }
 
@@ -111,6 +125,72 @@ export class X01MatchLegTableComponent extends BaseComponent implements OnChange
     };
 
     this.openEditScoreDialog(dialogData);
+  }
+
+  /**
+   * Scrolls the table container to the appropriate round depending on whether the currently selected leg
+   * is the one in progress. If it is, scrolls to the last round. Otherwise, scrolls to round 1.
+   *
+   * @param match - The current match object.
+   * @param legSelection - The currently selected leg.
+   */
+  private scrollToRoundInPlay(match: X01Match | null, legSelection: LegSelection | null) {
+    if (!match || !legSelection) return;
+
+    if (this.isCurrentLegSelected(match, legSelection)) {
+      // Get the last round of the current leg
+      const roundToScrollTo = legSelection.legEntry.leg.rounds.at(-1);
+      this.scrollToRound(roundToScrollTo?.roundNumber ?? null, true);
+    } else {
+      // Scroll to round 1 if the selected leg isn't the current one
+      this.scrollToRound(1, false);
+    }
+  }
+
+  /**
+   * Checks whether the currently selected leg matches the leg in progress in the match.
+   *
+   * @param match - The match object to check against.
+   * @param legSelection - The leg selection to verify.
+   * @returns True if the selected leg is the one currently in play; false otherwise.
+   */
+  private isCurrentLegSelected(match: X01Match | null, legSelection: LegSelection | null): boolean {
+    if (!match || !legSelection) return false;
+
+    return match.matchProgress.currentSet == legSelection.setEntry.setNumber &&
+      match.matchProgress.currentLeg == legSelection.legEntry.legNumber &&
+      match.matchProgress.currentRound != null;
+  }
+
+  /**
+   * Scrolls the leg table container to a specified round.
+   *
+   * @param roundNumber - The round number to scroll to.
+   * @param smooth - Whether the scroll behavior should be smooth or instant.
+   */
+  private scrollToRound(roundNumber: number | null, smooth: boolean) {
+    if (roundNumber == null) return;
+
+    // Delay scrolling to ensure the DOM has rendered the rows
+    setTimeout(() => {
+      if (!this.rows || !this.tableContainer) return;
+
+      // Get the target row matching the round number. Fallback to the last row.
+      const rowIndex = roundNumber - 1;
+      const targetRow = this.rows.get(rowIndex) ?? this.rows.get(this.rows.length - 1);
+      const container = this.tableContainer.nativeElement;
+
+      if (targetRow && container) {
+        // Determine the row's offset from the top, then subtract the sticky header's height.
+        const stickyHeaderHeight = 56;
+        const offsetTop = targetRow.nativeElement.offsetTop - stickyHeaderHeight;
+
+        container.scrollTo({
+          top: Math.max(0, offsetTop),
+          behavior: smooth ? 'smooth' : 'instant'
+        });
+      }
+    }, 0);
   }
 
   /**

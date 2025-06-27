@@ -2,7 +2,6 @@ import {Injectable} from '@angular/core';
 import {X01LegTableDataSource, X01LegTableRow, X01LegTableRowPlayerData} from '../x01-leg-table-data-source';
 import {X01Match} from '../../../../../models/x01-match/x01-match';
 import {X01MatchPlayer} from '../../../../../models/x01-match/x01-match-player';
-import {X01Set} from '../../../../../models/x01-match/x01-set';
 import {PlayerMap} from '../../../../../types/player-map';
 import {X01MatchLegTableViewData} from './x01-match-leg-table-view-data';
 import {X01LegTableSetsMap} from './x01-match-leg-table-sets-map';
