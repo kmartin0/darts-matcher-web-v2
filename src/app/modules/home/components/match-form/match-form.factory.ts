@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {FormBuilder, FormGroup, ValidatorFn, Validators} from '@angular/forms';
 import {MatchForm, PlayerGroup} from './match-form';
 import {CustomValidators} from '../../../../shared/validators/custom-validators';
@@ -7,6 +7,7 @@ import {PlayerType} from '../../../../models/basematch/player-type';
 
 @Injectable({providedIn: 'root'})
 export class MatchFormFactory {
+  private fb = inject(FormBuilder);
 
   readonly x01Options = [301, 501];
   readonly minX01 = 101;
@@ -19,9 +20,6 @@ export class MatchFormFactory {
   readonly botMaxAvg = 167;
   readonly playerNameMinLength = 3;
   readonly playerNameMaxLength = 40;
-
-  constructor(private fb: FormBuilder) {
-  }
 
   /**
    * Creates and returns a form group of type MatchForm used for configuring a match.

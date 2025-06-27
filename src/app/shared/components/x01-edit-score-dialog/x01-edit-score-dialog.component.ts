@@ -1,4 +1,4 @@
-import {Component, DestroyRef, Inject} from '@angular/core';
+import {Component, DestroyRef, inject, Inject} from '@angular/core';
 import {
   MAT_DIALOG_DATA,
   MatDialogActions,
@@ -49,14 +49,17 @@ export class X01EditScoreDialogComponent extends BaseComponent {
     validators: [Validators.required, CustomValidators.isNumber, Validators.min(0), Validators.max(3)]
   });
 
-  constructor(@Inject(MAT_DIALOG_DATA) public dialogData: X01EditScoreDialogData,
-              private dialogRef: MatDialogRef<X01EditScoreDialogComponent>,
-              private keydownDispatcherService: KeydownEventDispatcherService,
-              private destroyRef: DestroyRef) {
-    if (!isX01EditScoreDialogData(dialogData)) throw Error('X01 Edit Score Dialog Data Missing.');
+  dialogData = inject<X01EditScoreDialogData>(MAT_DIALOG_DATA);
+
+  private dialogRef = inject(MatDialogRef<X01EditScoreDialogComponent>);
+  private keydownDispatcherService = inject(KeydownEventDispatcherService);
+  private destroyRef = inject(DestroyRef);
+
+  constructor() {
     super();
-    this.scoreFormControl.setValue(dialogData.currentScore.toString());
-    this.doublesMissedFormControl.setValue(dialogData.doublesMissed?.toString());
+    if (!isX01EditScoreDialogData(this.dialogData)) throw Error('X01 Edit Score Dialog Data Missing.');
+    this.scoreFormControl.setValue(this.dialogData.currentScore.toString());
+    this.doublesMissedFormControl.setValue(this.dialogData.doublesMissed?.toString());
     this.initEnterKeyListener();
   }
 

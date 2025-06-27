@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {Inject, inject, Injectable} from '@angular/core';
 import {HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest} from '@angular/common/http';
 import {catchError, Observable, throwError} from 'rxjs';
 import {isApiErrorBody} from '../error/api-error-body';
@@ -7,9 +7,8 @@ import {ApiErrorBodyHandler} from '../services/api-error-body-handler.service';
 
 @Injectable()
 export class ApiErrorInterceptor implements HttpInterceptor {
-
-  constructor(private dialogService: DialogService, private apiErrorBodyHandler: ApiErrorBodyHandler) {
-  }
+  private dialogService: DialogService = inject(DialogService);
+  private apiErrorBodyHandler: ApiErrorBodyHandler = inject(ApiErrorBodyHandler);
 
   /**
    * Intercepts HTTP requests to handle and process general API errors such as internal errors.

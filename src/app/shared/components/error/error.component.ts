@@ -1,4 +1,4 @@
-import {Component, ElementRef, Input, OnChanges, SimpleChanges} from '@angular/core';
+import {Component, ElementRef, inject, Input, OnChanges, SimpleChanges} from '@angular/core';
 import {animate, style, transition, trigger} from '@angular/animations';
 import {NgIf} from '@angular/common';
 import {BaseComponent} from '../base/base.component';
@@ -35,9 +35,7 @@ export class ErrorComponent extends BaseComponent implements OnChanges {
   @Input() errorMsg: string | null = '';
   animationParams = {startHeight: 0};
 
-  constructor(private el: ElementRef) {
-    super();
-  }
+  private el = inject(ElementRef);
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['errorMsg']) {

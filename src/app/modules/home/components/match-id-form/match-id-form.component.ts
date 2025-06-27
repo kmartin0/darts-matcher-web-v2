@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, inject} from '@angular/core';
 import {BaseFormComponent} from '../../../../shared/components/base-form/base-form.component';
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {CustomValidators} from '../../../../shared/validators/custom-validators';
@@ -33,13 +33,13 @@ export interface MatchIdForm {
   styleUrl: './match-id-form.component.scss'
 })
 export class MatchIdFormComponent extends BaseFormComponent<string> {
-
+  private fb = inject(FormBuilder);
   private readonly _form: FormGroup<MatchIdForm>;
 
-  constructor(fb: FormBuilder) {
+  constructor() {
     super();
 
-    this._form = fb.nonNullable.group({
+    this._form = this.fb.nonNullable.group({
         matchId: ['', [Validators.required, CustomValidators.validObjectId]]
       }
     );

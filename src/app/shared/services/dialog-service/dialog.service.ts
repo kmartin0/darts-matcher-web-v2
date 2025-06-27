@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {MatDialog, MatDialogConfig, MatDialogRef} from '@angular/material/dialog';
 import {TextDialogData} from '../../components/text-dialog/text-dialog-data';
 import {TextDialogComponent} from '../../components/text-dialog/text-dialog.component';
@@ -20,8 +20,7 @@ import {ComponentType} from '@angular/cdk/portal';
   providedIn: 'root'
 })
 export class DialogService {
-  public constructor(private matDialog: MatDialog) {
-  }
+  private matDialog = inject(MatDialog);
 
   public openTextDialog(
     dialogData: TextDialogData,

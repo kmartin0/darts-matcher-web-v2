@@ -1,4 +1,4 @@
-import {Component, Input, OnChanges, SimpleChanges} from '@angular/core';
+import {Component, inject, Input, OnChanges, SimpleChanges} from '@angular/core';
 import {X01Match} from '../../../../models/x01-match/x01-match';
 import {
   X01MatchPlayerCardsViewDataTransformer
@@ -28,9 +28,7 @@ export class X01MatchPlayerCardsComponent extends BaseComponent implements OnCha
   protected readonly ResultType = ResultType;
   viewData: X01PlayerCardsViewData | null = null;
 
-  constructor(private viewDataTransformer: X01MatchPlayerCardsViewDataTransformer) {
-    super();
-  }
+  private viewDataTransformer = inject(X01MatchPlayerCardsViewDataTransformer);
 
   /**
    * Watches for changes to `match` input to update view data.

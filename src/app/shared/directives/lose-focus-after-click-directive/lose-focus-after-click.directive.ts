@@ -1,4 +1,4 @@
-import {Directive, ElementRef, HostListener} from '@angular/core';
+import {Directive, ElementRef, HostListener, inject} from '@angular/core';
 
 @Directive({
   selector: '[appLoseFocusAfterClick]',
@@ -6,8 +6,7 @@ import {Directive, ElementRef, HostListener} from '@angular/core';
 })
 export class LoseFocusAfterClickDirective {
 
-  constructor(private elRef: ElementRef) {
-  }
+  private elRef = inject(ElementRef);
 
   @HostListener('click') onClick() {
     this.elRef.nativeElement.blur();

@@ -1,4 +1,4 @@
-import {Component, Inject} from '@angular/core';
+import {Component, inject, Inject} from '@angular/core';
 import {MatButton} from '@angular/material/button';
 import {
   MAT_DIALOG_DATA,
@@ -27,10 +27,12 @@ export interface ConfirmDialogData {
 })
 export class ConfirmDialogComponent extends BaseComponent {
 
-  constructor(@Inject(MAT_DIALOG_DATA) public dialogData: ConfirmDialogData,
-              private dialogRef: MatDialogRef<ConfirmDialogComponent>,) {
+  public dialogData = inject<ConfirmDialogData>(MAT_DIALOG_DATA);
+  private dialogRef = inject(MatDialogRef<ConfirmDialogComponent>);
+
+  constructor() {
     super();
-    if (!dialogData) throw Error('Confirm Dialog Data Missing.');
+    if (!this.dialogData) throw Error('Confirm Dialog Data Missing.');
   }
 
   /**

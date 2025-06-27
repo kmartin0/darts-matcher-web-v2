@@ -1,4 +1,4 @@
-import {Component, DestroyRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild} from '@angular/core';
+import {Component, DestroyRef, inject, Input, OnChanges, OnInit, SimpleChanges, ViewChild} from '@angular/core';
 import {X01Match} from '../../../../models/x01-match/x01-match';
 import {NgIf} from '@angular/common';
 import {MatIconButton} from '@angular/material/button';
@@ -58,11 +58,16 @@ export class X01MatchComponent extends BaseComponent implements OnInit, OnChange
   @ViewChild('scoreInputComponent') scoreInputComponent!: X01ScoreInputComponent;
   viewData: X01MatchViewData;
 
-  constructor(private webSocketService: DartsMatcherWebSocketService, private checkoutService: X01CheckoutService,
-              private dialogService: DialogService, private apiErrorBodyHandler: ApiErrorBodyHandler,
-              private destroyRef: DestroyRef, private viewDataTransformer: X01MatchViewDataTransformer) {
+  private webSocketService = inject(DartsMatcherWebSocketService);
+  private checkoutService = inject(X01CheckoutService);
+  private dialogService = inject(DialogService);
+  private apiErrorBodyHandler = inject(ApiErrorBodyHandler);
+  private destroyRef = inject(DestroyRef);
+  private viewDataTransformer = inject(X01MatchViewDataTransformer);
+
+  constructor() {
     super();
-    this.viewData = viewDataTransformer.transform(null);
+    this.viewData = this.viewDataTransformer.transform(null);
   }
 
   /**

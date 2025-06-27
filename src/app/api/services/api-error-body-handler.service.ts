@@ -1,13 +1,11 @@
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {ApiErrorBody, isApiErrorBody} from '../error/api-error-body';
 import {ApiErrorEnum} from '../error/api-error-enum';
 import {DialogService} from '../../shared/services/dialog-service/dialog.service';
 
 @Injectable({providedIn: 'root'})
 export class ApiErrorBodyHandler {
-
-  constructor(private dialogService: DialogService) {
-  }
+  private dialogService = inject(DialogService);
 
   /**
    * Handles API error bodies that should trigger the same UI response, regardless of where in the application they occur.

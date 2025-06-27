@@ -1,4 +1,4 @@
-import {Component, DestroyRef, EventEmitter, Output} from '@angular/core';
+import {Component, DestroyRef, EventEmitter, inject, Output} from '@angular/core';
 import {MatButton} from '@angular/material/button';
 import {KeydownEventDispatcherService} from '../../services/keydown-event-dispatcher/keydown-event-dispatcher.service';
 import {BaseComponent} from '../base/base.component';
@@ -40,7 +40,10 @@ export class KeypadComponentComponent extends BaseComponent {
 
   @Output() keyPress = new EventEmitter<KeypadButton>();
 
-  constructor(private keydownEventDispatcher: KeydownEventDispatcherService, private destroyRef: DestroyRef) {
+  private keydownEventDispatcher = inject(KeydownEventDispatcherService);
+  private destroyRef = inject(DestroyRef);
+
+  constructor() {
     super();
     this.initKeyDownListener();
   }

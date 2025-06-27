@@ -1,4 +1,4 @@
-import {Component, DestroyRef, Inject} from '@angular/core';
+import {Component, DestroyRef, inject, Inject} from '@angular/core';
 import {FormControl, ReactiveFormsModule} from '@angular/forms';
 import {
   MAT_DIALOG_DATA,
@@ -44,22 +44,20 @@ export class NumberSelectionDialogComponent extends BaseComponent {
 
   acceptedNumericKeyStrokes: string[] = [];
   acceptedSpecialKeyStrokes: string[] = ['Enter', 'Cancel'];
+  dialogData = inject<NumberSelectionDialogData>(MAT_DIALOG_DATA);
+
+  private dialogRef = inject(MatDialogRef<NumberSelectionDialogComponent>);
+  private keydownEventDispatcher = inject(KeydownEventDispatcherService);
+  private destroyRef = inject(DestroyRef);
 
   /**
    * Creates and initializes the dialog with number selection data and sets up keyboard interaction.
    * Throws an error if `dialogData` is not provided.
    *
-   * @param dialogData - Configuration for the dialog including title and number options
-   * @param dialogRef - Reference to the currently open dialog instance
-   * @param keydownEventDispatcher - Service to observe global keydown events
-   * @param destroyRef - Angular destroy lifecycle reference for automatic cleanup
    */
-  constructor(@Inject(MAT_DIALOG_DATA) public dialogData: NumberSelectionDialogData,
-              private dialogRef: MatDialogRef<NumberSelectionDialogComponent>,
-              private keydownEventDispatcher: KeydownEventDispatcherService,
-              private destroyRef: DestroyRef) {
-    if (!dialogData) throw Error('Number Selection Dialog Data Missing.');
+  constructor() {
     super();
+    if (!this.dialogData) throw Error('Number Selection Dialog Data Missing.');
     this.initKeyDownListener();
     this.initAcceptedKeyStrokes();
   }

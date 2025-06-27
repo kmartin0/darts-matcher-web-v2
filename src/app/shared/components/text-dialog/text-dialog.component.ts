@@ -1,4 +1,4 @@
-import {Component, Inject} from '@angular/core';
+import {Component, inject, Inject} from '@angular/core';
 import {MatIcon} from '@angular/material/icon';
 import {MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent} from '@angular/material/dialog';
 import {TextDialogData} from './text-dialog-data';
@@ -22,8 +22,7 @@ import {MatButton} from '@angular/material/button';
 })
 export class TextDialogComponent {
 
-  constructor(@Inject(MAT_DIALOG_DATA) public data: TextDialogData) {
-  }
+  public data = inject<TextDialogData>(MAT_DIALOG_DATA);
 
   get title(): string {
     return this?.data.title ?? '';

@@ -1,7 +1,7 @@
 import {
   Component,
   ElementRef,
-  EventEmitter,
+  EventEmitter, inject,
   Input,
   OnChanges,
   Output,
@@ -69,9 +69,8 @@ export class X01MatchLegTableComponent extends BaseComponent implements OnChange
   @Output() submitScoreEdit: EventEmitter<X01EditScoreDialogResult> = new EventEmitter<X01EditScoreDialogResult>();
   viewData: X01MatchLegTableViewData | null = null;
 
-  constructor(private viewDataTransformer: X01MatchLegTableViewDataTransformer, private dialogService: DialogService) {
-    super();
-  }
+  private viewDataTransformer = inject(X01MatchLegTableViewDataTransformer);
+  private dialogService = inject(DialogService);
 
   /**
    * Lifecycle hook triggered when @Input properties change.

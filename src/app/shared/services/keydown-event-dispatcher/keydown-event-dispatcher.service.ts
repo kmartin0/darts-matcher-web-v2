@@ -1,4 +1,4 @@
-import {DestroyRef, Injectable} from '@angular/core';
+import {DestroyRef, inject, Injectable} from '@angular/core';
 import {fromEvent, Observable, Subject, Subscription} from 'rxjs';
 import {MatDialog, MatDialogRef} from '@angular/material/dialog';
 
@@ -11,9 +11,7 @@ import {MatDialog, MatDialogRef} from '@angular/material/dialog';
 export class KeydownEventDispatcherService {
   private subscriberStack: { subject: Subject<KeyboardEvent>; dialogRef?: MatDialogRef<any> }[] = [];
   private keydownSubscription: Subscription | null = null;
-
-  constructor(private matDialog: MatDialog) {
-  }
+  private matDialog = inject(MatDialog);
 
   /**
    * Registers a new observable stream for keydown events, tied to the caller's destroy lifecycle.

@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {X01CheckoutService} from '../../../../../shared/services/x01-checkout-service/x01-checkout-service';
 import {PlayerMap} from '../../../../../types/player-map';
 import {X01MatchPlayer} from '../../../../../models/x01-match/x01-match-player';
@@ -18,9 +18,7 @@ import {X01PlayerCardLeg} from './x01-player-card-leg';
 
 @Injectable({providedIn: 'root'})
 export class X01MatchPlayerCardsViewDataTransformer {
-
-  constructor(private checkoutService: X01CheckoutService) {
-  }
+  private checkoutService = inject(X01CheckoutService);
 
   /**
    * Creates the full view data for each player cards.

@@ -1,4 +1,4 @@
-import {Component, DestroyRef, OnInit} from '@angular/core';
+import {Component, DestroyRef, inject, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {debounceTime, EMPTY, Observable, of, switchMap} from 'rxjs';
 import {X01Match} from '../../../../models/x01-match/x01-match';
@@ -45,19 +45,20 @@ import {MatSnackBar} from '@angular/material/snack-bar';
   styleUrl: './x01-match-page.component.scss'
 })
 export class X01MatchPageComponent extends BaseComponent implements OnInit {
-
-  private readonly matchIdParamKey = 'matchId';
+  match: X01Match | null = null;
   matchNotFound: boolean = false;
   matchDeleteEvent: boolean = false;
   webSocketClosed: boolean = false;
 
-  public match: X01Match | null = null;
+  private readonly matchIdParamKey = 'matchId';
 
-  constructor(private route: ActivatedRoute, private webSocketService: DartsMatcherWebSocketService,
-              private apiErrorBodyHandler: ApiErrorBodyHandler, private destroyRef: DestroyRef, private router: Router,
-              private dialogService: DialogService, private snackBar: MatSnackBar) {
-    super();
-  }
+  private route = inject(ActivatedRoute);
+  private webSocketService = inject(DartsMatcherWebSocketService);
+  private apiErrorBodyHandler = inject(ApiErrorBodyHandler);
+  private destroyRef = inject(DestroyRef);
+  private router = inject(Router);
+  private dialogService = inject(DialogService);
+  private snackBar = inject(MatSnackBar);
 
   /**
    * Lifecycle hook that triggers on component initialization.

@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {MatRadioButton, MatRadioGroup} from '@angular/material/radio';
 import {BaseFormComponent} from '../../../../shared/components/base-form/base-form.component';
 import {AbstractControl, FormArray, FormGroup, ReactiveFormsModule} from '@angular/forms';
@@ -48,7 +48,7 @@ import {TargetErrors} from '../../../../api/error/target-errors';
   standalone: true
 })
 export class MatchFormComponent extends BaseFormComponent<MatchFormResult> implements OnInit {
-
+  public matchFormFactory = inject(MatchFormFactory);
   private playerSubscriptions = new Map<FormGroup<PlayerGroup>, Subscription>();
 
   protected readonly PlayerType = PlayerType;
@@ -56,7 +56,7 @@ export class MatchFormComponent extends BaseFormComponent<MatchFormResult> imple
 
   private matchForm!: FormGroup<MatchForm>;
 
-  constructor(public matchFormFactory: MatchFormFactory) {
+  constructor() {
     super();
     this.initMatchForm();
   }

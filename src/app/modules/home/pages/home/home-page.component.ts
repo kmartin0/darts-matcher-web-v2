@@ -1,4 +1,4 @@
-import {Component, ViewChild} from '@angular/core';
+import {Component, inject, ViewChild} from '@angular/core';
 import {MatchFormComponent} from '../../components/match-form/match-form.component';
 import {MatchFormResult} from '../../components/match-form/match-form';
 import {DartsMatcherApiService} from '../../../../api/services/darts-matcher-api.service';
@@ -27,11 +27,9 @@ export class HomePageComponent extends BaseComponent {
   @ViewChild(MatchFormComponent) matchFormComponent!: MatchFormComponent;
   @ViewChild(MatchIdFormComponent) matchIdFormComponent!: MatchIdFormComponent;
 
-  constructor(private dartsMatcherApi: DartsMatcherApiService,
-              private router: Router,
-              private dtoMapperService: DtoMapperService) {
-    super();
-  }
+  private dartsMatcherApi = inject(DartsMatcherApiService);
+  private router = inject(Router);
+  private dtoMapperService = inject(DtoMapperService);
 
   /**
    * Handler for when a match form is submitted. On submission will map the form input to the required request body for

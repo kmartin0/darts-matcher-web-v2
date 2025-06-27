@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, inject, Input, OnInit} from '@angular/core';
 import {ErrorComponent} from '../error/error.component';
 import {AbstractControl, ValidationErrors} from '@angular/forms';
 import {ErrorMessageUtil} from '../../utils/error-message.util';
@@ -16,10 +16,7 @@ import {BaseComponent} from '../base/base.component';
 export class FormErrorComponent extends BaseComponent implements OnInit {
   @Input() control!: AbstractControl;
   private _errorMessage: string | null = null;
-
-  constructor(private errorMessageUtil: ErrorMessageUtil) {
-    super();
-  }
+  private errorMessageUtil = inject(ErrorMessageUtil);
 
   get errorMessage(): string | null {
     return this._errorMessage;

@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 
@@ -6,9 +6,7 @@ import {Observable} from 'rxjs';
   providedIn: 'root'
 })
 export class ApiService {
-
-  constructor(private http: HttpClient) {
-  }
+  private http: HttpClient = inject(HttpClient);
 
   makePost<T>(url: string, body?: any): Observable<T> {
     return this.http.post<T>(url, body);

@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {X01Checkout} from '../../../models/x01-match/x01-checkout';
 import {DartsMatcherApiService} from '../../../api/services/darts-matcher-api.service';
 import {firstValueFrom} from 'rxjs';
@@ -7,9 +7,7 @@ import {firstValueFrom} from 'rxjs';
 export class X01CheckoutService {
 
   private readonly X01_CHECKOUTS_LOCAL_STORAGE_KEY = 'x01_checkouts';
-
-  constructor(private apiService: DartsMatcherApiService) {
-  }
+  private apiService = inject(DartsMatcherApiService);
 
   /**
    * Retrieves all checkout suggestions, preferring localStorage if available.

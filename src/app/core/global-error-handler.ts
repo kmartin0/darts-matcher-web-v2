@@ -1,11 +1,9 @@
-import {ErrorHandler, Injectable} from '@angular/core';
+import {ErrorHandler, inject, Injectable} from '@angular/core';
 import {DialogService} from '../shared/services/dialog-service/dialog.service';
 
 @Injectable()
 export class GlobalErrorHandler implements ErrorHandler {
-
-  constructor(private dialogService: DialogService) {
-  }
+  private dialogService = inject(DialogService);
 
   /**
    * Handles uncaught errors by opening a dialog showing the user something unexpected went wrong.
