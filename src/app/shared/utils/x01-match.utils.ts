@@ -5,6 +5,7 @@ import {X01LegRoundScore} from '../../models/x01-match/x01-leg-round-score';
 import {X01LegEntry} from '../../models/x01-match/x01-leg-entry';
 import {X01LegRoundEntry} from '../../models/x01-match/x01-leg-round-entry';
 import {X01SetEntry} from '../../models/x01-match/x01-set-entry';
+import {X01MatchPlayer} from '../../models/x01-match/x01-match-player';
 
 export function getSetInPlay(match: X01Match): X01SetEntry | null {
   const currentSetNumber = match.matchProgress.currentSet;
@@ -34,6 +35,15 @@ export function getRemainingForPlayer(leg: X01Leg, x01: number, playerId: string
   });
 
   return remaining;
+}
+
+export function getPlayer(match: X01Match, playerId: string | null): X01MatchPlayer | null {
+  return match.players.find(player => player.playerId === playerId) ?? null;
+}
+
+export function getCurrentThrower(match: X01Match | null | undefined): X01MatchPlayer | null {
+  if (!match) return null;
+  return getPlayer(match, match.matchProgress.currentThrower);
 }
 
 export function isCheckoutPossible(remaining: number): boolean {

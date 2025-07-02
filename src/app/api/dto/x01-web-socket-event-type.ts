@@ -1,3 +1,0 @@
-export enum X01WebSocketEventType {
-  UPDATE_MATCH = 'UPDATE_MATCH', DELETE_MATCH = 'DELETE_MATCH'
-}

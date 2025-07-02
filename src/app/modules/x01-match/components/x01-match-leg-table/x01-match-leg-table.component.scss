@@ -12,14 +12,14 @@
   height: 100%;
   overflow-y: auto;
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  flex-direction: column-reverse;
 }
 
 table {
   table-layout: fixed;
   width: 100%;
   height: min-content;
+  margin-bottom: auto;
 
   tr, th, td {
     font-size: 20px;

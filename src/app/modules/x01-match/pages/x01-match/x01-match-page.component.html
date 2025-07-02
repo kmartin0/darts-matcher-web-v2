@@ -1,6 +1,7 @@
 <mat-toolbar>
   <span class=navigate-home-btn (click)="navigateToHome()" style="cursor: pointer">X01 Match</span>
   <span class="spacer"></span>
+  <span class="errorMsg" *ngIf="errorMsg">{{errorMsg}}</span>
   <mat-spinner *ngIf="webSocketClosed" [diameter]="40"></mat-spinner>
   <button mat-icon-button [matMenuTriggerFor]="menu" matTooltip="More Options" *ngIf="this.match">
     <mat-icon>more_vert</mat-icon>

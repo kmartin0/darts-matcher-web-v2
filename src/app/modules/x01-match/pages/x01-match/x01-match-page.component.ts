@@ -1,6 +1,6 @@
 import {Component, DestroyRef, inject, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {debounceTime, EMPTY, Observable, of, switchMap} from 'rxjs';
+import {concatMap, debounceTime, delay, EMPTY, Observable, of, switchMap} from 'rxjs';
 import {X01Match} from '../../../../models/x01-match/x01-match';
 import {NgIf} from '@angular/common';
 import {MatToolbar} from '@angular/material/toolbar';
@@ -12,8 +12,7 @@ import {ApiErrorBodyHandler} from '../../../../api/services/api-error-body-handl
 import {DARTS_MATCHER_WS_DESTINATIONS, WsDestType} from '../../../../api/endpoints/darts-matcher-web-socket.endpoints';
 import {ApiWsErrorBody} from '../../../../api/error/api-ws-error-body';
 import {AppEndpoints} from '../../../../core/app.endpoints';
-import {X01WebSocketEvent} from '../../../../api/dto/base-x01-web-socket-event';
-import {X01WebSocketEventType} from '../../../../api/dto/x01-web-socket-event-type';
+import {X01MatchEventType} from '../../../../api/dto/x01-match-event-type';
 import {MatButton, MatIconButton} from '@angular/material/button';
 import {MatIcon} from '@angular/material/icon';
 import {DialogService} from '../../../../shared/services/dialog-service/dialog.service';
@@ -23,6 +22,7 @@ import {RxStompState} from '@stomp/rx-stomp';
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
 import {MatMenu, MatMenuItem, MatMenuTrigger} from '@angular/material/menu';
 import {MatSnackBar} from '@angular/material/snack-bar';
+import {X01MatchEventUnion} from '../../../../api/dto/x01-match-event';
 
 
 @Component({
@@ -49,6 +49,7 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
   matchNotFound: boolean = false;
   matchDeleteEvent: boolean = false;
   webSocketClosed: boolean = false;
+  errorMsg: string | null = null;
 
   private readonly matchIdParamKey = 'matchId';
 
@@ -158,9 +159,13 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
    */
   private getMatch() {
     const sub = this.getAndValidateMatchIdFromRoute().pipe(
-      switchMap(matchId => this.webSocketService.getX01MatchBroadcast(matchId))
+      switchMap(matchId => this.webSocketService.getX01MatchBroadcast(matchId)),
+      concatMap(event => {
+        const shouldDelay = event.eventType === X01MatchEventType.ADD_BOT_TURN;
+        return of(event).pipe(delay(shouldDelay ? 500 : 0));
+      })
     ).subscribe({
-      next: (event: X01WebSocketEvent) => this.handleWebSocketEvent(event),
+      next: event => this.handleWebSocketEvent(event),
     });
     this.subscription.add(sub);
   }
@@ -186,15 +191,22 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
   /**
    * Handles incoming WebSocket events by dispatching actions based on the event type.
    *
-   * @param {X01WebSocketEvent} event - The WebSocket event object containing the event type and payload.
+   * @param {X01MatchEventUnion} event - The WebSocket event object containing the event type and payload.
    */
-  private handleWebSocketEvent(event: X01WebSocketEvent) {
+  private handleWebSocketEvent(event: X01MatchEventUnion | null) {
+    if (event == null) return;
+
     switch (event.eventType) {
-      case X01WebSocketEventType.UPDATE_MATCH: {
+      case X01MatchEventType.PROCESS_MATCH:
+      case X01MatchEventType.ADD_HUMAN_TURN:
+      case X01MatchEventType.ADD_BOT_TURN:
+      case X01MatchEventType.EDIT_TURN:
+      case X01MatchEventType.DELETE_LAST_TURN:
+      case X01MatchEventType.RESET_MATCH: {
         this.handleGetMatchSuccess(event.payload);
         break;
       }
-      case X01WebSocketEventType.DELETE_MATCH: {
+      case X01MatchEventType.DELETE_MATCH: {
         this.handleDeleteMatchEvent();
         break;
       }
@@ -268,6 +280,11 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
           break;
         }
 
+        case ApiErrorEnum.PROCESSING_LIMIT_REACHED: {
+          this.errorMsg = 'Error, sync match to try again.';
+          break;
+        }
+
         default: {
           this.apiErrorBodyHandler.handleApiErrorBody(apiWsErrorBody);
         }
@@ -284,6 +301,7 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
     return [
       DARTS_MATCHER_WS_DESTINATIONS.SUBSCRIBE.X01_GET_MATCH(matchId, WsDestType.BROADCAST),
       DARTS_MATCHER_WS_DESTINATIONS.SUBSCRIBE.X01_GET_MATCH(matchId, WsDestType.SINGLE_RESPONSE),
+      DARTS_MATCHER_WS_DESTINATIONS.PUBLISH.X01_RESET_MATCH(matchId),
       DARTS_MATCHER_WS_DESTINATIONS.PUBLISH.X01_DELETE_MATCH(matchId)
     ];
   }

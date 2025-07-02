@@ -41,7 +41,6 @@ export class SelectLegFormComponent extends BaseComponent implements OnInit, OnC
   ngOnChanges(changes: SimpleChanges) {
     if (changes['legSelection']) {
       this.legSelectionControl.setValue(this.legSelection, {emitEvent: false});
-      console.log(this.legSelection);
     }
   }
 

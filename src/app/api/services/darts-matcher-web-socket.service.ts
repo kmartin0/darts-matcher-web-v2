@@ -9,8 +9,8 @@ import {distinctUntilChanged, filter, map, merge, Observable, Subject, switchMap
 import {X01Turn} from '../../models/x01-match/x01-turn';
 import {ApiWsErrorBody, isApiWsErrorBody} from '../error/api-ws-error-body';
 import {X01EditTurn} from '../../models/x01-match/x01-edit-turn';
-import {X01WebSocketEvent} from '../dto/base-x01-web-socket-event';
 import {ApiErrorEnum} from '../error/api-error-enum';
+import {X01MatchEventUnion} from '../dto/x01-match-event';
 
 @Injectable({providedIn: 'root'})
 export class DartsMatcherWebSocketService {
@@ -72,10 +72,10 @@ export class DartsMatcherWebSocketService {
    * @param {string} matchId - The ID of the match to subscribe to.
    * @returns {Observable<X01Match>} An observable emitting match updates.
    */
-  getX01MatchBroadcast(matchId: string): Observable<X01WebSocketEvent> {
+  getX01MatchBroadcast(matchId: string): Observable<X01MatchEventUnion> {
     const destination = DARTS_MATCHER_WS_DESTINATIONS.SUBSCRIBE.X01_GET_MATCH(matchId, WsDestType.BROADCAST);
 
-    return this.watchBroadcast<X01WebSocketEvent>(destination, this.getX01MatchSingleResponse(matchId));
+    return this.watchBroadcast<X01MatchEventUnion>(destination, this.getX01MatchSingleResponse(matchId));
   }
 
   /**
@@ -84,13 +84,13 @@ export class DartsMatcherWebSocketService {
    * @param {string} matchId - The ID of the match to retrieve.
    * @returns {Observable<X01Match>} An observable that emits the match data once and completes.
    */
-  getX01MatchSingleResponse(matchId: string): Observable<X01WebSocketEvent> {
+  getX01MatchSingleResponse(matchId: string): Observable<X01MatchEventUnion> {
     const destination = DARTS_MATCHER_WS_DESTINATIONS.SUBSCRIBE.X01_GET_MATCH(matchId, WsDestType.SINGLE_RESPONSE);
 
     return this.watch(destination).pipe(
       take(1), // Complete after the first response.
       map(message => {
-        return JSON.parse(message.body) as X01WebSocketEvent;
+        return JSON.parse(message.body) as X01MatchEventUnion;
       })
     );
   }

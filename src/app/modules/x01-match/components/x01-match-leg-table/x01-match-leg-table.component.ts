@@ -60,8 +60,9 @@ import {BaseComponent} from '../../../../shared/components/base/base.component';
   styleUrl: './x01-match-leg-table.component.scss'
 })
 export class X01MatchLegTableComponent extends BaseComponent implements OnChanges {
-  @ViewChild('tableContainer', {static: false}) tableContainer!: ElementRef<HTMLDivElement>;
-  @ViewChildren('tableRows', {read: ElementRef}) rows!: QueryList<ElementRef<HTMLTableRowElement>>;
+  @ViewChild('tableContainer') tableContainerEl!: ElementRef<HTMLDivElement>;
+  @ViewChild('stickyHeaderRow', {read: ElementRef}) stickyHeaderRowEl!: ElementRef<HTMLTableRowElement>;
+  @ViewChildren('tableRows', {read: ElementRef}) rowsEl!: QueryList<ElementRef<HTMLTableRowElement>>;
   @Input() match: X01Match | null = null;
   @Input() legSelection: LegSelection | null = null;
   @Input() editMode: boolean = false;
@@ -136,12 +137,12 @@ export class X01MatchLegTableComponent extends BaseComponent implements OnChange
   private scrollToRoundInPlay(match: X01Match | null, legSelection: LegSelection | null) {
     if (!match || !legSelection) return;
 
+    // When the current leg in play is selected smoothly scroll to the last round,
+    // Otherwise instantly scroll to the first round.
     if (this.isCurrentLegSelected(match, legSelection)) {
-      // Get the last round of the current leg
       const roundToScrollTo = legSelection.legEntry.leg.rounds.at(-1);
       this.scrollToRound(roundToScrollTo?.roundNumber ?? null, true);
     } else {
-      // Scroll to round 1 if the selected leg isn't the current one
       this.scrollToRound(1, false);
     }
   }
@@ -172,20 +173,27 @@ export class X01MatchLegTableComponent extends BaseComponent implements OnChange
 
     // Delay scrolling to ensure the DOM has rendered the rows
     setTimeout(() => {
-      if (!this.rows || !this.tableContainer) return;
+      if (!this.rowsEl || !this.tableContainerEl || !this.stickyHeaderRowEl) return;
 
       // Get the target row matching the round number. Fallback to the last row.
       const rowIndex = roundNumber - 1;
-      const targetRow = this.rows.get(rowIndex) ?? this.rows.get(this.rows.length - 1);
-      const container = this.tableContainer.nativeElement;
+      const targetRow = (this.rowsEl.get(rowIndex) ?? this.rowsEl.get(this.rowsEl.length - 1))?.nativeElement;
+      const tableContainer = this.tableContainerEl.nativeElement;
+      const stickyHeaderContainer = this.stickyHeaderRowEl.nativeElement;
 
-      if (targetRow && container) {
-        // Determine the row's offset from the top, then subtract the sticky header's height.
-        const stickyHeaderHeight = 56;
-        const offsetTop = targetRow.nativeElement.offsetTop - stickyHeaderHeight;
+      if (targetRow && tableContainer && stickyHeaderContainer) {
+        const containerHeight = tableContainer.clientHeight;
+        const scrollHeight = tableContainer.scrollHeight;
+        const stickyHeaderHeight = stickyHeaderContainer.offsetHeight;
+        const targetRowOffsetTop = targetRow.offsetTop;
 
-        container.scrollTo({
-          top: Math.max(0, offsetTop),
+        // Calculate the negative scroll offset needed to position the target row in a column-reverse container.
+        // At the top of the visible area (below the sticky header)
+        const scrollOffsetNegative = targetRowOffsetTop + containerHeight - stickyHeaderHeight - scrollHeight;
+
+        // Scroll the container to the row containing the round.
+        tableContainer.scrollTo({
+          top: scrollOffsetNegative,
           behavior: smooth ? 'smooth' : 'instant'
         });
       }
@@ -215,5 +223,4 @@ export class X01MatchLegTableComponent extends BaseComponent implements OnChange
   private updateViewData() {
     this.viewData = this.viewDataTransformer.transform(this.match, this.legSelection);
   }
-
 }

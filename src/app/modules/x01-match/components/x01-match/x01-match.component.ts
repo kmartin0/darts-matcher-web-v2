@@ -331,6 +331,11 @@ export class X01MatchComponent extends BaseComponent implements OnInit, OnChange
           break;
         }
 
+        case ApiErrorEnum.PROCESSING_LIMIT_REACHED: {
+          this.viewData.errorMsg = 'Bot turn limit reached, press sync match to try again.'
+          break;
+        }
+
         default: {
           this.apiErrorBodyHandler.handleApiErrorBody(apiWsErrorBody);
         }
@@ -349,7 +354,7 @@ export class X01MatchComponent extends BaseComponent implements OnInit, OnChange
     return [
       DARTS_MATCHER_WS_DESTINATIONS.PUBLISH.X01_ADD_TURN(matchId),
       DARTS_MATCHER_WS_DESTINATIONS.PUBLISH.X01_EDIT_TURN(matchId),
-      DARTS_MATCHER_WS_DESTINATIONS.PUBLISH.X01_DELETE_LAST_TURN(matchId)
+      DARTS_MATCHER_WS_DESTINATIONS.PUBLISH.X01_DELETE_LAST_TURN(matchId),
     ];
   }
 }
