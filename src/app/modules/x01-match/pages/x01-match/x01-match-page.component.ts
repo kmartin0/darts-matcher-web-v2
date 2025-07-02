@@ -1,5 +1,5 @@
 import {Component, DestroyRef, inject, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
+import {ActivatedRoute, RouterLink} from '@angular/router';
 import {concatMap, debounceTime, delay, EMPTY, Observable, of, switchMap} from 'rxjs';
 import {X01Match} from '../../../../models/x01-match/x01-match';
 import {NgIf} from '@angular/common';
@@ -13,7 +13,7 @@ import {DARTS_MATCHER_WS_DESTINATIONS, WsDestType} from '../../../../api/endpoin
 import {ApiWsErrorBody} from '../../../../api/error/api-ws-error-body';
 import {AppEndpoints} from '../../../../core/app.endpoints';
 import {X01MatchEventType} from '../../../../api/dto/x01-match-event-type';
-import {MatButton, MatIconButton} from '@angular/material/button';
+import {MatAnchor, MatIconButton} from '@angular/material/button';
 import {MatIcon} from '@angular/material/icon';
 import {DialogService} from '../../../../shared/services/dialog-service/dialog.service';
 import {MatTooltip} from '@angular/material/tooltip';
@@ -31,7 +31,6 @@ import {X01MatchEventUnion} from '../../../../api/dto/x01-match-event';
     NgIf,
     MatToolbar,
     X01MatchComponent,
-    MatButton,
     MatIconButton,
     MatIcon,
     MatTooltip,
@@ -39,6 +38,8 @@ import {X01MatchEventUnion} from '../../../../api/dto/x01-match-event';
     MatMenuTrigger,
     MatMenu,
     MatMenuItem,
+    RouterLink,
+    MatAnchor,
   ],
   standalone: true,
   templateUrl: './x01-match-page.component.html',
@@ -57,7 +58,6 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
   private webSocketService = inject(DartsMatcherWebSocketService);
   private apiErrorBodyHandler = inject(ApiErrorBodyHandler);
   private destroyRef = inject(DestroyRef);
-  private router = inject(Router);
   private dialogService = inject(DialogService);
   private snackBar = inject(MatSnackBar);
 
@@ -70,15 +70,6 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
 
     this.subscribeErrorQueue();
     this.getMatch();
-  }
-
-  /**
-   * Navigates the user to the home page.
-   */
-  navigateToHome() {
-    this.router.navigateByUrl(AppEndpoints.home()).catch(e => {
-      console.log(e);
-    });
   }
 
   /**
@@ -315,4 +306,5 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
     this.snackBar.open(message, undefined, {duration: 1250});
   }
 
+  protected readonly AppEndpoints = AppEndpoints;
 }

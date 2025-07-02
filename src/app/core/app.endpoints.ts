@@ -1,4 +1,4 @@
 export const AppEndpoints = {
-  home: () => ``,
-  match: (id: string) => `matches/${id}`,
+  home: () => `/`,
+  match: (id: string) => `/matches/${id}`,
 }

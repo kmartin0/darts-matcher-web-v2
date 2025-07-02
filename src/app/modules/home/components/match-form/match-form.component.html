@@ -44,16 +44,10 @@
     <app-form-error [control]="form.controls.trackDoubles"/>
   </div>
 
-  <!-- Add Player -->
-  <div class="container-vertical" cdkDropList (cdkDropListDropped)="onDropPlayerCard($event)">
+  <!-- Add Players -->
+  <div class="container-vertical" style="margin-top: 8px" cdkDropList (cdkDropListDropped)="onDropPlayerCard($event)">
     <div class="container-vertical no-gap">
-      <div class="container-horizontal no-gap">
-        <label style="align-self: center">Players</label>
-        <button mat-icon-button type="button" aria-label="Add Player" (click)="addPlayer()"
-                [disabled]="isMaxPlayersReached()">
-          <mat-icon>add_circle</mat-icon>
-        </button>
-      </div>
+      <label>Players</label>
       <app-form-error [control]="playersFormArray"/>
     </div>
 
@@ -111,6 +105,10 @@
         </div>
       </mat-card-content>
     </mat-card>
+    <button mat-button type="button" (click)="addPlayer()" [disabled]="isMaxPlayersReached()">
+      <mat-icon>add</mat-icon>
+      <span>Add Player</span>
+    </button>
   </div>
 
   <app-form-error [control]="form"/>

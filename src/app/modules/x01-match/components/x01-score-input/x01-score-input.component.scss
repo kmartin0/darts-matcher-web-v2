@@ -33,6 +33,7 @@
 
   &.score-input {
     border-bottom: $border-size solid var(--mat-sys-primary);
+
     &.blurred {
       border-bottom-color: color-mix(in srgb, var(--mat-sys-primary) 25%, transparent);
     }
