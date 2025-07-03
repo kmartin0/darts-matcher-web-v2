@@ -321,7 +321,7 @@ export class X01MatchComponent extends BaseComponent implements OnInit, OnChange
     if (errorDestinations.includes(apiWsErrorBody.destination)) {
       switch (apiWsErrorBody.error) {
         case ApiErrorEnum.RESOURCE_NOT_FOUND: {
-          this.viewData.errorMsg = 'Couldn\'t find the match';
+          this.viewData.errorMsg = Object.values(apiWsErrorBody.details ?? {})[0] ?? 'Error: Not found.';
           break;
         }
 
@@ -332,7 +332,12 @@ export class X01MatchComponent extends BaseComponent implements OnInit, OnChange
         }
 
         case ApiErrorEnum.PROCESSING_LIMIT_REACHED: {
-          this.viewData.errorMsg = 'Bot turn limit reached, press sync match to try again.'
+          this.viewData.errorMsg = 'Bot turn limit reached, press sync match to try again.';
+          break;
+        }
+
+        case ApiErrorEnum.CONFLICT: {
+          this.viewData.errorMsg = 'Please try again.';
           break;
         }
 

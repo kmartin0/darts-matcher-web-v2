@@ -9,6 +9,7 @@ import {MatIcon} from '@angular/material/icon';
 import {MatTooltip} from '@angular/material/tooltip';
 import {ApiErrorBody} from '../../../../api/error/api-error-body';
 import {ApiErrorEnum} from '../../../../api/error/api-error-enum';
+import {ERROR_DETAIL_KEYS} from '../../../../api/error/error-detail-keys';
 
 export interface MatchIdForm {
   matchId: FormControl<string>;
@@ -52,8 +53,8 @@ export class MatchIdFormComponent extends BaseFormComponent<string> {
   override handleApiError(apiError?: ApiErrorBody) {
     super.handleApiError(apiError);
 
-    if(apiError?.error === ApiErrorEnum.RESOURCE_NOT_FOUND) {
-      this.setError(this.form.controls.matchId, "Match ID not found.")
+    if (apiError?.error === ApiErrorEnum.RESOURCE_NOT_FOUND) {
+      this.setError(this.form.controls.matchId, apiError.details?.[ERROR_DETAIL_KEYS.X01_MATCH] ?? 'Match ID not found.');
     }
   }
 

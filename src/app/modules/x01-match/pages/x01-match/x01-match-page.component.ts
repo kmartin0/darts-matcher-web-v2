@@ -23,6 +23,7 @@ import {MatProgressSpinner} from '@angular/material/progress-spinner';
 import {MatMenu, MatMenuItem, MatMenuTrigger} from '@angular/material/menu';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {X01MatchEventUnion} from '../../../../api/dto/x01-match-event';
+import {ERROR_DETAIL_KEYS} from '../../../../api/error/error-detail-keys';
 
 
 @Component({
@@ -267,12 +268,19 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
     if (errorDestinations.includes(apiWsErrorBody.destination)) {
       switch (apiWsErrorBody.error) {
         case ApiErrorEnum.RESOURCE_NOT_FOUND: {
-          this.handleInvalidMatchId();
+          if (Object.hasOwn(apiWsErrorBody.details ?? {}, ERROR_DETAIL_KEYS.X01_MATCH)) this.handleInvalidMatchId();
+          else this.errorMsg = 'Error: not found.';
+
           break;
         }
 
         case ApiErrorEnum.PROCESSING_LIMIT_REACHED: {
           this.errorMsg = 'Error, sync match to try again.';
+          break;
+        }
+
+        case ApiErrorEnum.CONFLICT: {
+          this.errorMsg = 'Please try again.';
           break;
         }
 

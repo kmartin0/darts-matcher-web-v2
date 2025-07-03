@@ -117,6 +117,10 @@ export abstract class BaseFormComponent<T> extends BaseComponent {
         this.handleAlreadyExists(apiError);
         break;
       }
+      case ApiErrorEnum.CONFLICT: {
+        this.handleConflict(apiError);
+        break;
+      }
     }
   }
 
@@ -160,6 +164,21 @@ export abstract class BaseFormComponent<T> extends BaseComponent {
    */
   protected handleAlreadyExists(apiError?: ApiErrorBody) {
     if (!apiError || apiError.error != ApiErrorEnum.ALREADY_EXISTS || !apiError.details) {
+      this.setUnknownError(this.form);
+      return;
+    }
+  }
+
+  /**
+   * Handles `CONFLICT` errors from the API.
+   *
+   * This method is intended to be overridden in subclasses to customize how the errors
+   * should be displayed (i.e. which control to display the error).
+   *
+   * @param apiError - The API error object containing permission error details.
+   */
+  protected handleConflict(apiError?: ApiErrorBody) {
+    if (!apiError || apiError.error != ApiErrorEnum.CONFLICT || !apiError.details) {
       this.setUnknownError(this.form);
       return;
     }
