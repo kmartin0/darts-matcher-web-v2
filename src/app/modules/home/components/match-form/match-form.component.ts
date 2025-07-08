@@ -49,11 +49,12 @@ import {TargetErrors} from '../../../../api/error/target-errors';
 })
 export class MatchFormComponent extends BaseFormComponent<MatchFormResult> implements OnInit {
   public matchFormFactory = inject(MatchFormFactory);
-  private playerSubscriptions = new Map<FormGroup<PlayerGroup>, Subscription>();
+  public isBotSelected = false;
 
   protected readonly PlayerType = PlayerType;
   protected readonly BestOfType = BestOfType;
 
+  private playerSubscriptions = new Map<FormGroup<PlayerGroup>, Subscription>();
   private matchForm!: FormGroup<MatchForm>;
 
   constructor() {
@@ -138,6 +139,8 @@ export class MatchFormComponent extends BaseFormComponent<MatchFormResult> imple
 
       this.playerSubscriptions.delete(playerGroup);
       this.playersFormArray.removeAt(index);
+
+      this.updateIsBotSelected();
     }
   }
 
@@ -274,9 +277,19 @@ export class MatchFormComponent extends BaseFormComponent<MatchFormResult> imple
           avgControl.clearValidators();
         }
       }
+
+      this.updateIsBotSelected();
     });
 
     this.playerSubscriptions.set(playerGroup, subscription);
     this.subscription.add(subscription);
+  }
+
+  /**
+   * Update `isBotSelected` boolean flag by checking if a player in the player controls form array is of type `DART_BOT`.
+   */
+  private updateIsBotSelected() {
+    this.isBotSelected = this.playersFormArray.controls
+      .some(player => player.controls.type.value === PlayerType.DART_BOT);
   }
 }

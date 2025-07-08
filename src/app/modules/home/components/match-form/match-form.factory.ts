@@ -16,7 +16,9 @@ export class MatchFormFactory {
   readonly maxPlayerSize = 4;
   readonly minSets = 1;
   readonly minLegs = 1;
-  readonly botMinAvg = 1;
+  readonly maxSets = 49;
+  readonly maxLegs = 49;
+  readonly botMinAvg = 3;
   readonly botMaxAvg = 167;
   readonly playerNameMinLength = 3;
   readonly playerNameMaxLength = 40;
@@ -31,11 +33,16 @@ export class MatchFormFactory {
       x01: this.fb.nonNullable.control(this.x01Options[1], [Validators.min(this.minX01), Validators.max(this.maxX01), Validators.required]),
       bestOf: this.fb.nonNullable.group({
         type: this.fb.nonNullable.control(BestOfType.SETS, [Validators.required]),
-        sets: this.fb.nonNullable.control(this.minSets, [Validators.min(this.minSets), Validators.required]),
-        legs: this.fb.nonNullable.control(this.minLegs, [Validators.min(this.minLegs), Validators.required])
+        sets: this.fb.nonNullable.control(this.minSets, [Validators.min(this.minSets), Validators.max(this.maxSets), Validators.required]),
+        legs: this.fb.nonNullable.control(this.minLegs, [Validators.min(this.minLegs), Validators.max(this.maxLegs), Validators.required])
       }),
       trackDoubles: this.fb.nonNullable.control(false, [Validators.required]),
-      players: this.fb.nonNullable.array<FormGroup<PlayerGroup>>([], [CustomValidators.minLengthArray(this.minPlayerSize, "player(s)"), CustomValidators.maxLengthArray(this.maxPlayerSize, "player(s)")])
+      players: this.fb.nonNullable.array<FormGroup<PlayerGroup>>([], [
+        CustomValidators.minLengthArray(this.minPlayerSize, 'player(s)'),
+        CustomValidators.maxLengthArray(this.maxPlayerSize, 'player(s)'),
+        CustomValidators.singleBotPlayerValidator(),
+        CustomValidators.requireHumanWithBotValidator()
+      ])
     });
   }
 
@@ -58,6 +65,6 @@ export class MatchFormFactory {
    * @returns ValidatorFn[] - An array of functions for validating the dart bot avg control.
    */
   createBotValidators(): ValidatorFn[] {
-    return [Validators.required, Validators.min(this.botMinAvg), Validators.max(this.botMaxAvg)]
+    return [Validators.required, Validators.min(this.botMinAvg), Validators.max(this.botMaxAvg)];
   }
 }

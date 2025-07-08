@@ -211,6 +211,7 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
    * @param match - The retrieved X01 match
    */
   private handleGetMatchSuccess(match: X01Match) {
+    if (this.match && this.match.broadcastVersion > match.broadcastVersion) return;
     this.match = match;
   }
 

@@ -28,6 +28,8 @@ export class ErrorMessageUtil {
     MAX_LENGTH_ARRAY: 'maxLengthArray',
     INVALID_OBJECT_ID: 'invalidObjectId',
     IS_NOT_NUMBER: 'isNotNumber',
+    MAX_ONE_BOT: 'maxOneBot',
+    BOT_REQUIRES_HUMAN: 'botRequiresHuman',
     CUSTOM_ERROR: 'customError',
     UNKNOWN: 'unknown',
   };
@@ -47,6 +49,8 @@ export class ErrorMessageUtil {
     [ErrorMessageUtil.errorKeys.MAX_LENGTH_ARRAY]: (value) => `Must not be more than ${value?.max} ${value?.name}`,
     [ErrorMessageUtil.errorKeys.INVALID_OBJECT_ID]: () => `Invalid Match ID`,
     [ErrorMessageUtil.errorKeys.IS_NOT_NUMBER]: () => `Invalid number`,
+    [ErrorMessageUtil.errorKeys.MAX_ONE_BOT]: () => `A maximum of one bot is allowed.`,
+    [ErrorMessageUtil.errorKeys.BOT_REQUIRES_HUMAN]: () => `A bot game requires a human player.`,
     [ErrorMessageUtil.errorKeys.CUSTOM_ERROR]: (value) => `${value}`,
     [ErrorMessageUtil.errorKeys.UNKNOWN]: () => 'An unknown error has occurred.',
   };
