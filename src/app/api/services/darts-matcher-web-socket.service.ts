@@ -153,6 +153,17 @@ export class DartsMatcherWebSocketService {
   }
 
   /**
+   * Publishes a request to reprocess the X01 match to the server via WebSocket.
+   *
+   * @param matchId - The ID of the match to be reprocessed.
+   */
+  publishReprocessMatch(matchId: string) {
+    const destination = DARTS_MATCHER_WS_DESTINATIONS.PUBLISH.X01_REPROCESS_MATCH(matchId);
+
+    this.publish(destination);
+  }
+
+  /**
    * Subscribes to the WebSocket error queue and emits API WebSocket error messages.
    *
    * Parses incoming messages and validates them against the `ApiWsErrorBody` type guard. If a message

@@ -19,6 +19,7 @@ export const DARTS_MATCHER_WS_DESTINATIONS = {
     X01_EDIT_TURN: (matchId: string) => `${WsDestType.PUBLISH}/matches/x01/${matchId}/turn/edit`,
     X01_DELETE_LAST_TURN: (matchId: string) => `${WsDestType.PUBLISH}/matches/x01/${matchId}/turn/delete-last`,
     X01_DELETE_MATCH: (matchId: string) => `${WsDestType.PUBLISH}/matches/x01/${matchId}/delete`,
-    X01_RESET_MATCH: (matchId: string) => `${WsDestType.PUBLISH}/matches/x01/${matchId}/reset`
+    X01_RESET_MATCH: (matchId: string) => `${WsDestType.PUBLISH}/matches/x01/${matchId}/reset`,
+    X01_REPROCESS_MATCH: (matchId: string) => `${WsDestType.PUBLISH}/matches/x01/${matchId}/reprocess`
   }
 };

@@ -227,6 +227,16 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
     this.matchNotFound = true;
   }
 
+
+  /**
+   * Publishes a reprocess match event for the current match over WebSocket.
+   */
+  publishReprocessMatch() {
+    if (!this.match) return;
+
+    this.webSocketService.publishReprocessMatch(this.match.id);
+  }
+
   /**
    * Publishes a delete event for the current match over WebSocket.
    */
