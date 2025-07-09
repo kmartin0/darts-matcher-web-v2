@@ -3,7 +3,7 @@ import {MatRadioButton, MatRadioGroup} from '@angular/material/radio';
 import {BaseFormComponent} from '../../../../shared/components/base-form/base-form.component';
 import {AbstractControl, FormArray, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {MatLabel, MatPrefix} from '@angular/material/form-field';
-import {NgForOf} from '@angular/common';
+import {AsyncPipe, NgForOf} from '@angular/common';
 import {MatSlideToggle} from '@angular/material/slide-toggle';
 import {MatCard, MatCardContent} from '@angular/material/card';
 import {MatIcon} from '@angular/material/icon';
@@ -41,7 +41,8 @@ import {TargetErrors} from '../../../../api/error/target-errors';
     MatPrefix,
     MatIconButton,
     CdkDragHandle,
-    FormErrorComponent
+    FormErrorComponent,
+    AsyncPipe
   ],
   templateUrl: './match-form.component.html',
   styleUrl: './match-form.component.scss',

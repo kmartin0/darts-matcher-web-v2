@@ -1,23 +1,21 @@
 import {Component, EventEmitter, inject, Input, Output} from '@angular/core';
-import {Subject} from 'rxjs';
 import {AbstractControl, FormArray, FormGroup} from '@angular/forms';
 import {ApiErrorBody} from '../../../api/error/api-error-body';
 import {ErrorMessageUtil} from '../../utils/error-message.util';
 import {ApiErrorEnum} from '../../../api/error/api-error-enum';
 import {BaseComponent} from '../base/base.component';
+import {BehaviorSubject} from 'rxjs';
 
 
 @Component({
   template: ''
 })
 export abstract class BaseFormComponent<T> extends BaseComponent {
-
-  @Input() loading$?: Subject<boolean>;
+  @Input() loading$?: BehaviorSubject<boolean>;
   @Input() submitText = 'Submit';
   @Input() showSubmitButton = true;
   @Output() validForm = new EventEmitter<T>();
   protected errorMessageUtil = inject(ErrorMessageUtil);
-  submitFormTrigger$ = new EventEmitter<void>;
 
   protected constructor() {
     super();
@@ -30,12 +28,14 @@ export abstract class BaseFormComponent<T> extends BaseComponent {
    * of type T.
    */
   onSubmitForm() {
-    this.submitFormTrigger$.emit();
+    this.startLoading();
     this.updateFormValidity(this.form);
     console.log('Is Form Valid: ' + this.form.valid);
     if (this.form.valid) {
       console.log(this.createFormResult());
       this.validForm.emit(this.createFormResult());
+    } else {
+      this.stopLoading();
     }
   }
 
@@ -45,6 +45,7 @@ export abstract class BaseFormComponent<T> extends BaseComponent {
    */
   resetForm(value?: any) {
     this.form.reset(value);
+    this.stopLoading();
   }
 
   /**
@@ -199,5 +200,13 @@ export abstract class BaseFormComponent<T> extends BaseComponent {
     // This clears errors at the current level (leaf or container)
     control.setErrors(null);
     control.updateValueAndValidity();
+  }
+
+  startLoading() {
+    this.loading$?.next(true);
+  }
+
+  stopLoading() {
+    this.loading$?.next(false);
   }
 }

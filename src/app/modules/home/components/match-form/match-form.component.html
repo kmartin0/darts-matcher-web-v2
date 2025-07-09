@@ -118,5 +118,5 @@
   <app-form-error [control]="form"/>
 
   <!-- Submit form button -->
-  <button mat-flat-button type="submit">Create Match</button>
+  <button mat-flat-button [disabled]="loading$ | async" type="submit">Create Match</button>
 </form>

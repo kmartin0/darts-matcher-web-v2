@@ -10,6 +10,7 @@ import {MatTooltip} from '@angular/material/tooltip';
 import {ApiErrorBody} from '../../../../api/error/api-error-body';
 import {ApiErrorEnum} from '../../../../api/error/api-error-enum';
 import {ERROR_DETAIL_KEYS} from '../../../../api/error/error-detail-keys';
+import {AsyncPipe} from '@angular/common';
 
 export interface MatchIdForm {
   matchId: FormControl<string>;
@@ -27,7 +28,8 @@ export interface MatchIdForm {
     MatIconButton,
     MatIcon,
     MatSuffix,
-    MatTooltip
+    MatTooltip,
+    AsyncPipe
   ],
   standalone: true,
   templateUrl: './match-id-form.component.html',

@@ -10,6 +10,8 @@ import {Router} from '@angular/router';
 import {AppEndpoints} from '../../../../core/app.endpoints';
 import {BaseComponent} from '../../../../shared/components/base/base.component';
 import {MatchIdFormComponent} from '../../components/match-id-form/match-id-form.component';
+import {BehaviorSubject, finalize} from 'rxjs';
+import {withLoading} from '../../../../shared/operators/operators';
 
 
 @Component({
@@ -27,6 +29,9 @@ export class HomePageComponent extends BaseComponent {
   @ViewChild(MatchFormComponent) matchFormComponent!: MatchFormComponent;
   @ViewChild(MatchIdFormComponent) matchIdFormComponent!: MatchIdFormComponent;
 
+  createMatchLoading$ = new BehaviorSubject(false);
+  getMatchExistsLoading$ = new BehaviorSubject(false);
+
   private dartsMatcherApi = inject(DartsMatcherApiService);
   private router = inject(Router);
   private dtoMapperService = inject(DtoMapperService);
@@ -39,10 +44,11 @@ export class HomePageComponent extends BaseComponent {
    * @param matchFormResult - The form result for creating a x01 match
    */
   onMatchFormResult(matchFormResult: MatchFormResult) {
-    const sub = this.dartsMatcherApi.createMatch(this.dtoMapperService.fromMatchFormResult(matchFormResult)).subscribe({
-      next: (match: X01Match) => this.navigateToMatch(match.id),
-      error: (err: HttpErrorResponse) => this.handleCreateMatchError(err)
-    });
+    const sub = this.dartsMatcherApi.createMatch(this.dtoMapperService.fromMatchFormResult(matchFormResult))
+      .pipe(withLoading(this.createMatchLoading$)).subscribe({
+        next: (match: X01Match) => this.navigateToMatch(match.id),
+        error: (err: HttpErrorResponse) => this.handleCreateMatchError(err)
+      });
     this.subscription.add(sub);
   }
 
@@ -53,10 +59,11 @@ export class HomePageComponent extends BaseComponent {
    * @param matchId - The form result containing the match id in string format.
    */
   onMatchIdResult(matchId: string) {
-    const sub = this.dartsMatcherApi.getMatchExists(matchId).subscribe({
-      next: () => this.navigateToMatch(matchId),
-      error: (err: HttpErrorResponse) => this.handleMatchExistsError(err)
-    });
+    const sub = this.dartsMatcherApi.getMatchExists(matchId)
+      .pipe(withLoading(this.getMatchExistsLoading$)).subscribe({
+        next: () => this.navigateToMatch(matchId),
+        error: (err: HttpErrorResponse) => this.handleMatchExistsError(err)
+      });
     this.subscription.add(sub);
   }
 
