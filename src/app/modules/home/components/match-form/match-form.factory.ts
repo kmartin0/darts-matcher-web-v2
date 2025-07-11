@@ -4,6 +4,7 @@ import {MatchForm, PlayerGroup} from './match-form';
 import {CustomValidators} from '../../../../shared/validators/custom-validators';
 import {BestOfType} from '../../../../models/common/best-of-type';
 import {PlayerType} from '../../../../models/basematch/player-type';
+import {ClearByTwoType} from '../../../../models/common/clear-by-two-type';
 
 @Injectable({providedIn: 'root'})
 export class MatchFormFactory {
@@ -18,6 +19,8 @@ export class MatchFormFactory {
   readonly minLegs = 1;
   readonly maxSets = 49;
   readonly maxLegs = 49;
+  readonly minClearByTwoLimit = 0;
+  readonly maxClearByTwoLimit = 20;
   readonly botMinAvg = 3;
   readonly botMaxAvg = 167;
   readonly playerNameMinLength = 3;
@@ -35,6 +38,12 @@ export class MatchFormFactory {
         type: this.fb.nonNullable.control(BestOfType.SETS, [Validators.required]),
         sets: this.fb.nonNullable.control(this.minSets, [Validators.min(this.minSets), Validators.max(this.maxSets), Validators.required]),
         legs: this.fb.nonNullable.control(this.minLegs, [Validators.min(this.minLegs), Validators.max(this.maxLegs), Validators.required])
+      }),
+      clearByTwo: this.fb.nonNullable.group({
+        selectedTypes: this.fb.nonNullable.control<ClearByTwoType[]>([], []),
+        extraSetLimit: this.fb.nonNullable.control(0, []),
+        extraLegLimit: this.fb.nonNullable.control(0, []),
+        extraLegLimitFinalSet: this.fb.nonNullable.control(0, []),
       }),
       trackDoubles: this.fb.nonNullable.control(false, [Validators.required]),
       players: this.fb.nonNullable.array<FormGroup<PlayerGroup>>([], [
@@ -66,5 +75,9 @@ export class MatchFormFactory {
    */
   createBotValidators(): ValidatorFn[] {
     return [Validators.required, Validators.min(this.botMinAvg), Validators.max(this.botMaxAvg)];
+  }
+
+  createClearByTwoLimitValidators(): ValidatorFn[] {
+    return [Validators.required, Validators.min(this.minClearByTwoLimit), Validators.max(this.maxClearByTwoLimit)];
   }
 }

@@ -1,4 +1,5 @@
 import {PlayerType} from '../../models/basematch/player-type';
+import {X01ClearByTwoRule} from '../../models/x01-match/x01-clear-by-two-rule';
 
 export interface CreateMatchRequestDto {
   matchSettings: {
@@ -7,6 +8,9 @@ export interface CreateMatchRequestDto {
     bestOf: {
       sets: number;
       legs: number;
+      clearByTwoSetsRule: X01ClearByTwoRule;
+      clearByTwoLegsRule: X01ClearByTwoRule;
+      clearByTwoLegsInFinalSetRule: X01ClearByTwoRule;
     }
   },
   players: {

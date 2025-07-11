@@ -1,7 +1,7 @@
 import {Component, inject, OnInit} from '@angular/core';
 import {MatRadioButton, MatRadioGroup} from '@angular/material/radio';
 import {BaseFormComponent} from '../../../../shared/components/base-form/base-form.component';
-import {AbstractControl, FormArray, FormGroup, ReactiveFormsModule} from '@angular/forms';
+import {AbstractControl, FormArray, FormControl, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {MatLabel, MatPrefix} from '@angular/material/form-field';
 import {AsyncPipe, NgForOf} from '@angular/common';
 import {MatSlideToggle} from '@angular/material/slide-toggle';
@@ -13,12 +13,15 @@ import {MatButton, MatIconButton} from '@angular/material/button';
 import {MatFormField, MatInput} from '@angular/material/input';
 import {BestOfType} from '../../../../models/common/best-of-type';
 import {PlayerType} from '../../../../models/basematch/player-type';
-import {BestOfGroup, MatchForm, MatchFormResult, PlayerGroup} from './match-form';
+import {BestOfGroup, ClearByTwoGroup, MatchForm, MatchFormResult, PlayerGroup} from './match-form';
 import {startWith, Subscription} from 'rxjs';
 import {ApiErrorBody} from '../../../../api/error/api-error-body';
 import {FormErrorComponent} from '../../../../shared/components/form-error/form-error.component';
 import {MatchFormFactory} from './match-form.factory';
 import {TargetErrors} from '../../../../api/error/target-errors';
+import {MatCheckbox} from '@angular/material/checkbox';
+import {MatButtonToggle, MatButtonToggleGroup} from '@angular/material/button-toggle';
+import {ClearByTwoType} from '../../../../models/common/clear-by-two-type';
 
 @Component({
   selector: 'app-match-form',
@@ -42,7 +45,10 @@ import {TargetErrors} from '../../../../api/error/target-errors';
     MatIconButton,
     CdkDragHandle,
     FormErrorComponent,
-    AsyncPipe
+    AsyncPipe,
+    MatCheckbox,
+    MatButtonToggleGroup,
+    MatButtonToggle,
   ],
   templateUrl: './match-form.component.html',
   styleUrl: './match-form.component.scss',
@@ -54,6 +60,7 @@ export class MatchFormComponent extends BaseFormComponent<MatchFormResult> imple
 
   protected readonly PlayerType = PlayerType;
   protected readonly BestOfType = BestOfType;
+  protected readonly ClearByTwoType = ClearByTwoType;
 
   private playerSubscriptions = new Map<FormGroup<PlayerGroup>, Subscription>();
   private matchForm!: FormGroup<MatchForm>;
@@ -77,6 +84,7 @@ export class MatchFormComponent extends BaseFormComponent<MatchFormResult> imple
    */
   ngOnInit() {
     this.subscribeBestOfListener();
+    this.subscribeClearByTwoTypeChanges();
   }
 
   /**
@@ -98,6 +106,13 @@ export class MatchFormComponent extends BaseFormComponent<MatchFormResult> imple
    */
   get bestOfFormGroup(): FormGroup<BestOfGroup> {
     return this.form.controls.bestOf;
+  }
+
+  /**
+   * @returns FormGroup<ClearByTwoGroup> the best of form group from the match form.
+   */
+  get getClearByTwoGroup(): FormGroup<ClearByTwoGroup> {
+    return this.form.controls.clearByTwo;
   }
 
   /**
@@ -251,6 +266,49 @@ export class MatchFormComponent extends BaseFormComponent<MatchFormResult> imple
     });
 
     this.subscription.add(subscription);
+  }
+
+  /**
+   * Listens for changes in the clear-by-two selected types.
+   * On each change, updates the limit form controls for sets, legs, and final legs
+   * based on whether each type is currently selected.
+   */
+  private subscribeClearByTwoTypeChanges() {
+    const clearByTwoGroup = this.getClearByTwoGroup;
+
+    const clearByTwoTypeChanges$ = clearByTwoGroup.controls.selectedTypes.valueChanges.pipe(
+      startWith(clearByTwoGroup.controls.selectedTypes.value)
+    );
+
+    // Update clear by two limit form control for sets, legs and final set.
+    const sub = clearByTwoTypeChanges$.subscribe(selectedTypes => {
+      this.updateClearByTwoLimitControl(selectedTypes.includes(ClearByTwoType.SETS), clearByTwoGroup.controls.extraSetLimit);
+      this.updateClearByTwoLimitControl(selectedTypes.includes(ClearByTwoType.LEGS), clearByTwoGroup.controls.extraLegLimit);
+      this.updateClearByTwoLimitControl(selectedTypes.includes(ClearByTwoType.LEGS_FINAL_SET), clearByTwoGroup.controls.extraLegLimitFinalSet);
+    });
+
+    this.subscription.add(sub);
+  }
+
+  /**
+   * Updates a clear-by-two limit form control based on whether it is enabled.
+   *
+   * When enabled, sets the control value to 1, applies validators, and enables the control.
+   * When disabled, resets the value to 0, clears validators, and disables the control.
+   *
+   * @param enabled - Whether the clear-by-two limit should be enabled.
+   * @param limitControl - The FormControl representing the clear-by-two limit to update.
+   */
+  private updateClearByTwoLimitControl(enabled: boolean, limitControl: FormControl<number>) {
+    if (enabled && limitControl.disabled) {
+      limitControl.setValue(1);
+      limitControl.setValidators(this.matchFormFactory.createClearByTwoLimitValidators());
+      limitControl.enable();
+    } else if (!enabled && limitControl.enabled) {
+      limitControl.setValue(0);
+      limitControl.clearValidators();
+      limitControl.disable();
+    }
   }
 
   /**

@@ -1,7 +1,7 @@
 @use "@angular/material" as mat;
 
 .rearrange-player-icon {
-  order: 1
+  order: 1;
 }
 
 .delete-player-icon {
@@ -24,4 +24,20 @@
 
 .cdk-drag-placeholder {
   opacity: 0;
+}
+
+.clear-by-two-toggle-group-container {
+  width: fit-content;
+}
+
+.clear-by-two-input-group-container {
+  margin-top: 12px;
+}
+
+mat-button-toggle-group {
+  width: 100%;
+
+  mat-button-toggle {
+    width: 100%;
+  }
 }

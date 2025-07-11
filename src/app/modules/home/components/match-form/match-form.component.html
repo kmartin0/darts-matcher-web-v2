@@ -34,13 +34,49 @@
         </mat-form-field>
         <app-form-error [control]="bestOfFormGroup.controls.legs"/>
       </div>
+    </div>
+  </div>
 
+  <!-- Select the clear by settings -->
+  <label>Clear by two</label>
+  <div class="container-vertical clear-by-two-toggle-group-container">
+    <ng-container formGroupName="clearByTwo">
+      <mat-button-toggle-group multiple [hideMultipleSelectionIndicator]="true" formControlName="selectedTypes">
+        <mat-button-toggle [value]="ClearByTwoType.SETS">Sets</mat-button-toggle>
+        <mat-button-toggle [value]="ClearByTwoType.LEGS">Legs</mat-button-toggle>
+        <mat-button-toggle [value]="ClearByTwoType.LEGS_FINAL_SET">Legs Final Set</mat-button-toggle>
+      </mat-button-toggle-group>
+    </ng-container>
+
+    <div class="container-horizontal clear-by-two-input-group-container" formGroupName="clearByTwo">
+      <div class="container-vertical">
+        <mat-form-field class="number-form-field" subscriptSizing="dynamic" appearance="outline">
+          <mat-label>Extra set limit</mat-label>
+          <input matInput type="number" formControlName="extraSetLimit">
+        </mat-form-field>
+        <app-form-error [control]="getClearByTwoGroup.controls.extraSetLimit"/>
+      </div>
+      <div class="container-vertical">
+        <mat-form-field class="number-form-field" subscriptSizing="dynamic" appearance="outline">
+          <mat-label>Extra leg limit</mat-label>
+          <input matInput type="number" formControlName="extraLegLimit">
+        </mat-form-field>
+        <app-form-error [control]="getClearByTwoGroup.controls.extraLegLimit"/>
+      </div>
+      <div class="container-vertical">
+        <mat-form-field class="number-form-field" subscriptSizing="dynamic" appearance="outline">
+          <mat-label>Extra leg limit final set</mat-label>
+          <input matInput type="number" formControlName="extraLegLimitFinalSet">
+        </mat-form-field>
+        <app-form-error [control]="getClearByTwoGroup.controls.extraLegLimitFinalSet"/>
+      </div>
     </div>
   </div>
 
   <!-- Track checkout percentage option -->
   <div class="container-vertical no-gap">
-    <mat-slide-toggle formControlName="trackDoubles">Track Checkout Percentage</mat-slide-toggle>
+    <!--    <mat-slide-toggle formControlName="trackDoubles">Track Checkout Percentage</mat-slide-toggle>-->
+    <mat-checkbox formControlName="trackDoubles">Track checkout percentage</mat-checkbox>
     <app-form-error [control]="form.controls.trackDoubles"/>
   </div>
 

@@ -15,6 +15,7 @@ import {X01PlayerCardSet} from './x01-player-card-set';
 import {X01PlayerCardLegStats} from './x01-player-card-leg-stats';
 import {SetMap} from '../../../../../types/set-map';
 import {X01PlayerCardLeg} from './x01-player-card-leg';
+import {X01LegEntry} from '../../../../../models/x01-match/x01-leg-entry';
 
 @Injectable({providedIn: 'root'})
 export class X01MatchPlayerCardsViewDataTransformer {
@@ -121,7 +122,7 @@ export class X01MatchPlayerCardsViewDataTransformer {
     const legsMap: Record<number, X01PlayerCardLeg> = {};
 
     for (const legEntry of set.legs) {
-      legsMap[legEntry.legNumber] = await this.createLegViewData(set, legEntry.leg, players, x01, playerWinTrackerMap);
+      legsMap[legEntry.legNumber] = await this.createLegViewData(set, legEntry, players, x01, playerWinTrackerMap);
     }
 
     return {legs: legsMap};
@@ -131,18 +132,18 @@ export class X01MatchPlayerCardsViewDataTransformer {
    * Creates view data for a single leg.
    *
    * @param set The set the leg belongs to.
-   * @param leg The leg being transformed.
+   * @param legEntry The leg being transformed.
    * @param players All players in the match.
    * @param x01 The starting score.
    * @param playerWinTrackerMap The win tracker.
    * @returns A promise resolving to player card leg data map.
    */
-  private async createLegViewData(set: X01Set, leg: X01Leg, players: X01MatchPlayer[], x01: number, playerWinTrackerMap: PlayerMap<PlayerWinTracker>): Promise<X01PlayerCardLeg> {
+  private async createLegViewData(set: X01Set, legEntry: X01LegEntry, players: X01MatchPlayer[], x01: number, playerWinTrackerMap: PlayerMap<PlayerWinTracker>): Promise<X01PlayerCardLeg> {
     // Update the win trackers.
-    this.updatePlayerWinTrackerMap(set, leg, playerWinTrackerMap);
+    this.updatePlayerWinTrackerMap(set, legEntry, playerWinTrackerMap);
 
     // Initialize a map containing the remaining and last score for each player.
-    const legProgressMap = this.createLegProgressMap(leg, x01);
+    const legProgressMap = this.createLegProgressMap(legEntry.leg, x01);
 
     // Iterate through the players and their leg stats to the map.
     const playerStatsMap: PlayerMap<X01PlayerCardLegStats> = {};
@@ -161,7 +162,7 @@ export class X01MatchPlayerCardsViewDataTransformer {
     }
 
     // Return the map containing the leg stats for each player.
-    return {startsLeg: leg.throwsFirst, players: playerStatsMap};
+    return {startsLeg: legEntry.leg.throwsFirst, players: playerStatsMap};
   }
 
   /**
@@ -195,19 +196,20 @@ export class X01MatchPlayerCardsViewDataTransformer {
   }
 
   /**
-   * Updates the win tracker based on the outcome of a leg. If it's the last leg of a set, also updates
+   * Updates the win tracker based on the outcome of a legEntry. If it's the last legEntry of a set, also updates
    * the sets won.
    *
-   * @param set The set that contains the leg.
-   * @param leg The leg that just finished.
+   * @param set The set that contains the legEntry.
+   * @param legEntry The legEntry that just finished.
    * @param winTrackers The current player win tracker map.
    */
-  private updatePlayerWinTrackerMap(set: X01Set, leg: X01Leg, winTrackers: PlayerMap<PlayerWinTracker>) {
-    // Increment legs won for the player that has won this leg.
+  private updatePlayerWinTrackerMap(set: X01Set, legEntry: X01LegEntry, winTrackers: PlayerMap<PlayerWinTracker>) {
+    // Increment legs won for the player that has won this legEntry.
+    const leg: X01Leg = legEntry.leg;
     if (leg.winner && leg.winner in winTrackers) winTrackers[leg.winner].legsWon++;
 
-    // Increment sets won if this is the last leg in a set for each player that has won or drawn the set.
-    if (set.legs.length === leg.leg && set.result) {
+    // Increment sets won if this is the last legEntry in a set for each player that has won or drawn the set.
+    if (set.legs.at(-1)?.legNumber === legEntry.legNumber && set.result) {
       Object.entries(winTrackers).forEach(([playerId, tracker]) => {
         const playerResult = set.result[playerId];
         if (playerResult === ResultType.WIN || playerResult === ResultType.DRAW) tracker.setsWon++;
