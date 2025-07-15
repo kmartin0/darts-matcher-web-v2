@@ -51,6 +51,15 @@ export class X01CheckoutService {
   }
 
   /**
+   * Checks if a checkout is possible for a given remaining score.
+   * @param remaining The remaining score.
+   * @returns True if a checkout is possible, false otherwise.
+   */
+  isCheckoutPossible(remaining: number): boolean {
+    return remaining <= 170 && !(remaining in [169, 168, 166, 165, 163, 162, 159]);
+  }
+
+  /**
    * Retrieves checkout suggestions from the local storage. If checkouts aren't stored or corrupted returns null
    *
    * @returns An array of X01Checkouts if they exist in localstorage and parsing succeeds, otherwise null.

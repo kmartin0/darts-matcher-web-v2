@@ -1,8 +1,8 @@
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {LegSelection} from '../../../../models/common/leg-selection';
 import {X01Match} from '../../../../models/x01-match/x01-match';
-import {getLegInPlay, getSetInPlay} from '../../../../shared/utils/x01-match.utils';
 import {MatchStatus} from '../../../../models/basematch/match-status';
+import {X01MatchService} from '../../../../shared/services/x01-match-service/x01-match.service';
 
 export interface X01MatchViewData {
   legSelection: LegSelection | null;
@@ -14,6 +14,8 @@ export interface X01MatchViewData {
 
 @Injectable({providedIn: 'root'})
 export class X01MatchViewDataTransformer {
+
+  private matchService = inject(X01MatchService);
 
   /**
    * Transforms a match into a view data object for x01 match component rendering and state handling.
@@ -74,8 +76,8 @@ export class X01MatchViewDataTransformer {
    * @returns A LegSelection representing the current set and leg in play, or null if not determinable.
    */
   private createLegInPlaySelection(match: X01Match): LegSelection | null {
-    const setInPlayEntry = getSetInPlay(match);
-    const legInPlayEntry = getLegInPlay(match, setInPlayEntry?.set ?? null);
+    const setInPlayEntry = this.matchService.getSetInPlay(match);
+    const legInPlayEntry = this.matchService.getLegInPlay(match, setInPlayEntry?.set ?? null);
     return (setInPlayEntry && legInPlayEntry) ? {setEntry: setInPlayEntry, legEntry: legInPlayEntry} : null;
   }
 

@@ -11,13 +11,6 @@ import {X01ScoreInputComponent} from '../x01-score-input/x01-score-input.compone
 import {SelectLegFormComponent} from '../select-leg-form/select-leg-form.component';
 import {DartsMatcherWebSocketService} from '../../../../api/services/darts-matcher-web-socket.service';
 import {firstValueFrom, takeUntil} from 'rxjs';
-import {
-  findLastPlayerScore,
-  getLeg,
-  getRemainingForCurrentPlayer,
-  getRemainingForPlayer,
-  getSet,
-} from '../../../../shared/utils/x01-match.utils';
 import {X01CheckoutService} from '../../../../shared/services/x01-checkout-service/x01-checkout.service';
 import {DialogService} from '../../../../shared/services/dialog-service/dialog.service';
 import {ApiWsErrorBody} from '../../../../api/error/api-ws-error-body';
@@ -34,6 +27,7 @@ import {X01Turn} from '../../../../models/x01-match/x01-turn';
 import {BaseComponent} from '../../../../shared/components/base/base.component';
 import {X01Leg} from '../../../../models/x01-match/x01-leg';
 import {X01MatchViewData, X01MatchViewDataTransformer} from './x01-match-view-data-transformer';
+import {X01MatchService} from '../../../../shared/services/x01-match-service/x01-match.service';
 
 @Component({
   selector: 'app-x01-match',
@@ -64,6 +58,7 @@ export class X01MatchComponent extends BaseComponent implements OnInit, OnChange
   private apiErrorBodyHandler = inject(ApiErrorBodyHandler);
   private destroyRef = inject(DestroyRef);
   private viewDataTransformer = inject(X01MatchViewDataTransformer);
+  private matchService = inject(X01MatchService);
 
   constructor() {
     super();
@@ -110,7 +105,7 @@ export class X01MatchComponent extends BaseComponent implements OnInit, OnChange
     }
 
     // Retrieve the current player's remaining score before the submitted score is applied.
-    const remainingBeforeScore = getRemainingForCurrentPlayer(this.match);
+    const remainingBeforeScore = this.matchService.getRemainingForCurrentPlayer(this.match);
 
     // Calculate the player's new remaining score after applying the submitted score.
     const remainingAfterScore = remainingBeforeScore - score;
@@ -142,12 +137,12 @@ export class X01MatchComponent extends BaseComponent implements OnInit, OnChange
     if (!this.match) return;
 
     // Get the legEntry to edit, return if not found.
-    const setEntry = getSet(this.match, dialogResult.set);
-    const legEntry = getLeg(setEntry?.set ?? null, dialogResult.leg);
+    const setEntry = this.matchService.getSet(this.match, dialogResult.set);
+    const legEntry = this.matchService.getLeg(setEntry?.set ?? null, dialogResult.leg);
     if (!legEntry) return;
 
     // Calculate the remaining score by replacing the old score with the new score.
-    const remainingBeforeEdit = getRemainingForPlayer(legEntry.leg, this.match.matchSettings.x01, dialogResult.playerId);
+    const remainingBeforeEdit = this.matchService.getRemainingForPlayer(legEntry.leg, this.match.matchSettings.x01, dialogResult.playerId);
     const remainingAfterEdit = (remainingBeforeEdit + dialogResult.oldScore) - dialogResult.newScore;
 
     // When necessary prompt the user for darts used and doubles missed input. Use the result to publish the edited turn.
@@ -244,7 +239,7 @@ export class X01MatchComponent extends BaseComponent implements OnInit, OnChange
 
     if (remainingAfterEdit === 0) {
       // Use the actual last score (real checkout) to open the dialog
-      let checkoutScore = isLastRound ? newScore : findLastPlayerScore(leg, playerId)?.score ?? null;
+      let checkoutScore = isLastRound ? newScore : this.matchService.findLastPlayerScore(leg, playerId)?.score ?? null;
       if (!checkoutScore) return null;
 
       checkoutDartsUsed = await this.openDartsUsedDialog(checkoutScore);

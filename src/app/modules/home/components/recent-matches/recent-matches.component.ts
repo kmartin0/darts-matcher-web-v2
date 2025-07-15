@@ -10,13 +10,13 @@ import {DatePipe, NgIf} from '@angular/common';
 import {MatExpansionModule,} from '@angular/material/expansion';
 import {X01BestOfType} from '../../../../models/x01-match/x01-best-of-type';
 import {X01PlayerStanding} from '../../../../models/common/x01-player-standing';
-import {createStandings} from '../../../../shared/utils/x01-match.utils';
 import {RecentMatchViewData} from './recent-match-view-data';
 import {epochSecondsToDate} from '../../../../shared/utils/number.utils';
 import {MatList, MatListItem} from '@angular/material/list';
 import {MatTooltip} from '@angular/material/tooltip';
 import {DialogService} from '../../../../shared/services/dialog-service/dialog.service';
 import {ConfirmDialogData} from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import {X01MatchService} from '../../../../shared/services/x01-match-service/x01-match.service';
 
 @Component({
   selector: 'app-recent-matches',
@@ -44,6 +44,7 @@ export class RecentMatchesComponent extends BaseComponent implements OnInit {
 
   private recentMatchesService = inject(RecentMatchesService);
   private dialogService = inject(DialogService);
+  private matchService = inject(X01MatchService);
 
   /**
    * Initialize recent matches from local storage and fetch their details on init.
@@ -100,7 +101,7 @@ export class RecentMatchesComponent extends BaseComponent implements OnInit {
         return {
           matchId: match.id,
           startDate: epochSecondsToDate(match.startDate),
-          formattedScoreline: this.formatScoreline(createStandings(match), match.matchSettings.bestOf.bestOfType),
+          formattedScoreline: this.formatScoreline(this.matchService.createStandings(match), match.matchSettings.bestOf.bestOfType),
           formattedBestOfSets: this.formatBestOfSets(match),
           formattedBestOfLegs: this.formatBestOfLegs(match),
           formattedClearByTwoInFinalSet: this.formattedClearByTwoInFinalSet(match)
