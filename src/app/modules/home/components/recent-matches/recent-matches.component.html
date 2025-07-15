@@ -1,0 +1,31 @@
+<div class="container-vertical">
+  <span *ngIf="matchesLoaded && !viewData.length">No matches visited recently</span>
+  @for (recentMatchViewData of viewData; track recentMatchViewData.matchId) {
+    <mat-expansion-panel hideToggle>
+      <mat-expansion-panel-header>
+        <mat-panel-title> {{ recentMatchViewData.startDate | date:'MM/dd/yyyy' }}</mat-panel-title>
+        <mat-panel-description>
+          <span>{{ recentMatchViewData.formattedScoreline }}</span>
+          <div class="action-container">
+            <button mat-icon-button
+                    matTooltip="Remove from recents"
+                    (click)="removeFromRecentMatches(recentMatchViewData.matchId); $event.stopPropagation()">
+              <mat-icon>delete</mat-icon>
+            </button>
+            <a mat-icon-button
+               matTooltip="Go to match"
+               [routerLink]="AppEndpoints.match(recentMatchViewData.matchId)">
+              <mat-icon>arrow_forward</mat-icon>
+            </a>
+          </div>
+
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+      <mat-list>
+        <mat-list-item>{{ recentMatchViewData.formattedBestOfSets }}</mat-list-item>
+        <mat-list-item>{{ recentMatchViewData.formattedBestOfLegs }}</mat-list-item>
+        <mat-list-item>{{ recentMatchViewData.formattedClearByTwoInFinalSet }}</mat-list-item>
+      </mat-list>
+    </mat-expansion-panel>
+  }
+</div>

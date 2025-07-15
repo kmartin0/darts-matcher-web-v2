@@ -13,4 +13,9 @@
     <h3>Go to match page</h3>
     <app-match-id-form (validForm)="onMatchIdResult($event)" [loading$]="getMatchExistsLoading$"></app-match-id-form>
   </div>
+
+  <div class="form-container">
+    <h3>Recent Matches</h3>
+    <app-recent-matches></app-recent-matches>
+  </div>
 </div>

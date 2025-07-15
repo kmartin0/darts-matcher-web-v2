@@ -21,3 +21,15 @@ export function removeLastDigit(currentInt: number | undefined): number | undefi
 
   return Number.isNaN(newInt) ? undefined : newInt;
 }
+
+/**
+ * Converts an epoch timestamp in seconds to a Date object. Returns null if input is invalid.
+ *
+ * @param epochSeconds - Unix timestamp in seconds
+ */
+export function epochSecondsToDate(epochSeconds: number): Date | null {
+  if (isNaN(epochSeconds)) return null;
+
+  const date = new Date(epochSeconds * 1000);
+  return isNaN(date.getTime()) ? null : date;
+}

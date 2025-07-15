@@ -10,15 +10,17 @@ import {Router} from '@angular/router';
 import {AppEndpoints} from '../../../../core/app.endpoints';
 import {BaseComponent} from '../../../../shared/components/base/base.component';
 import {MatchIdFormComponent} from '../../components/match-id-form/match-id-form.component';
-import {BehaviorSubject, finalize} from 'rxjs';
+import {BehaviorSubject} from 'rxjs';
 import {withLoading} from '../../../../shared/operators/operators';
+import {RecentMatchesComponent} from '../../components/recent-matches/recent-matches.component';
 
 
 @Component({
   selector: 'app-home',
   imports: [
     MatchFormComponent,
-    MatchIdFormComponent
+    MatchIdFormComponent,
+    RecentMatchesComponent
   ],
   templateUrl: './home-page.component.html',
   styleUrl: './home-page.component.scss',

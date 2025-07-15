@@ -1,0 +1,21 @@
+@use "@angular/material" as mat;
+
+:host {
+  //@include mat.expansion-overrides((
+  //  container-elevation-shadow: var(--mat-sys-level5)
+  //));
+
+  @include mat.list-overrides((
+    list-item-one-line-container-height: max-content
+  ));
+}
+
+mat-list-item {
+  padding: 4px 0;
+}
+
+.action-container {
+  margin-left: auto;
+  display: flex;
+  flex-direction: row;
+}

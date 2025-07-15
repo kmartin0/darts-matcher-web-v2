@@ -4,7 +4,6 @@ import {BaseFormComponent} from '../../../../shared/components/base-form/base-fo
 import {AbstractControl, FormArray, FormControl, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {MatLabel, MatPrefix} from '@angular/material/form-field';
 import {AsyncPipe, NgForOf} from '@angular/common';
-import {MatSlideToggle} from '@angular/material/slide-toggle';
 import {MatCard, MatCardContent} from '@angular/material/card';
 import {MatIcon} from '@angular/material/icon';
 import {MatTooltip} from '@angular/material/tooltip';

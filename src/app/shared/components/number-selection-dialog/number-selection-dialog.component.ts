@@ -9,7 +9,9 @@ import {
 } from '@angular/material/dialog';
 import {MatButton} from '@angular/material/button';
 import {MatRadioButton, MatRadioGroup} from '@angular/material/radio';
-import {KeydownEventDispatcherService} from '../../services/keydown-event-dispatcher-service/keydown-event-dispatcher.service';
+import {
+  KeydownEventDispatcherService
+} from '../../services/keydown-event-dispatcher-service/keydown-event-dispatcher.service';
 import {BaseComponent} from '../base/base.component';
 
 export interface NumberSelectionDialogData {

@@ -24,6 +24,7 @@ import {MatMenu, MatMenuItem, MatMenuTrigger} from '@angular/material/menu';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {X01MatchEventUnion} from '../../../../api/dto/x01-match-event';
 import {ERROR_DETAIL_KEYS} from '../../../../api/error/error-detail-keys';
+import {RecentMatchesService} from '../../../../shared/services/recent-matches-service/recent-matches.service';
 
 
 @Component({
@@ -61,6 +62,9 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private dialogService = inject(DialogService);
   private snackBar = inject(MatSnackBar);
+  private recentMatchesService = inject(RecentMatchesService);
+
+  private persistedInRecentMatches = false;
 
   /**
    * Lifecycle hook that triggers on component initialization.
@@ -212,6 +216,12 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
    */
   private handleGetMatchSuccess(match: X01Match) {
     if (this.match && this.match.broadcastVersion > match.broadcastVersion) return;
+
+    if (!this.persistedInRecentMatches) {
+      this.recentMatchesService.persistMatch(match.id);
+      this.persistedInRecentMatches = true;
+    }
+
     this.match = match;
   }
 

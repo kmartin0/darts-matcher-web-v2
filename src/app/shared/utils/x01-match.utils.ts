@@ -6,6 +6,8 @@ import {X01LegEntry} from '../../models/x01-match/x01-leg-entry';
 import {X01LegRoundEntry} from '../../models/x01-match/x01-leg-round-entry';
 import {X01SetEntry} from '../../models/x01-match/x01-set-entry';
 import {X01MatchPlayer} from '../../models/x01-match/x01-match-player';
+import {X01PlayerStanding} from '../../models/common/x01-player-standing';
+import {ResultType} from '../../models/basematch/result-type';
 
 export function getSetInPlay(match: X01Match): X01SetEntry | null {
   const currentSetNumber = match.matchProgress.currentSet;
@@ -76,3 +78,42 @@ export function findLastPlayerScore(leg: X01Leg, playerId: string): X01LegRoundS
   return null;
 }
 
+export function createEmptyStandings(match: X01Match): Map<string, X01PlayerStanding> {
+  return new Map(
+    match.players.map(player => [
+      player.playerId,
+      {
+        playerId: player.playerId,
+        playerName: player.playerName,
+        setsWon: 0,
+        legsWon: 0,
+        legsWonInCurrentSet: 0,
+      }
+    ])
+  );
+}
+
+export function createStandings(match: X01Match): Map<string, X01PlayerStanding> {
+  const standings = createEmptyStandings(match);
+
+  match.sets.forEach(setEntry => {
+    setEntry.set.legs.forEach(legEntry => {
+      const legWinner = legEntry.leg.winner;
+      if (legWinner) {
+        const playerStanding = standings.get(legWinner);
+        if (playerStanding) {
+          playerStanding.legsWon++;
+          if (setEntry.setNumber === match.matchProgress.currentSet) playerStanding.legsWonInCurrentSet++;
+        }
+      }
+    });
+    if (setEntry.set.result) {
+      Object.entries(setEntry.set.result).forEach(([playerId, result]) => {
+        const playerStanding = standings.get(playerId);
+        if (playerStanding && result === ResultType.WIN) playerStanding.setsWon++;
+      });
+    }
+  });
+
+  return standings;
+}

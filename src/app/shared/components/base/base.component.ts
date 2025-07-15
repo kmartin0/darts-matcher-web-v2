@@ -1,5 +1,5 @@
 import {Component, OnDestroy} from '@angular/core';
-import {BehaviorSubject, Subject, Subscription} from 'rxjs';
+import {Subject, Subscription} from 'rxjs';
 
 @Component({
   template: ''
