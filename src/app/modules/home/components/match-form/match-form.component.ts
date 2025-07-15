@@ -254,6 +254,11 @@ export class MatchFormComponent extends BaseFormComponent<MatchFormResult> imple
         case X01BestOfType.LEGS: { // When best of type legs, disable sets control and set the match to 1 set.
           bestOfControl.sets.setValue(1);
           bestOfControl.sets.disable();
+
+          // Also remove all non `clear by two legs` types from the clear by two group.
+          this.getClearByTwoGroup.controls.selectedTypes.setValue(
+            this.getClearByTwoGroup.getRawValue().selectedTypes.filter(clearByTwoType => clearByTwoType === ClearByTwoType.LEGS)
+          );
           break;
         }
         case X01BestOfType.SETS: // When best of type sets, enable sets control.

@@ -41,10 +41,12 @@
   <label>Clear by two</label>
   <div class="container-vertical clear-by-two-toggle-group-container">
     <ng-container formGroupName="clearByTwo">
+      @let isBestOfTypeSets = bestOfFormGroup.getRawValue().type === BestOfType.SETS ;
       <mat-button-toggle-group multiple [hideMultipleSelectionIndicator]="true" formControlName="selectedTypes">
-        <mat-button-toggle [value]="ClearByTwoType.SETS">Sets</mat-button-toggle>
+        <mat-button-toggle [value]="ClearByTwoType.SETS" [disabled]="!isBestOfTypeSets">Sets</mat-button-toggle>
         <mat-button-toggle [value]="ClearByTwoType.LEGS">Legs</mat-button-toggle>
-        <mat-button-toggle [value]="ClearByTwoType.LEGS_FINAL_SET">Legs Final Set</mat-button-toggle>
+        <mat-button-toggle [value]="ClearByTwoType.LEGS_FINAL_SET" [disabled]="!isBestOfTypeSets">Legs Final Set
+        </mat-button-toggle>
       </mat-button-toggle-group>
     </ng-container>
 
