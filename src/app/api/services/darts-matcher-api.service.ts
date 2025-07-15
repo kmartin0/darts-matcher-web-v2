@@ -20,6 +20,10 @@ export class DartsMatcherApiService {
     return this.api.makeGet(DARTS_MATCHER_API_ENDPOINTS.GET_MATCH(matchId));
   }
 
+  getMatches(matchIds: string[]): Observable<X01Match[]> {
+    return this.api.makeGet(DARTS_MATCHER_API_ENDPOINTS.GET_MATCHES(matchIds));
+  }
+
   getCheckoutSuggestions(): Observable<X01Checkout[]> {
     return this.api.makeGet(DARTS_MATCHER_API_ENDPOINTS.GET_X01_CHECKOUTS);
   }

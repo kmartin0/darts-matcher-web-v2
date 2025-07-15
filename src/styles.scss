@@ -90,3 +90,9 @@ mat-form-field {
 .bold {
   font-weight: 500 !important;
 }
+
+a.plain {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}

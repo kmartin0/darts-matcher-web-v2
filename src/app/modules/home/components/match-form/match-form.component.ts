@@ -11,7 +11,7 @@ import {MatTooltip} from '@angular/material/tooltip';
 import {CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList, moveItemInArray} from '@angular/cdk/drag-drop';
 import {MatButton, MatIconButton} from '@angular/material/button';
 import {MatFormField, MatInput} from '@angular/material/input';
-import {BestOfType} from '../../../../models/common/best-of-type';
+import {X01BestOfType} from '../../../../models/x01-match/x01-best-of-type';
 import {PlayerType} from '../../../../models/basematch/player-type';
 import {BestOfGroup, ClearByTwoGroup, MatchForm, MatchFormResult, PlayerGroup} from './match-form';
 import {startWith, Subscription} from 'rxjs';
@@ -32,7 +32,6 @@ import {ClearByTwoType} from '../../../../models/common/clear-by-two-type';
     MatFormField,
     MatInput,
     MatLabel,
-    MatSlideToggle,
     MatCard,
     MatCardContent,
     MatIcon,
@@ -59,7 +58,7 @@ export class MatchFormComponent extends BaseFormComponent<MatchFormResult> imple
   public isBotSelected = false;
 
   protected readonly PlayerType = PlayerType;
-  protected readonly BestOfType = BestOfType;
+  protected readonly BestOfType = X01BestOfType;
   protected readonly ClearByTwoType = ClearByTwoType;
 
   private playerSubscriptions = new Map<FormGroup<PlayerGroup>, Subscription>();
@@ -253,12 +252,12 @@ export class MatchFormComponent extends BaseFormComponent<MatchFormResult> imple
 
     const subscription = bestOfTypeChange$.subscribe(bestOfType => {
       switch (bestOfType) {
-        case BestOfType.LEGS: { // When best of type legs, disable sets control and set the match to 1 set.
+        case X01BestOfType.LEGS: { // When best of type legs, disable sets control and set the match to 1 set.
           bestOfControl.sets.setValue(1);
           bestOfControl.sets.disable();
           break;
         }
-        case BestOfType.SETS: // When best of type sets, enable sets control.
+        case X01BestOfType.SETS: // When best of type sets, enable sets control.
         default: {
           bestOfControl.sets.enable();
         }

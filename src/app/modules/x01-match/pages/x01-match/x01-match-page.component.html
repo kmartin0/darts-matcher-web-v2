@@ -1,5 +1,5 @@
 <mat-toolbar>
-  <a [routerLink]="AppEndpoints.home()" class="navigate-home-btn">X01 Match</a>
+  <a [routerLink]="AppEndpoints.home()" class="plain navigate-home-btn">X01 Match</a>
   <span class="spacer"></span>
   <span class="errorMsg" *ngIf="errorMsg">{{ errorMsg }}</span>
   <mat-spinner *ngIf="webSocketClosed" [diameter]="40"></mat-spinner>
@@ -34,7 +34,7 @@
   <p class="match-not-found" *ngIf="matchNotFound">The match could not be found</p>
   <div class="match-deleted-container" *ngIf="matchDeleteEvent">
     <p class="match-deleted">The match was deleted</p>
-    <a mat-button [routerLink]="AppEndpoints.home()"> Go to home </a>
+    <a class="plain" mat-button [routerLink]="AppEndpoints.home()"> Go to home </a>
   </div>
   <app-x01-match [match]="match"></app-x01-match>
 </div>

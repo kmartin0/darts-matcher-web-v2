@@ -1,6 +1,6 @@
 import {Component, DestroyRef, EventEmitter, inject, Output} from '@angular/core';
 import {MatButton} from '@angular/material/button';
-import {KeydownEventDispatcherService} from '../../services/keydown-event-dispatcher/keydown-event-dispatcher.service';
+import {KeydownEventDispatcherService} from '../../services/keydown-event-dispatcher-service/keydown-event-dispatcher.service';
 import {BaseComponent} from '../base/base.component';
 
 export enum KeypadButton {

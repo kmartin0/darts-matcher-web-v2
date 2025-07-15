@@ -16,7 +16,7 @@ import {
   X01EditScoreDialogData,
   X01EditScoreDialogResult
 } from './x01-edit-score-dialog.types';
-import {KeydownEventDispatcherService} from '../../services/keydown-event-dispatcher/keydown-event-dispatcher.service';
+import {KeydownEventDispatcherService} from '../../services/keydown-event-dispatcher-service/keydown-event-dispatcher.service';
 import {BaseComponent} from '../base/base.component';
 import {NgIf} from '@angular/common';
 import {CustomValidators} from '../../validators/custom-validators';

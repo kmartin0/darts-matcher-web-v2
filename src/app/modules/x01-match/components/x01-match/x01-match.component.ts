@@ -18,7 +18,7 @@ import {
   getRemainingForPlayer,
   getSet,
 } from '../../../../shared/utils/x01-match.utils';
-import {X01CheckoutService} from '../../../../shared/services/x01-checkout-service/x01-checkout-service';
+import {X01CheckoutService} from '../../../../shared/services/x01-checkout-service/x01-checkout.service';
 import {DialogService} from '../../../../shared/services/dialog-service/dialog.service';
 import {ApiWsErrorBody} from '../../../../api/error/api-ws-error-body';
 import {ApiErrorEnum} from '../../../../api/error/api-error-enum';

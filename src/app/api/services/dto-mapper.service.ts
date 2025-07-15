@@ -12,6 +12,7 @@ export class DtoMapperService {
         bestOf: {
           sets: result.bestOf.sets ?? 1,
           legs: result.bestOf.legs,
+          bestOfType: result.bestOf.type,
           clearByTwoSetsRule: {
             enabled: result.clearByTwo.selectedTypes.includes(ClearByTwoType.SETS),
             limit: result.clearByTwo.extraSetLimit

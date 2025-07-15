@@ -1,5 +1,5 @@
 import {FormArray, FormControl, FormGroup} from '@angular/forms';
-import {BestOfType} from '../../../../models/common/best-of-type';
+import {X01BestOfType} from '../../../../models/x01-match/x01-best-of-type';
 import {PlayerType} from '../../../../models/basematch/player-type';
 import {ClearByTwoType} from '../../../../models/common/clear-by-two-type';
 
@@ -12,7 +12,7 @@ export interface MatchForm {
 }
 
 export interface BestOfGroup {
-  type: FormControl<BestOfType>;
+  type: FormControl<X01BestOfType>;
   sets: FormControl<number>;
   legs: FormControl<number>;
 }
@@ -33,7 +33,7 @@ export interface PlayerGroup {
 export interface MatchFormResult {
   x01: number;
   bestOf: {
-    type: BestOfType;
+    type: X01BestOfType;
     sets: number;
     legs: number;
   };

@@ -2,7 +2,7 @@ import {inject, Injectable} from '@angular/core';
 import {FormBuilder, FormGroup, ValidatorFn, Validators} from '@angular/forms';
 import {MatchForm, PlayerGroup} from './match-form';
 import {CustomValidators} from '../../../../shared/validators/custom-validators';
-import {BestOfType} from '../../../../models/common/best-of-type';
+import {X01BestOfType} from '../../../../models/x01-match/x01-best-of-type';
 import {PlayerType} from '../../../../models/basematch/player-type';
 import {ClearByTwoType} from '../../../../models/common/clear-by-two-type';
 
@@ -35,7 +35,7 @@ export class MatchFormFactory {
     return this.fb.nonNullable.group<MatchForm>({
       x01: this.fb.nonNullable.control(this.x01Options[1], [Validators.min(this.minX01), Validators.max(this.maxX01), Validators.required]),
       bestOf: this.fb.nonNullable.group({
-        type: this.fb.nonNullable.control(BestOfType.SETS, [Validators.required]),
+        type: this.fb.nonNullable.control(X01BestOfType.SETS, [Validators.required]),
         sets: this.fb.nonNullable.control(this.minSets, [Validators.min(this.minSets), Validators.max(this.maxSets), Validators.required]),
         legs: this.fb.nonNullable.control(this.minLegs, [Validators.min(this.minLegs), Validators.max(this.maxLegs), Validators.required])
       }),
