@@ -32,14 +32,13 @@ RUN npm run build-${PROFILE}
 # Use the current nginx version for building.
 FROM nginx:1.29.0-alpine AS serve-stage
 
-# Copy the custom NGINX configuration file into the container.
+# Remove the default nginx configuration and add replace it with the custom NGINX configuration file.
+RUN rm -f /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Remove the default NGINX content to avoid conflicts.
+# Remove the default nginx content and add the application content. Dist path is defined in angular.json "outputPath"
 RUN rm -rf /usr/share/nginx/html/*
-
-# Copy the built Angular application from the 'build-stage' into NGINX's web root. Dist path is defined in angular.json "outputPath"
-COPY --from=build-stage /app/dist/darts-matcher-web-v2 /usr/share/nginx/html
+COPY --from=build-stage /app/dist/darts-matcher-web-v2/browser /usr/share/nginx/html
 
 # Expose port 80, which NGINX will be listening on inside the container.
 EXPOSE 80
