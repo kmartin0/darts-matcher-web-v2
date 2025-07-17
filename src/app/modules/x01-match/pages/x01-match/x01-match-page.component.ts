@@ -234,9 +234,9 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
    * Sets the invalid match ID flag when the route contains an invalid ObjectId.
    */
   private handleInvalidMatchId() {
+    this.match = null;
     this.matchNotFound = true;
   }
-
 
   /**
    * Publishes a reprocess match event for the current match over WebSocket.

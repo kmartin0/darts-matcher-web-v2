@@ -52,9 +52,9 @@ export class DialogService {
 
   public openUriNotFoundErrorDialog(stackable: boolean = false): MatDialogRef<TextDialogComponent> | null {
     return this.openErrorDialog(
+      'Error',
       'The uri you are trying to reach could not be found',
       'Please try again or contact us.',
-      undefined,
       stackable
     );
   }

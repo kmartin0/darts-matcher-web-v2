@@ -1,4 +1,3 @@
-version: "3"
 services:
   darts-matcher-web-v2:
     restart: always
@@ -7,6 +6,6 @@ services:
     build:
       context: .
       args:
-        - PROFILE=dev # Accepts dev, prod
+        - PROFILE=dev # Accepts dev, prod-pi
     ports:
       - "4200:80"
