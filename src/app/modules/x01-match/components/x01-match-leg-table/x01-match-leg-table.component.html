@@ -1,52 +1,55 @@
-<div #tableContainer class="table-container"
-     *ngIf="viewData && legSelection">
-  <table mat-table [dataSource]="viewData.matchTableDataSource">
-    @let defaultCol = viewData.columnDefinitions.default ;
-    <ng-container [matColumnDef]="defaultCol.id">
-      <th mat-header-cell *matHeaderCellDef>
-        <div class="cell-content-container">
-          <span>{{ defaultCol.labels.darts }}</span>
-          <span>{{ defaultCol.labels.round }}</span>
-        </div>
-
-      </th>
-      <td mat-cell *matCellDef="let rowData">
-        <div class="cell-content-container">
-          <span>{{ rowData.dartsThrown }}</span>
-          <span>{{ rowData.round }}</span>
-        </div>
-      </td>
-    </ng-container>
-
-    @for (playerColEntry of viewData.columnDefinitions.players | keyvalue; track playerColEntry.key) {
-      <ng-container [matColumnDef]="playerColEntry.key">
+@if (viewData && legSelection) {
+  <div #tableContainer class="table-container"
+    >
+    <table mat-table [dataSource]="viewData.matchTableDataSource">
+      @let defaultCol = viewData.columnDefinitions.default ;
+      <ng-container [matColumnDef]="defaultCol.id">
         <th mat-header-cell *matHeaderCellDef>
           <div class="cell-content-container">
-            <span *ngIf="editMode"></span>
-            <span>{{ playerColEntry.value.score }}</span>
-            <span>{{ playerColEntry.value.remaining }}</span>
+            <span>{{ defaultCol.labels.darts }}</span>
+            <span>{{ defaultCol.labels.round }}</span>
           </div>
         </th>
         <td mat-cell *matCellDef="let rowData">
           <div class="cell-content-container">
-            @let playerData = rowData.players[playerColEntry.key] ;
-            <button *ngIf="editMode && playerData" mat-icon-button
-                    (click)="onEditScoreClick(playerColEntry.key, rowData)">
-              <mat-icon>edit</mat-icon>
-            </button>
-            @if (playerData?.score != null) {
-              <span> {{ playerData?.score }} </span>
-              <span>{{ playerData?.remaining }}</span>
-            } @else if (rowData.currentThrower === playerColEntry.key) {
-              <span></span>
-              <mat-icon svgIcon="darts"></mat-icon>
-            }
+            <span>{{ rowData.dartsThrown }}</span>
+            <span>{{ rowData.round }}</span>
           </div>
         </td>
       </ng-container>
-    }
-
-    <tr #stickyHeaderRow mat-header-row *matHeaderRowDef="viewData.displayedColumns ?? []; sticky: true"></tr>
-    <tr #tableRows mat-row *matRowDef="let row; columns: viewData.displayedColumns ?? []"></tr>
-  </table>
-</div>
+      @for (playerColEntry of viewData.columnDefinitions.players | keyvalue; track playerColEntry.key) {
+        <ng-container [matColumnDef]="playerColEntry.key">
+          <th mat-header-cell *matHeaderCellDef>
+            <div class="cell-content-container">
+              @if (editMode) {
+                <span></span>
+              }
+              <span>{{ playerColEntry.value.score }}</span>
+              <span>{{ playerColEntry.value.remaining }}</span>
+            </div>
+          </th>
+          <td mat-cell *matCellDef="let rowData">
+            <div class="cell-content-container">
+              @let playerData = rowData.players[playerColEntry.key] ;
+              @if (editMode && playerData) {
+                <button mat-icon-button
+                  (click)="onEditScoreClick(playerColEntry.key, rowData)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+              }
+              @if (playerData?.score != null) {
+                <span> {{ playerData?.score }} </span>
+                <span>{{ playerData?.remaining }}</span>
+              } @else if (rowData.currentThrower === playerColEntry.key) {
+                <span></span>
+                <mat-icon svgIcon="darts"></mat-icon>
+              }
+            </div>
+          </td>
+        </ng-container>
+      }
+      <tr #stickyHeaderRow mat-header-row *matHeaderRowDef="viewData.displayedColumns ?? []; sticky: true"></tr>
+      <tr #tableRows mat-row *matRowDef="let row; columns: viewData.displayedColumns ?? []"></tr>
+    </table>
+  </div>
+}

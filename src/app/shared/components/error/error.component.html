@@ -1,3 +1,5 @@
-<div class="error-label" *ngIf="errorMsg"
-     [@errorAnimation]="{ value: errorMsg, params: animationParams }">{{ errorMsg }}
-</div>
+@if (errorMsg) {
+  <div class="error-label"
+    [@errorAnimation]="{ value: errorMsg, params: animationParams }">{{ errorMsg }}
+  </div>
+}

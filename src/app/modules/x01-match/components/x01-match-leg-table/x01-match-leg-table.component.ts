@@ -12,7 +12,7 @@ import {
   ViewChildren
 } from '@angular/core';
 import {X01Match} from '../../../../models/x01-match/x01-match';
-import {KeyValuePipe, NgIf} from '@angular/common';
+import { KeyValuePipe } from '@angular/common';
 import {
   MatCell,
   MatCellDef,
@@ -41,7 +41,6 @@ import {BaseComponent} from '../../../../shared/components/base/base.component';
 @Component({
   selector: 'app-x01-match-leg-table',
   imports: [
-    NgIf,
     MatHeaderCellDef,
     MatHeaderCell,
     MatTable,
@@ -55,7 +54,7 @@ import {BaseComponent} from '../../../../shared/components/base/base.component';
     KeyValuePipe,
     MatIconButton,
     MatIcon
-  ],
+],
   standalone: true,
   templateUrl: './x01-match-leg-table.component.html',
   styleUrl: './x01-match-leg-table.component.scss'

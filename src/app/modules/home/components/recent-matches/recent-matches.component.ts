@@ -6,7 +6,7 @@ import {MatIcon} from '@angular/material/icon';
 import {RecentMatchesService} from '../../../../shared/services/recent-matches-service/recent-matches.service';
 import {X01Match} from '../../../../models/x01-match/x01-match';
 import {BaseComponent} from '../../../../shared/components/base/base.component';
-import {DatePipe, NgIf} from '@angular/common';
+import { DatePipe } from '@angular/common';
 import {MatExpansionModule,} from '@angular/material/expansion';
 import {X01BestOfType} from '../../../../models/x01-match/x01-best-of-type';
 import {X01PlayerStanding} from '../../../../models/common/x01-player-standing';
@@ -29,9 +29,8 @@ import {X01MatchService} from '../../../../shared/services/x01-match-service/x01
     MatListItem,
     MatIconAnchor,
     MatTooltip,
-    MatIconButton,
-    NgIf,
-  ],
+    MatIconButton
+],
   standalone: true,
   templateUrl: './recent-matches.component.html',
   styleUrl: './recent-matches.component.scss'

@@ -1,11 +1,17 @@
 <mat-toolbar>
   <a [routerLink]="AppEndpoints.home()" class="plain navigate-home-btn">X01 Match</a>
   <span class="spacer"></span>
-  <span class="errorMsg" *ngIf="errorMsg">{{ errorMsg }}</span>
-  <mat-spinner *ngIf="webSocketClosed" [diameter]="40"></mat-spinner>
-  <button mat-icon-button [matMenuTriggerFor]="menu" matTooltip="More Options" *ngIf="this.match">
-    <mat-icon>more_vert</mat-icon>
-  </button>
+  @if (errorMsg) {
+    <span class="errorMsg">{{ errorMsg }}</span>
+  }
+  @if (webSocketClosed) {
+    <mat-spinner [diameter]="40"></mat-spinner>
+  }
+  @if (this.match) {
+    <button mat-icon-button [matMenuTriggerFor]="menu" matTooltip="More Options">
+      <mat-icon>more_vert</mat-icon>
+    </button>
+  }
   <mat-menu #menu="matMenu">
     <button mat-menu-item (click)="copyUrlToClipboard()">
       <mat-icon>content_copy</mat-icon>
@@ -31,10 +37,14 @@
 </mat-toolbar>
 
 <div class="x01-match-page-component-container">
-  <p class="match-not-found" *ngIf="matchNotFound">The match could not be found</p>
-  <div class="match-deleted-container" *ngIf="matchDeleteEvent">
-    <p class="match-deleted">The match was deleted</p>
-    <a class="plain" mat-button [routerLink]="AppEndpoints.home()"> Go to home </a>
-  </div>
+  @if (matchNotFound) {
+    <p class="match-not-found">The match could not be found</p>
+  }
+  @if (matchDeleteEvent) {
+    <div class="match-deleted-container">
+      <p class="match-deleted">The match was deleted</p>
+      <a class="plain" mat-button [routerLink]="AppEndpoints.home()"> Go to home </a>
+    </div>
+  }
   <app-x01-match [match]="match"></app-x01-match>
 </div>

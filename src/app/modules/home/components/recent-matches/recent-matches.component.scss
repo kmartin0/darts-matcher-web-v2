@@ -1,9 +1,9 @@
 @use "@angular/material" as mat;
 
 :host {
-  //@include mat.expansion-overrides((
-  //  container-elevation-shadow: var(--mat-sys-level5)
-  //));
+  @include mat.expansion-overrides((
+    container-elevation-shadow: var(--mat-sys-level0)
+  ));
 
   @include mat.list-overrides((
     list-item-one-line-container-height: max-content
@@ -18,4 +18,9 @@ mat-list-item {
   margin-left: auto;
   display: flex;
   flex-direction: row;
+}
+
+.mat-expansion-panel {
+  border: 1px solid var(--mat-sys-outline);
+  border-radius: var(--mat-sys-corner-extra-small);
 }

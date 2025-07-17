@@ -1,6 +1,6 @@
 import {Component, DestroyRef, inject, Input, OnChanges, OnInit, SimpleChanges, ViewChild} from '@angular/core';
 import {X01Match} from '../../../../models/x01-match/x01-match';
-import {NgIf} from '@angular/common';
+
 import {MatIconButton} from '@angular/material/button';
 import {MatIcon} from '@angular/material/icon';
 import {ReactiveFormsModule} from '@angular/forms';
@@ -35,14 +35,13 @@ import {X01MatchService} from '../../../../shared/services/x01-match-service/x01
     MatIconButton,
     MatIcon,
     ReactiveFormsModule,
-    NgIf,
     X01MatchInfoComponent,
     X01MatchPlayerCardsComponent,
     X01MatchLegTableComponent,
     X01ScoreInputComponent,
     SelectLegFormComponent,
-    MatTooltip,
-  ],
+    MatTooltip
+],
   standalone: true,
   templateUrl: './x01-match.component.html',
   styleUrl: './x01-match.component.scss'

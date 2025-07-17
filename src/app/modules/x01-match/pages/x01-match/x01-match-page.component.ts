@@ -2,7 +2,7 @@ import {Component, DestroyRef, inject, OnInit} from '@angular/core';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {concatMap, debounceTime, delay, EMPTY, Observable, of, switchMap} from 'rxjs';
 import {X01Match} from '../../../../models/x01-match/x01-match';
-import {NgIf} from '@angular/common';
+
 import {MatToolbar} from '@angular/material/toolbar';
 import {X01MatchComponent} from '../../components/x01-match/x01-match.component';
 import {isValidObjectId} from '../../../../shared/utils/object-id.utils';
@@ -13,7 +13,7 @@ import {DARTS_MATCHER_WS_DESTINATIONS, WsDestType} from '../../../../api/endpoin
 import {ApiWsErrorBody} from '../../../../api/error/api-ws-error-body';
 import {AppEndpoints} from '../../../../core/app.endpoints';
 import {X01MatchEventType} from '../../../../api/dto/x01-match-event-type';
-import {MatAnchor, MatIconButton} from '@angular/material/button';
+import {MatButton, MatIconButton} from '@angular/material/button';
 import {MatIcon} from '@angular/material/icon';
 import {DialogService} from '../../../../shared/services/dialog-service/dialog.service';
 import {MatTooltip} from '@angular/material/tooltip';
@@ -30,7 +30,6 @@ import {RecentMatchesService} from '../../../../shared/services/recent-matches-s
 @Component({
   selector: 'app-x01-match-page',
   imports: [
-    NgIf,
     MatToolbar,
     X01MatchComponent,
     MatIconButton,
@@ -41,7 +40,7 @@ import {RecentMatchesService} from '../../../../shared/services/recent-matches-s
     MatMenu,
     MatMenuItem,
     RouterLink,
-    MatAnchor,
+    MatButton
   ],
   standalone: true,
   templateUrl: './x01-match-page.component.html',

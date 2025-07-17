@@ -5,7 +5,7 @@ import {MatLabel} from '@angular/material/form-field';
 import {FormControl, ReactiveFormsModule} from '@angular/forms';
 import {LegSelection} from '../../../../models/common/leg-selection';
 import {X01Match} from '../../../../models/x01-match/x01-match';
-import {NgIf} from '@angular/common';
+
 import {BaseComponent} from '../../../../shared/components/base/base.component';
 
 @Component({
@@ -16,9 +16,8 @@ import {BaseComponent} from '../../../../shared/components/base/base.component';
     MatSelect,
     MatOptgroup,
     MatOption,
-    ReactiveFormsModule,
-    NgIf
-  ],
+    ReactiveFormsModule
+],
   standalone: true,
   templateUrl: './select-leg-form.component.html',
   styleUrl: './select-leg-form.component.scss'

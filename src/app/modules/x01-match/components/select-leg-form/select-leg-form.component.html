@@ -1,14 +1,16 @@
-<div *ngIf="match" class="select-leg-form-component-container">
-  <mat-form-field class="select-leg-form-field" subscriptSizing="dynamic" appearance="fill">
-    <mat-label>Select Leg (Set {{ legSelectionControl.value?.setEntry?.setNumber }})</mat-label>
-    <mat-select [formControl]="legSelectionControl" [compareWith]="compareLegSelection">
-      @for (setEntry of match.sets; track setEntry.setNumber) {
-        <mat-optgroup label="Set {{setEntry.setNumber}}">
-          @for (legEntry of setEntry.set.legs; track legEntry.legNumber) {
-            <mat-option [value]="{setEntry: setEntry, legEntry: legEntry}">Leg {{ legEntry.legNumber }}</mat-option>
-          }
-        </mat-optgroup>
-      }
-    </mat-select>
-  </mat-form-field>
-</div>
+@if (match) {
+  <div class="select-leg-form-component-container">
+    <mat-form-field class="select-leg-form-field" subscriptSizing="dynamic" appearance="fill">
+      <mat-label>Select Leg (Set {{ legSelectionControl.value?.setEntry?.setNumber }})</mat-label>
+      <mat-select [formControl]="legSelectionControl" [compareWith]="compareLegSelection">
+        @for (setEntry of match.sets; track setEntry.setNumber) {
+          <mat-optgroup label="Set {{setEntry.setNumber}}">
+            @for (legEntry of setEntry.set.legs; track legEntry.legNumber) {
+              <mat-option [value]="{setEntry: setEntry, legEntry: legEntry}">Leg {{ legEntry.legNumber }}</mat-option>
+            }
+          </mat-optgroup>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+}

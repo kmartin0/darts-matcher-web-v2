@@ -1,6 +1,6 @@
 import {Component, ElementRef, inject, Input, OnChanges, SimpleChanges} from '@angular/core';
 import {animate, style, transition, trigger} from '@angular/animations';
-import {NgIf} from '@angular/common';
+
 import {BaseComponent} from '../base/base.component';
 
 @Component({
@@ -8,9 +8,7 @@ import {BaseComponent} from '../base/base.component';
   standalone: true,
   templateUrl: './error.component.html',
   styleUrls: ['./error.component.scss'],
-  imports: [
-    NgIf
-  ],
+  imports: [],
   animations: [
     trigger('errorAnimation', [
       // Enter animation when the element is added

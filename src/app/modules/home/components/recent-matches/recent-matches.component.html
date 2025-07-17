@@ -1,5 +1,7 @@
 <div class="container-vertical">
-  <span *ngIf="matchesLoaded && !viewData.length">No matches visited recently</span>
+  @if (matchesLoaded && !viewData.length) {
+    <span>No matches visited recently</span>
+  }
   @for (recentMatchViewData of viewData; track recentMatchViewData.matchId) {
     <mat-expansion-panel hideToggle>
       <mat-expansion-panel-header>
@@ -8,13 +10,13 @@
           <span>{{ recentMatchViewData.formattedScoreline }}</span>
           <div class="action-container">
             <button mat-icon-button
-                    matTooltip="Remove from recents"
-                    (click)="removeFromRecentMatches(recentMatchViewData.matchId); $event.stopPropagation()">
+              matTooltip="Remove from recents"
+              (click)="removeFromRecentMatches(recentMatchViewData.matchId); $event.stopPropagation()">
               <mat-icon>delete</mat-icon>
             </button>
             <a mat-icon-button
-               matTooltip="Go to match"
-               [routerLink]="AppEndpoints.match(recentMatchViewData.matchId)">
+              matTooltip="Go to match"
+              [routerLink]="AppEndpoints.match(recentMatchViewData.matchId)">
               <mat-icon>arrow_forward</mat-icon>
             </a>
           </div>

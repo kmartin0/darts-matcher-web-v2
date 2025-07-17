@@ -1,23 +1,28 @@
-<div *ngIf="match && viewData.legSelection" class="x01-match-component-container" [class.keyboard-visible]="viewData.displayScoreInput">
-  <div class="scrollable-content">
-    <app-x01-match-info [match]="match"/>
-    <app-x01-match-player-cards [match]="match" [legSelection]="viewData.legSelection"/>
-    <div class="app-edit-options">
-      <div>
-        <button *ngIf="viewData.displayUndoScore" class="open-edit-dialog-btn" mat-icon-button (click)="deleteLastTurn()" matTooltip="Undo last score">
-          <mat-icon>undo</mat-icon>
+@if (match && viewData.legSelection) {
+  <div class="x01-match-component-container" [class.keyboard-visible]="viewData.displayScoreInput">
+    <div class="scrollable-content">
+      <app-x01-match-info [match]="match"/>
+      <app-x01-match-player-cards [match]="match" [legSelection]="viewData.legSelection"/>
+      <div class="app-edit-options">
+        <div>
+          @if (viewData.displayUndoScore) {
+            <button class="open-edit-dialog-btn" mat-icon-button (click)="deleteLastTurn()" matTooltip="Undo last score">
+              <mat-icon>undo</mat-icon>
+            </button>
+          }
+        </div>
+        <app-select-leg-form [match]="match" [(legSelection)]="viewData.legSelection" (legSelectionChange)="onLegSelectionChange()"/>
+        <button class="toggle-edit-mode-btn" mat-icon-button matTooltip="Edit score" (click)="viewData.editScoreMode = !viewData.editScoreMode">
+          <mat-icon>content_cut</mat-icon>
         </button>
       </div>
-      <app-select-leg-form [match]="match" [(legSelection)]="viewData.legSelection" (legSelectionChange)="onLegSelectionChange()"/>
-      <button class="toggle-edit-mode-btn" mat-icon-button matTooltip="Edit score" (click)="viewData.editScoreMode = !viewData.editScoreMode">
-        <mat-icon>content_cut</mat-icon>
-      </button>
+      <div class="app-leg-table">
+        <app-x01-match-leg-table [match]="match" [legSelection]="viewData.legSelection" [(editMode)]="viewData.editScoreMode" (submitScoreEdit)="onEditScoreResult($event)"/>
+      </div>
     </div>
-    <div class="app-leg-table">
-      <app-x01-match-leg-table [match]="match" [legSelection]="viewData.legSelection" [(editMode)]="viewData.editScoreMode" (submitScoreEdit)="onEditScoreResult($event)"/>
-    </div>
+    <div class="error-label">{{ viewData.errorMsg }}</div>
+    @if (viewData.displayScoreInput) {
+      <app-x01-score-input (submitScoreEvent)="onSubmitScore($event)" #scoreInputComponent/>
+    }
   </div>
-  <div class="error-label">{{ viewData.errorMsg }}</div>
-
-  <app-x01-score-input *ngIf="viewData.displayScoreInput" (submitScoreEvent)="onSubmitScore($event)" #scoreInputComponent/>
-</div>
+}

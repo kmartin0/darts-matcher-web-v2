@@ -2,20 +2,19 @@ import {Component, inject} from '@angular/core';
 import {MatIcon} from '@angular/material/icon';
 import {MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent} from '@angular/material/dialog';
 import {TextDialogData} from './text-dialog-data';
-import {NgIf} from '@angular/common';
+
 import {MatButton} from '@angular/material/button';
 
 @Component({
   selector: 'app-text-dialog',
   imports: [
     MatIcon,
-    NgIf,
     MatDialogContent,
     MatDialogActions,
     MatDialogActions,
     MatButton,
     MatDialogClose
-  ],
+],
   standalone: true,
   templateUrl: './text-dialog.component.html',
   styleUrl: './text-dialog.component.scss'

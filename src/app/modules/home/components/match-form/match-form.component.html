@@ -3,7 +3,9 @@
   <div class="container-vertical no-gap">
     <label>Select x01</label>
     <mat-radio-group formControlName="x01">
-      <mat-radio-button *ngFor="let x01 of matchFormFactory.x01Options" [value]="x01">{{ x01 }}</mat-radio-button>
+      @for (x01 of matchFormFactory.x01Options; track x01) {
+        <mat-radio-button [value]="x01">{{ x01 }}</mat-radio-button>
+      }
     </mat-radio-group>
     <app-form-error [control]="form.controls.x01"/>
   </div>
@@ -87,62 +89,60 @@
     <label>Players</label>
 
     <!-- Player Cards -->
-    <mat-card cdkDrag [formGroup]="$any(player)" *ngFor="let player of playersFormArray.controls; let i = index"
-              appearance="outlined">
-      <mat-card-content>
-        <div class="container-vertical">
-          <!-- Select player type -->
-          <div class="container-vertical no-gap">
-            <div class="container-horizontal no-gap">
-              <mat-radio-group formControlName="type">
-                <mat-radio-button [value]="PlayerType.HUMAN">Human</mat-radio-button>
-                <mat-radio-button [value]="PlayerType.DART_BOT"
-                                  [disabled]="isBotSelected && player.getRawValue().type === PlayerType.HUMAN">
-                  Bot
-                </mat-radio-button>
-              </mat-radio-group>
+    @for (player of playersFormArray.controls; track player; let i = $index) {
+      <mat-card cdkDrag [formGroup]="$any(player)"
+        appearance="outlined">
+        <mat-card-content>
+          <div class="container-vertical">
+            <!-- Select player type -->
+            <div class="container-vertical no-gap">
+              <div class="container-horizontal no-gap">
+                <mat-radio-group formControlName="type">
+                  <mat-radio-button [value]="PlayerType.HUMAN">Human</mat-radio-button>
+                  <mat-radio-button [value]="PlayerType.DART_BOT"
+                    [disabled]="isBotSelected && player.getRawValue().type === PlayerType.HUMAN">
+                    Bot
+                  </mat-radio-button>
+                </mat-radio-group>
+              </div>
+              <app-form-error [control]="player.controls.type"/>
             </div>
-            <app-form-error [control]="player.controls.type"/>
-          </div>
-
-          <div class="container-horizontal">
-            <!-- Create player name -->
-            <div class="container-vertical no-gap player-name-container">
-              <mat-form-field subscriptSizing="dynamic" appearance="outline">
-                <mat-label>Name</mat-label>
-                <input matInput type="name" formControlName="name">
-                <mat-icon matPrefix matTooltip="Human Player">account_circle</mat-icon>
-              </mat-form-field>
-              <app-form-error [control]="player.controls.name"/>
-            </div>
-
-            <!-- Set Bot Average -->
-            <div class="player-avg-container container-vertical no-gap">
-              <mat-form-field subscriptSizing="dynamic" class="number-form-field" appearance="outline">
-                <mat-label>Avg</mat-label>
-                <input matInput type="number" formControlName="avg">
-              </mat-form-field>
-              <app-form-error [control]="player.controls.avg"/>
-            </div>
-
-            <!-- Rearrange player order and remove player -->
-            <div class="container-horizontal player-action-container"
-                 style="justify-content: space-between; align-self: flex-start">
-              <button mat-icon-button cdkDragHandle aria-label="Rearrange Player" type="button"
-                      [disabled]="isMinPlayersReached()">
-                <mat-icon>drag_indicator</mat-icon>
-              </button>
-
-              <button mat-icon-button matTooltip="Remove Player" aria-label="Rearrange Player" (click)="removePlayer(i)"
-                      type="button"
-                      [disabled]="isMinPlayersReached()">
-                <mat-icon>cancel</mat-icon>
-              </button>
+            <div class="container-horizontal">
+              <!-- Create player name -->
+              <div class="container-vertical no-gap player-name-container">
+                <mat-form-field subscriptSizing="dynamic" appearance="outline">
+                  <mat-label>Name</mat-label>
+                  <input matInput type="name" formControlName="name">
+                  <mat-icon matPrefix matTooltip="Human Player">account_circle</mat-icon>
+                </mat-form-field>
+                <app-form-error [control]="player.controls.name"/>
+              </div>
+              <!-- Set Bot Average -->
+              <div class="player-avg-container container-vertical no-gap">
+                <mat-form-field subscriptSizing="dynamic" class="number-form-field" appearance="outline">
+                  <mat-label>Avg</mat-label>
+                  <input matInput type="number" formControlName="avg">
+                </mat-form-field>
+                <app-form-error [control]="player.controls.avg"/>
+              </div>
+              <!-- Rearrange player order and remove player -->
+              <div class="container-horizontal player-action-container"
+                style="justify-content: space-between; align-self: flex-start">
+                <button mat-icon-button cdkDragHandle aria-label="Rearrange Player" type="button"
+                  [disabled]="isMinPlayersReached()">
+                  <mat-icon>drag_indicator</mat-icon>
+                </button>
+                <button mat-icon-button matTooltip="Remove Player" aria-label="Rearrange Player" (click)="removePlayer(i)"
+                  type="button"
+                  [disabled]="isMinPlayersReached()">
+                  <mat-icon>cancel</mat-icon>
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
+        </mat-card-content>
+      </mat-card>
+    }
     <div class="container-vertical">
       <app-form-error [control]="playersFormArray"/>
       <button mat-button type="button" (click)="addPlayer()" [disabled]="isMaxPlayersReached()">

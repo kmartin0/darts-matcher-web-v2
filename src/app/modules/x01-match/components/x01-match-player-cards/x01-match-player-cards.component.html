@@ -1,34 +1,34 @@
-<div class="players-container" *ngIf="viewData && legSelection">
-  @let selectedSet = viewData.sets[legSelection.setEntry.setNumber] ;
-  @let selectedLeg = selectedSet?.legs?.[legSelection.legEntry.legNumber] ;
-  @for (playerEntry of selectedLeg?.players ?? {} | keyvalue; track playerEntry.key) {
-    @if (playerEntry.key && playerEntry.value) {
-      @let playerId = playerEntry.key ;
-      @let playerLegStats = playerEntry.value ;
-      @let playerInfo = viewData.playerInfo[playerId] ;
-
-      <div class="player-overview-container"
+@if (viewData && legSelection) {
+  <div class="players-container">
+    @let selectedSet = viewData.sets[legSelection.setEntry.setNumber] ;
+    @let selectedLeg = selectedSet?.legs?.[legSelection.legEntry.legNumber] ;
+    @for (playerEntry of selectedLeg?.players ?? {} | keyvalue; track playerEntry.key) {
+      @if (playerEntry.key && playerEntry.value) {
+        @let playerId = playerEntry.key ;
+        @let playerLegStats = playerEntry.value ;
+        @let playerInfo = viewData.playerInfo[playerId] ;
+        <div class="player-overview-container"
            [ngClass]="{
            'current-thrower': viewData.currentPlayer === playerId,
            'starts-leg': selectedLeg?.startsLeg === playerId,
            'win-or-draw': playerInfo.matchResult === ResultType.WIN || playerInfo.matchResult === ResultType.DRAW
            }">
-        <mat-card class="player-info-card">
-          <span class="player-score bold">Score: (sets won: {{ playerLegStats.setsWon }}
+          <mat-card class="player-info-card">
+            <span class="player-score bold">Score: (sets won: {{ playerLegStats.setsWon }}
             - legs won: {{ playerLegStats.legsWonInSet }})</span>
-          <span class="player-name bold">{{ playerInfo?.name }}</span>
-        </mat-card>
-
-        <mat-card class="player-score-card">
-          <span class="remaining bold">{{ playerLegStats.remaining }}</span>
-          <span class="checkout-hint bold">{{ playerLegStats.suggestedCheckout }}</span>
-          <span class="three-dart">3-Dart<br><span class="bold">{{ playerInfo?.threeDartAvg ?? '-' }}</span></span>
-          <span class="first-nine">First 9<br><span
+            <span class="player-name bold">{{ playerInfo?.name }}</span>
+          </mat-card>
+          <mat-card class="player-score-card">
+            <span class="remaining bold">{{ playerLegStats.remaining }}</span>
+            <span class="checkout-hint bold">{{ playerLegStats.suggestedCheckout }}</span>
+            <span class="three-dart">3-Dart<br><span class="bold">{{ playerInfo?.threeDartAvg ?? '-' }}</span></span>
+            <span class="first-nine">First 9<br><span
             class="bold">{{ playerInfo?.firstNineAvg ?? '-' }}</span></span>
-          <span class="last-score">Last<br><span class="bold">{{ playerLegStats.lastScore ?? '-' }}</span></span>
-          <span class="darts-used">Darts<br><span class="bold">{{ playerLegStats.dartsUsed }}</span></span>
-        </mat-card>
-      </div>
+            <span class="last-score">Last<br><span class="bold">{{ playerLegStats.lastScore ?? '-' }}</span></span>
+            <span class="darts-used">Darts<br><span class="bold">{{ playerLegStats.dartsUsed }}</span></span>
+          </mat-card>
+        </div>
+      }
     }
-  }
-</div>
+  </div>
+}

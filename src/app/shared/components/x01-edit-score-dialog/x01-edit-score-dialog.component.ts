@@ -20,7 +20,7 @@ import {
   KeydownEventDispatcherService
 } from '../../services/keydown-event-dispatcher-service/keydown-event-dispatcher.service';
 import {BaseComponent} from '../base/base.component';
-import {NgIf} from '@angular/common';
+
 import {CustomValidators} from '../../validators/custom-validators';
 
 @Component({
@@ -34,9 +34,8 @@ import {CustomValidators} from '../../validators/custom-validators';
     MatInput,
     MatLabel,
     ReactiveFormsModule,
-    FormErrorComponent,
-    NgIf
-  ],
+    FormErrorComponent
+],
   standalone: true,
   templateUrl: './x01-edit-score-dialog.component.html',
   styleUrl: './x01-edit-score-dialog.component.scss'
