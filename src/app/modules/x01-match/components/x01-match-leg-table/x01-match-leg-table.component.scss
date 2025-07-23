@@ -1,4 +1,5 @@
 @use "@angular/material" as mat;
+@use "helpers";
 
 :host {
   height: 100%;
@@ -15,6 +16,16 @@
   flex-direction: column-reverse;
 }
 
+@mixin table-row-color($mix-percent-light, $mix-percent-dark) {
+  color: var(--mat-sys-on-surface);
+  background-color: color-mix(in srgb, var(--mat-sys-surface) $mix-percent-light,  var(--mat-sys-secondary));
+
+  @include helpers.dark-mode {
+    color: var(--mat-sys-on-surface);
+    background-color: color-mix(in srgb, var(--mat-sys-surface-container) $mix-percent-dark, var(--mat-sys-inverse-surface));
+  }
+}
+
 table {
   table-layout: fixed;
   width: 100%;
@@ -28,16 +39,15 @@ table {
   }
 
   tr th {
-    background-color: color-mix(in srgb, var(--mat-sys-primary) 100%, transparent);
-    color: var(--mat-sys-on-primary);
-  }
-
-  tr:nth-child(even) td {
-    background-color: color-mix(in srgb, var(--mat-sys-primary) 50%, transparent);
+    @include table-row-color(60%, 95%);
   }
 
   tr:nth-child(odd) td {
-    background-color: color-mix(in srgb, var(--mat-sys-primary) 40%, transparent);
+    @include table-row-color(70%, 85%);
+  }
+
+  tr:nth-child(even) td {
+    @include table-row-color(80%, 80%);
   }
 
   td:not(:first-child), th:not(:first-child) {
@@ -57,3 +67,5 @@ table {
   align-items: center;
   justify-items: center;
 }
+
+

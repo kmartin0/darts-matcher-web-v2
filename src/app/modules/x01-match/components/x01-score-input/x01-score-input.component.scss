@@ -1,7 +1,13 @@
 @use "@angular/material" as mat;
+@use "helpers";
 
 :host {
   height: 100%;
+  @include mat.card-overrides((
+    elevated-container-shape: var(--mat-sys-corner-small),
+    elevated-container-elevation: var(--mat-sys-level1),
+    elevated-container-color: var(--mat-sys-surface-bright)
+  ));
 }
 
 .x01-score-input-component-container {
@@ -14,7 +20,8 @@
 .score-card {
   width: max-content;
   margin: auto;
-  padding: 0 24px;
+  padding: 12px 24px;
+  color: var(--mat-sys-on-surface);
 }
 
 .score-card-content {

@@ -30,9 +30,12 @@ mat-toolbar {
     container-text-color: var(--mat-sys-on-primary)
   ));
 
-  @include mat.icon-overrides((
-    color:var(--mat-sys-on-primary)
-  ));
+  @include helpers.dark-mode {
+    @include mat.toolbar-overrides((
+      container-background-color: var(--mat-sys-surface-container),
+      container-text-color: var(--mat-sys-on-surface)
+    ))
+  }
 }
 
 .x01-match-page-component-container {
@@ -68,4 +71,8 @@ mat-toolbar {
     text-label-text-size: var(--mat-sys-title-large-size),
     text-container-height: calc(var(--mat-sys-title-large-size) + 20px)
   ));
+}
+
+.menu-button {
+  color: inherit;
 }

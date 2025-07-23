@@ -13,6 +13,7 @@ import {MatchIdFormComponent} from '../../components/match-id-form/match-id-form
 import {BehaviorSubject} from 'rxjs';
 import {withLoading} from '../../../../shared/operators/operators';
 import {RecentMatchesComponent} from '../../components/recent-matches/recent-matches.component';
+import {ThemeToggleComponent} from '../../../../shared/components/theme-toggle/theme-toggle.component';
 
 
 @Component({
@@ -20,7 +21,8 @@ import {RecentMatchesComponent} from '../../components/recent-matches/recent-mat
   imports: [
     MatchFormComponent,
     MatchIdFormComponent,
-    RecentMatchesComponent
+    RecentMatchesComponent,
+    ThemeToggleComponent
   ],
   templateUrl: './home-page.component.html',
   styleUrl: './home-page.component.scss',

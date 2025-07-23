@@ -1,0 +1,5 @@
+<div class="theme-toggle-component-container">
+  <button appLoseFocusAfterClick mat-icon-button (click)="toggleThemeMode()" matTooltip="Toggle Theme">
+    <mat-icon> {{ getIconForThemeMode(appThemeMode$ | async) }}</mat-icon>
+  </button>
+</div>

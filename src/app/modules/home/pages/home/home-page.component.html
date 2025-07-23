@@ -5,7 +5,10 @@
   </div>
 
   <div class="form-container">
-    <h3>Create Match</h3>
+    <div class="container-horizontal create-match-header">
+      <h3>Create Match</h3>
+      <app-theme-toggle></app-theme-toggle>
+    </div>
     <app-match-form (validForm)="onMatchFormResult($event)" [loading$]="createMatchLoading$"></app-match-form>
   </div>
 

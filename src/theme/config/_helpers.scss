@@ -10,3 +10,15 @@
   align-items: center;
   margin: auto;
 }
+
+@mixin light-mode {
+  :host-context(.theme-mode-light) & {
+    @content;
+  }
+}
+
+@mixin dark-mode {
+  :host-context(.theme-mode-dark) & {
+    @content;
+  }
+}

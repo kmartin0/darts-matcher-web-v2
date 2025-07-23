@@ -1,18 +1,18 @@
 @use '@angular/material' as mat;
-@use "typography" as custom-typography;
-@use "theme-deep-orange" as theme-deep-orange;
+@use "default-theme" as default-theme;
 @use "theme-mode" as theme-mode;
 
 /**
- * Resources for Angular material V19 theming.
- * https://material.angular.io/guide/system-variables
- * https://material.angular.io/guide/theming
- * https://material.angular.io/components/categories
+ * Resources for Angular material V20 theming.
+ * https://v20.material.angular.dev/guide/system-variables
+ * https://v20.material.angular.dev/guide/theming
+ * https://v20.material.angular.dev/components/categories
  * https://material-foundation.github.io/material-theme-builder/
  * https://themes.angular-material.dev/
  */
 
 html {
-  @include theme-deep-orange.theme-deep-orange();
-  @include theme-mode.theme-mode;
+  @include default-theme.apply-theme();
+  @include theme-mode.apply-dark-light();
 }
+

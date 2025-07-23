@@ -1,4 +1,17 @@
 @use "@angular/material" as mat;
+@use "helpers";
+
+:host {
+  @include mat.button-overrides((
+    filled-label-text-size: var(--mat-sys-title-large-size),
+  ));
+  @include helpers.dark-mode {
+    @include mat.button-overrides((
+      filled-container-color: var(--mat-sys-surface-bright),
+      filled-label-text-color: var(--mat-sys-on-surface)
+    ));
+  }
+}
 
 .keypad-component-container {
   height: 100%;

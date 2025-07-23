@@ -1,6 +1,4 @@
-@use '@angular/material' as mat;
-
-@mixin theme-mode() {
+@mixin apply-dark-light() {
   .theme-mode-light {
     color-scheme: light;
   }

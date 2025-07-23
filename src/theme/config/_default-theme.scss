@@ -1,0 +1,16 @@
+@use '@angular/material' as mat;
+@use "typography" as custom-typography;
+@use "app-theme-colors" as app-theme-colors;
+
+@mixin apply-theme {
+  @include mat.theme((
+    color: (
+      primary: app-theme-colors.$primary-palette,
+      tertiary: app-theme-colors.$tertiary-palette
+    ),
+    typography: custom-typography.$typography-config,
+    density: (scale: 0),
+  ));
+
+  --swiper-navigation-color: var(--mat-sys-primary);
+}

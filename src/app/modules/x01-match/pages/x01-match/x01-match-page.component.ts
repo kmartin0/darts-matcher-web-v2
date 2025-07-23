@@ -25,6 +25,7 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 import {X01MatchEventUnion} from '../../../../api/dto/x01-match-event';
 import {ERROR_DETAIL_KEYS} from '../../../../api/error/error-detail-keys';
 import {RecentMatchesService} from '../../../../shared/services/recent-matches-service/recent-matches.service';
+import {ThemeToggleComponent} from '../../../../shared/components/theme-toggle/theme-toggle.component';
 
 
 @Component({
@@ -40,7 +41,8 @@ import {RecentMatchesService} from '../../../../shared/services/recent-matches-s
     MatMenu,
     MatMenuItem,
     RouterLink,
-    MatButton
+    MatButton,
+    ThemeToggleComponent
   ],
   standalone: true,
   templateUrl: './x01-match-page.component.html',

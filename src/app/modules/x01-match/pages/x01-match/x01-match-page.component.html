@@ -7,8 +7,10 @@
   @if (webSocketClosed) {
     <mat-spinner [diameter]="40"></mat-spinner>
   }
+
   @if (this.match) {
-    <button mat-icon-button [matMenuTriggerFor]="menu" matTooltip="More Options">
+    <app-theme-toggle></app-theme-toggle>
+    <button class="menu-button" mat-icon-button [matMenuTriggerFor]="menu" matTooltip="More Options">
       <mat-icon>more_vert</mat-icon>
     </button>
   }

@@ -1,6 +1,6 @@
 @if (match) {
   <div class="select-leg-form-component-container">
-    <mat-form-field class="select-leg-form-field" subscriptSizing="dynamic" appearance="fill">
+    <mat-form-field class="select-leg-form-field" subscriptSizing="dynamic" appearance="outline">
       <mat-label>Select Leg (Set {{ legSelectionControl.value?.setEntry?.setNumber }})</mat-label>
       <mat-select [formControl]="legSelectionControl" [compareWith]="compareLegSelection">
         @for (setEntry of match.sets; track setEntry.setNumber) {

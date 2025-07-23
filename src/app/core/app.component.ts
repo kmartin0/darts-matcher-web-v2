@@ -2,6 +2,7 @@ import {Component, inject} from '@angular/core';
 import {RouterOutlet} from '@angular/router';
 import {DomSanitizer} from '@angular/platform-browser';
 import {MatIconRegistry} from '@angular/material/icon';
+import {ThemeModeService} from '../shared/services/theme-mode-service/theme-mode.service';
 
 @Component({
   selector: 'app-root',
