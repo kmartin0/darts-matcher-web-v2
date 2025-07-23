@@ -12,7 +12,7 @@ import {
   ViewChildren
 } from '@angular/core';
 import {X01Match} from '../../../../models/x01-match/x01-match';
-import { KeyValuePipe } from '@angular/common';
+import {KeyValuePipe} from '@angular/common';
 import {
   MatCell,
   MatCellDef,

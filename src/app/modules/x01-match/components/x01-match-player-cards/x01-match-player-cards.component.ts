@@ -3,7 +3,7 @@ import {X01Match} from '../../../../models/x01-match/x01-match';
 import {
   X01MatchPlayerCardsViewDataTransformer
 } from './view-data-transformer/x01-match-player-cards-view-data-transformer.service';
-import { KeyValuePipe, NgClass } from '@angular/common';
+import {KeyValuePipe, NgClass} from '@angular/common';
 import {MatCard} from '@angular/material/card';
 import {LegSelection} from '../../../../models/common/leg-selection';
 import {X01PlayerCardsViewData} from './view-data-transformer/x01-player-cards-view-data';
