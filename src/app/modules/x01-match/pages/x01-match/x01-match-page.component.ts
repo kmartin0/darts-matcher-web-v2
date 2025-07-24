@@ -26,6 +26,7 @@ import {X01MatchEventUnion} from '../../../../api/dto/x01-match-event';
 import {ERROR_DETAIL_KEYS} from '../../../../api/error/error-detail-keys';
 import {RecentMatchesService} from '../../../../shared/services/recent-matches-service/recent-matches.service';
 import {ThemeToggleComponent} from '../../../../shared/components/theme-toggle/theme-toggle.component';
+import {Clipboard} from '@angular/cdk/clipboard';
 
 
 @Component({
@@ -64,6 +65,7 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
   private dialogService = inject(DialogService);
   private snackBar = inject(MatSnackBar);
   private recentMatchesService = inject(RecentMatchesService);
+  private clipboard = inject(Clipboard);
 
   private persistedInRecentMatches = false;
 
@@ -83,9 +85,7 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
    * Shows a snackbar notification indicating success or failure.
    */
   copyUrlToClipboard() {
-    navigator.clipboard.writeText(window.location.href)
-      .then(() => this.openSnackBar('Link copied'))
-      .catch(err => this.openSnackBar('Failed to copy url'));
+    this.openSnackBar(this.clipboard.copy(window.location.href) ? 'Link copied' : 'Failed to copy url');
   }
 
   /**
@@ -94,15 +94,13 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
    * Shows a snackbar notification indicating success or failure.
    */
   copyMatchIdToClipboard() {
-    const errorHandler = () => this.openSnackBar('Failed to copy match ID');
+    const failedToCopyStr = 'Failed to copy match ID';
     if (!this.match) {
-      errorHandler();
+      this.openSnackBar(failedToCopyStr);
       return;
     }
 
-    navigator.clipboard.writeText(this.match.id)
-      .then(() => this.openSnackBar('Match ID copied'))
-      .catch(err => errorHandler());
+    this.openSnackBar(this.clipboard.copy(this.match.id) ? 'Match ID copied' : failedToCopyStr);
   }
 
   /**
