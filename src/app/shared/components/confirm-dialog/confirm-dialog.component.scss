@@ -1,0 +1,8 @@
+@use "@angular/material" as mat;
+@use "devices";
+
+.title {
+  @include devices.device(phone, phablet) {
+    font: var(--mat-sys-title-large);
+  }
+}

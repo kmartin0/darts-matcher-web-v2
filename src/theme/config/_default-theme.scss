@@ -12,5 +12,15 @@
     density: (scale: 0),
   ));
 
-  --swiper-navigation-color: var(--mat-sys-primary);
+  /* Angular Material Variable Token Overrides */
+  /* Title large change from ~22px  to ~20px */
+  --mat-sys-title-large-size: 1.25rem;
+  --mat-sys-title-large-line-height: 1.75rem;
+  --mat-sys-title-large: 400 1.25rem / 1.75rem Roboto;
+
+  /* Mat selected option change color from secondary container to container contrast */
+  --mat-select-panel-background-color: var(--mat-sys-surface-container);
+  --mat-optgroup-label-text-color: var(--mat-sys-on-surface);
+  --mat-option-selected-state-layer-color: color-mix(in srgb, var(--mat-sys-on-surface) 12%, transparent);
+  --mat-option-selected-state-label-text-color: var(--mat-sys-on-surface);
 }

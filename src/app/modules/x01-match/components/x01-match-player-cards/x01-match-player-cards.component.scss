@@ -1,5 +1,6 @@
 @use "@angular/material" as mat;
 @use "helpers";
+@use "devices";
 
 :host {
   width: 100%;
@@ -12,27 +13,32 @@
 
   @include helpers.dark-mode {
     @include mat.card-overrides((
-      elevated-container-color: var(--mat-sys-surface-container-high)
+      elevated-container-color: var(--mat-sys-surface-container-highest)
     ));
   }
 }
 
+// Main container for all players.
 .players-container {
-  width: 100%;
   display: flex;
   flex-direction: row;
   gap: 12px;
+  width: 100%;
+  padding: 2px;
 }
 
+// Container for each player.
 .player-overview-container {
-  width: 100%;
-  max-width: 50%;
-  flex-direction: column;
   display: flex;
-  gap: 24px;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+  min-width: 160px;
+  max-width: 50%;
 
+  // Add colored triangle in the corner for the leg starter.
   &.starts-leg {
-    .player-score-card {
+    .player-stats-card {
       position: relative;
 
       &::before {
@@ -50,76 +56,221 @@
     }
   }
 
+  // Add colored border for the current thrower and transparent border for the other cards.
   &.current-thrower {
-    .player-info-card, .player-score-card {
+    .player-info-card, .player-stats-card {
       border-color: var(--mat-sys-primary);
     }
   }
 
+  .player-info-card, .player-stats-card {
+    border: 2px solid transparent;
+  }
+
+  // Change background color for the winner.
   &.win-or-draw {
     .player-info-card {
-      color: var(--mat-sys-on-secondary);
       background-color: var(--mat-sys-secondary);
-
-      @include helpers.dark-mode {
-        color: var(--mat-sys-on-secondary-container);
-        background-color: var(--mat-sys-surface-bright);
-      }
+      color: var(--mat-sys-on-secondary);
     }
   }
+
+  @include devices.device(phone, phablet, tablet) {
+    gap: 12px;
+  }
 }
 
-.player-info-card, .player-score-card {
-  border: 2px solid transparent;
-}
-
+// Container for the card displaying player name and score.
 .player-info-card {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
   gap: 8px;
   padding: 8px;
+
+  @include devices.device(phone, phablet) {
+    gap: 2px;
+    padding: 2px 4px;
+  }
 }
 
-.player-score {
-  font: var(--mat-sys-title-large);
-  min-height: var(--mat-sys-title-large-line-height);
-}
-
+// Container for the player name.
 .player-name {
   font: var(--mat-sys-headline-large);
+  font-weight: 500;
   min-height: var(--mat-sys-headline-large-line-height);
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  word-break: break-all;
+
+  @include devices.device(phone, phablet, tablet) {
+    font: var(--mat-sys-title-medium);
+    font-weight: 500;
+    min-height: var(--mat-sys-headline-title-medium-line-height);
+  }
+
+  @include devices.device(tablet) {
+    font: var(--mat-sys-title-large);
+    font-weight: 500;
+    min-height: var(--mat-sys-headline-title-large-line-height);
+  }
 }
 
-.player-score-card {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: auto auto 1fr;
-  gap: 12px;
-  padding: 8px;
+// Container for the player score.
+.player-score {
+  font: var(--mat-sys-headline-small);
+  font-weight: 500;
+  min-height: var(--mat-sys-headline-small-line-height);
 
-  > * {
-    text-align: center;
+  @include devices.device(phone, phablet) {
+    font: var(--mat-sys-title-medium);
+    font-weight: 400;
+    min-height: var(--mat-sys-title-medium-line-height);
   }
 
-  .remaining {
-    grid-column: 1 / -1;
-    font: var(--mat-sys-display-large);
-    min-height: var(--mat-sys-display-large-line-height);
-  }
-
-  .checkout-hint {
-    grid-column: 1 / -1;
-  }
-
-  .checkout-hint, .three-dart, .darts-used, .last-score, .first-nine {
+  @include devices.device(tablet) {
     font: var(--mat-sys-title-large);
+    font-weight: 400;
     min-height: var(--mat-sys-title-large-line-height);
   }
 }
 
-.score-stats-container {
-  display: flex;
-  flex-direction: row;
+// Container for the card displaying the player stats (remaining, checkout hint, 3-dart avg etc.).
+.player-stats-card {
+  display: grid;
+  grid-template-rows: repeat(4, auto);
+  grid-template-columns: repeat(3, minmax(max-content, 1fr) min-content) minmax(max-content, 1fr);
+  grid-template-areas:
+  "remaining remaining remaining remaining remaining remaining remaining"
+  "checkout-hint checkout-hint checkout-hint checkout-hint checkout-hint checkout-hint checkout-hint"
+  "divider-1 divider-1 divider-1 divider-1 divider-1 divider-1 divider-1"
+  "three-dart divider-2 first-nine divider-3 last-score divider-4 darts-used";
   gap: 12px;
+  padding: 8px;
+  text-align: center;
+
+  @include devices.device(phone, phablet) {
+    row-gap: 4px;
+    padding: 8px;
+    grid-template-rows: repeat(6, auto);
+    grid-template-columns: 1fr min-content 1fr;
+    grid-template-areas:
+  "remaining remaining remaining"
+  "checkout-hint checkout-hint checkout-hint"
+  "divider-1 divider-1 divider-1"
+  "three-dart divider-2 first-nine"
+  "divider-3 divider-3 divider-3"
+  "last-score divider-4 darts-used";
+  }
+}
+
+// Container for the remaining score.
+.remaining {
+  grid-area: remaining;
+  font: var(--mat-sys-display-large);
+  font-weight: 500;
+  min-height: var(--mat-sys-display-large-line-height);
+
+  @include devices.device(phone, phablet, tablet) {
+    font: var(--mat-sys-display-small);
+    font-weight: 500;
+    min-height: var(--mat-sys-display-small-line-height);
+  }
+
+  @include devices.tablet {
+    font: var(--mat-sys-display-medium);
+    font-weight: 500;
+    min-height: var(--mat-sys-display-medium-line-height);
+  }
+}
+
+// Container for the checkout hint.
+.checkout-hint {
+  grid-area: checkout-hint;
+
+  font: var(--mat-sys-title-large);
+  font-weight: 500;
+  min-height: var(--mat-sys-title-large-line-height);
+
+  @include devices.device(phone, phablet, tablet) {
+    font: var(--mat-sys-title-medium);
+    min-height: var(--mat-sys-title-medium-line-height);
+  }
+}
+
+.three-dart {
+  grid-area: three-dart;
+}
+
+.darts-used {
+  grid-area: darts-used;
+}
+
+.last-score {
+  grid-area: last-score;
+}
+
+.first-nine {
+  grid-area: first-nine;
+}
+
+// Container for the player statistics (3-dart avg, first-9 avg, last score, darts used)
+.stat-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.stat-label, .stat-value {
+  font: var(--mat-sys-title-large);
+  min-height: var(--mat-sys-title-large-line-height);
+
+  @include devices.device(phone, phablet, tablet) {
+    font: var(--mat-sys-title-medium);
+    min-height: var(--mat-sys-title-medium-line-height);
+  }
+}
+
+.stat-label {
+  font-weight: 500;
+}
+
+.stat-value {
+  font-weight: 400;
+}
+
+// Dividers used within the player stats card
+.divider-1, .divider-2, .divider-3, .divider-4 {
+  background-color: var(--mat-sys-outline);
+  border-radius: 24px;
+  width: 1px;
+  height: 100%;
+}
+
+.divider-1 {
+  grid-area: divider-1;
+  width: 100%;
+  height: 1px;
+}
+
+.divider-2 {
+  grid-area: divider-2;
+}
+
+.divider-3 {
+  grid-area: divider-3;
+  @include devices.device(phone, phablet) {
+    width: 100%;
+    height: 1px;
+  }
+}
+
+.divider-4 {
+  grid-area: divider-4;
 }

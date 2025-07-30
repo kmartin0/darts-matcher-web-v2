@@ -6,36 +6,37 @@
   gap: 24px;
 }
 
+// Container for header and subheader
 .header-container {
   margin-bottom: 8px;
 }
 
-.create-match-header {
-  align-items: center;
-  justify-content: space-between
+.header, .subheader {
+  margin: 4px;
+  text-align: center;
 }
 
-.title {
+.header {
   font: var(--mat-sys-headline-large);
-
   @include devices.device(phone, phablet) {
     font: var(--mat-sys-headline-small);
   }
 }
 
-.subtitle {
+.subheader {
   font: var(--mat-sys-headline-small);
-
   @include devices.device(phone, phablet) {
     font: var(--mat-sys-title-medium);
   }
 }
 
-.title, .subtitle {
-  margin: 4px;
-  text-align: center;
+// Container for the 'create match' label and light/dark mode toggle.
+.create-match-header {
+  align-items: center;
+  justify-content: space-between
 }
 
+// Container for the create match form.
 .form-container {
   width: 100%;
   max-width: 575px;

@@ -91,7 +91,7 @@
     <!-- Player Cards -->
     @for (player of playersFormArray.controls; track player; let i = $index) {
       <mat-card cdkDrag [formGroup]="$any(player)"
-        appearance="outlined">
+                appearance="outlined">
         <mat-card-content>
           <div class="container-vertical">
             <!-- Select player type -->
@@ -100,14 +100,27 @@
                 <mat-radio-group formControlName="type">
                   <mat-radio-button [value]="PlayerType.HUMAN">Human</mat-radio-button>
                   <mat-radio-button [value]="PlayerType.DART_BOT"
-                    [disabled]="isBotSelected && player.getRawValue().type === PlayerType.HUMAN">
+                                    [disabled]="isBotSelected && player.getRawValue().type === PlayerType.HUMAN">
                     Bot
                   </mat-radio-button>
                 </mat-radio-group>
+                <!-- Rearrange player order and remove player -->
+                <div class="container-horizontal player-action-container">
+                  <button mat-icon-button cdkDragHandle aria-label="Rearrange Player" type="button"
+                          [disabled]="isMinPlayersReached()">
+                    <mat-icon>drag_indicator</mat-icon>
+                  </button>
+                  <button mat-icon-button matTooltip="Remove Player" aria-label="Rearrange Player"
+                          (click)="removePlayer(i)"
+                          type="button"
+                          [disabled]="isMinPlayersReached()">
+                    <mat-icon>cancel</mat-icon>
+                  </button>
+                </div>
               </div>
               <app-form-error [control]="player.controls.type"/>
             </div>
-            <div class="container-horizontal">
+            <div class="create-player-input-container">
               <!-- Create player name -->
               <div class="container-vertical no-gap player-name-container">
                 <mat-form-field subscriptSizing="dynamic" appearance="outline">
@@ -118,25 +131,13 @@
                 <app-form-error [control]="player.controls.name"/>
               </div>
               <!-- Set Bot Average -->
-              <div class="player-avg-container container-vertical no-gap">
+              <div class="player-avg-container container-vertical no-gap"
+                   [ngClass]="{'disable-avg': player.getRawValue().type !== PlayerType.DART_BOT}">
                 <mat-form-field subscriptSizing="dynamic" class="number-form-field" appearance="outline">
                   <mat-label>Avg</mat-label>
                   <input matInput type="number" formControlName="avg">
                 </mat-form-field>
                 <app-form-error [control]="player.controls.avg"/>
-              </div>
-              <!-- Rearrange player order and remove player -->
-              <div class="container-horizontal player-action-container"
-                style="justify-content: space-between; align-self: flex-start">
-                <button mat-icon-button cdkDragHandle aria-label="Rearrange Player" type="button"
-                  [disabled]="isMinPlayersReached()">
-                  <mat-icon>drag_indicator</mat-icon>
-                </button>
-                <button mat-icon-button matTooltip="Remove Player" aria-label="Rearrange Player" (click)="removePlayer(i)"
-                  type="button"
-                  [disabled]="isMinPlayersReached()">
-                  <mat-icon>cancel</mat-icon>
-                </button>
               </div>
             </div>
           </div>

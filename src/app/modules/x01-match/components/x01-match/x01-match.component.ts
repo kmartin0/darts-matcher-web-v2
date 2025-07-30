@@ -28,6 +28,7 @@ import {BaseComponent} from '../../../../shared/components/base/base.component';
 import {X01Leg} from '../../../../models/x01-match/x01-leg';
 import {X01MatchViewData, X01MatchViewDataTransformer} from './x01-match-view-data-transformer';
 import {X01MatchService} from '../../../../shared/services/x01-match-service/x01-match.service';
+import {NgClass, NgIf, NgStyle} from '@angular/common';
 
 @Component({
   selector: 'app-x01-match',
@@ -40,8 +41,9 @@ import {X01MatchService} from '../../../../shared/services/x01-match-service/x01
     X01MatchLegTableComponent,
     X01ScoreInputComponent,
     SelectLegFormComponent,
-    MatTooltip
-],
+    MatTooltip,
+    NgClass
+  ],
   standalone: true,
   templateUrl: './x01-match.component.html',
   styleUrl: './x01-match.component.scss'

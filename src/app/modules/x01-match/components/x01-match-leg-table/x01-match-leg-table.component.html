@@ -1,6 +1,5 @@
 @if (viewData && legSelection) {
-  <div #tableContainer class="table-container"
-    >
+  <div #tableContainer class="table-container">
     <table mat-table [dataSource]="viewData.matchTableDataSource">
       @let defaultCol = viewData.columnDefinitions.default ;
       <ng-container [matColumnDef]="defaultCol.id">
@@ -33,7 +32,7 @@
               @let playerData = rowData.players[playerColEntry.key] ;
               @if (editMode && playerData) {
                 <button mat-icon-button
-                  (click)="onEditScoreClick(playerColEntry.key, rowData)">
+                        (click)="onEditScoreClick(playerColEntry.key, rowData)">
                   <mat-icon>edit</mat-icon>
                 </button>
               }

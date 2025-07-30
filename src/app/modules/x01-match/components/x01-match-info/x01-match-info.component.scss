@@ -1,8 +1,14 @@
 @use "@angular/material" as mat;
+@use "devices";
 
 .match-information-container {
   font: var(--mat-sys-title-large);
   min-height: var(--mat-sys-title-large-line-height);
   font-weight: 500;
   text-align: center;
+
+  @include devices.device(phone, phablet) {
+    font: var(--mat-sys-title-medium);
+    min-height: var(--mat-sys-title-medium-line-height);
+  }
 }

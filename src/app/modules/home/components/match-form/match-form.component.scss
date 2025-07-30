@@ -9,12 +9,18 @@
   margin-left: auto;
 }
 
-.player-name-container {
-  flex: 2 1 0;
+.player-action-container {
+  margin-left: auto;
 }
 
-.player-action-container, .player-avg-container {
-  flex: 1 1 0;
+.create-player-input-container {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+
+  .disable-avg {
+    display: none;
+  }
 }
 
 /* Angular drag and drop animation */

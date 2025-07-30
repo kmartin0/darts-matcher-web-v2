@@ -1,4 +1,5 @@
 @use "@angular/material" as mat;
+@use "devices" as devices;
 
 :host {
   flex: 1;
@@ -6,55 +7,86 @@
   width: 100%;
 }
 
+// The component container
 .x01-match-component-container {
   height: 100%;
   width: 100%;
   display: grid;
-  grid-template-rows: 7fr max-content minmax(310px, 3fr);
-  overflow-y: auto;
+  grid-template-rows: 1fr max-content minmax(310px, min(30vh, 425px));
   gap: 16px;
+  overflow-y: auto;
 
   &:not(.keyboard-visible) {
-    grid-template-rows: 7fr max-content;
+    grid-template-rows: 1fr max-content;
+  }
+
+  @include devices.device(phone, phablet, tablet) {
+    grid-template-rows: 1fr max-content minmax(200px, min(30vh, 300px));
   }
 }
 
+// The container holding the scrollable content (match info, player cards, leg selector)
 .scrollable-content {
   width: 100%;
   display: grid;
   grid-template-rows: max-content max-content max-content minmax(160px, 1fr);
+  gap: 20px;
   overflow-y: auto;
-  gap: 18px;
+
+  @include devices.device(phone, phablet) {
+    grid-template-rows: max-content max-content max-content max-content;
+    gap: 12px;
+  }
 }
 
+// Container holding edit dialog button, select leg selector and edit mode toggle button.
 .app-edit-options {
   display: grid;
-  width: 100%;
-  max-width: 500px;
-  padding: 4px 4px 0 4px;
   gap: 4px;
   grid-template-columns: 1fr 2fr 1fr;
   align-items: center;
   justify-items: center;
   justify-self: center;
-}
-
-.select-leg-form-field {
   width: 100%;
+  max-width: 500px;
+  padding: 4px 4px 0 4px;
 }
 
-.app-leg-table {
-  overflow-y: auto;
+.toggle-edit-mode-btn {
+  scale: 0.8;
+
+  @include devices.device(phone, phablet) {
+    display: none;
+  }
 }
 
+// Container for displaying errors.
 .error-label {
   text-align: center;
   font: var(--mat-sys-title-medium);
   color: var(--mat-sys-error);
   height: var(--mat-sys-title-medium-line-height);
+
+  &.no-error {
+    height: 0;
+    visibility: hidden;
+  }
 }
 
+// The leg table container
+.app-leg-table {
+  overflow-y: auto;
+  @include devices.device(phone, phablet) {
+    display: none;
+  }
+}
+
+// The score input component
 app-x01-score-input {
   width: 75%;
   margin: auto;
+
+  @include devices.device(phone, phablet) {
+    width: 90%;
+  }
 }

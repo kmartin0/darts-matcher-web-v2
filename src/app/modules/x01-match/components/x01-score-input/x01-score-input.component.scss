@@ -1,5 +1,6 @@
 @use "@angular/material" as mat;
 @use "helpers";
+@use "devices";
 
 :host {
   height: 100%;
@@ -10,6 +11,7 @@
   ));
 }
 
+// Component container
 .x01-score-input-component-container {
   height: 100%;
   display: flex;
@@ -17,40 +19,60 @@
   gap: 12px;
 }
 
+// The score card container.
 .score-card {
   width: max-content;
   margin: auto;
-  padding: 12px 24px;
+  font: var(--mat-sys-title-large);
+  font-weight: 500;
   color: var(--mat-sys-on-surface);
+  text-align: center;
+
+  @include devices.device(phone, phablet) {
+    font: var(--mat-sys-title-medium);
+    font-weight: 600;
+  }
+
+  @include devices.tablet {
+    font-weight: 400;
+  }
 }
 
+// Container for the score card content.
 .score-card-content {
   display: grid;
   grid-template-columns: repeat(2, 100px);
   align-items: center;
   grid-gap: 24px;
-}
+  padding: 22px 38px !important;
 
-.score-input, .score-title {
-  font: var(--mat-sys-title-large);
-  font-weight: 500;
-  text-align: center;
-
-  $border-size: 2px;
-
-  &.score-input {
-    border-bottom: $border-size solid var(--mat-sys-primary);
-
-    &.blurred {
-      border-bottom-color: color-mix(in srgb, var(--mat-sys-primary) 25%, transparent);
-    }
+  @include devices.device(phone, phablet) {
+    grid-template-columns: repeat(2, 75px);
+    grid-gap: 12px;
+    padding: 10px 16px !important;
   }
 
-  &.score-title {
-    padding-bottom: $border-size;
+  @include devices.tablet {
+    grid-template-columns: repeat(2, 75px);
+    padding: 12px 20px !important;
   }
 }
 
+// Add an input line for the score input.
+$border-size: 2px;
+.score-title {
+  padding-bottom: $border-size;
+}
+
+.score-input {
+  border-bottom: $border-size solid var(--mat-sys-primary);
+
+  &.blurred {
+    border-bottom-color: color-mix(in srgb, var(--mat-sys-primary) 25%, transparent);
+  }
+}
+
+// Define the keypad height
 app-keypad-component {
   height: 100%;
 }

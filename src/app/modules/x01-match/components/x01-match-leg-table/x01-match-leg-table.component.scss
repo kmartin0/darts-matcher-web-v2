@@ -1,5 +1,6 @@
 @use "@angular/material" as mat;
 @use "helpers";
+@use "devices";
 
 :host {
   height: 100%;
@@ -9,16 +10,18 @@
   ));
 }
 
+// The container holding the leg table.
 .table-container {
-  height: 100%;
-  overflow-y: auto;
   display: flex;
   flex-direction: column-reverse;
+  height: 100%;
+  overflow-y: auto;
 }
 
+// Mixin used to create table row colors for both dark and light mode.
 @mixin table-row-color($mix-percent-light, $mix-percent-dark) {
   color: var(--mat-sys-on-surface);
-  background-color: color-mix(in srgb, var(--mat-sys-surface) $mix-percent-light,  var(--mat-sys-secondary));
+  background-color: color-mix(in srgb, var(--mat-sys-surface) $mix-percent-light, var(--mat-sys-secondary));
 
   @include helpers.dark-mode {
     color: var(--mat-sys-on-surface);
@@ -26,30 +29,46 @@
   }
 }
 
+// The table styles.
 table {
-  table-layout: fixed;
   width: 100%;
   height: min-content;
+  table-layout: fixed;
   margin-bottom: auto;
 
+  // Define the fonts for the rows, header and cells.
   tr, th, td {
-    font-size: 20px;
-    line-height: 32px;
+    font: var(--mat-sys-title-large);
     font-weight: 500;
+
+    @include devices.device(phone, phablet, tablet) {
+      font: var(--mat-sys-title-medium);
+    }
   }
 
-  tr th {
+  // Change font weight for rows and cells for phone, phablet and tablet.
+  tr, td {
+    @include devices.device(phone, phablet, tablet) {
+      font-weight: 400;
+    }
+  }
+
+  // Header has the darkest color.
+  th {
     @include table-row-color(60%, 95%);
   }
 
+  // Odd rows have a lighter color.
   tr:nth-child(odd) td {
     @include table-row-color(70%, 85%);
   }
 
+  // Even rows have an even lighter color.
   tr:nth-child(even) td {
     @include table-row-color(80%, 80%);
   }
 
+  // Create a separation between columns
   td:not(:first-child), th:not(:first-child) {
     border-left: 4px solid var(--mat-sys-background);
   }
@@ -59,13 +78,12 @@ table {
   }
 }
 
+// The container for the cell content (score and togo)
 .cell-content-container {
-  width: 100%;
-  height: 100%;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
   align-items: center;
   justify-items: center;
+  width: 100%;
+  height: 100%;
 }
-
-

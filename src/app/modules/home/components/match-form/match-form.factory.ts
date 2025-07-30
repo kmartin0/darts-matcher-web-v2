@@ -24,7 +24,7 @@ export class MatchFormFactory {
   readonly botMinAvg = 3;
   readonly botMaxAvg = 167;
   readonly playerNameMinLength = 3;
-  readonly playerNameMaxLength = 40;
+  readonly playerNameMaxLength = 30;
 
   /**
    * Creates and returns a form group of type MatchForm used for configuring a match.

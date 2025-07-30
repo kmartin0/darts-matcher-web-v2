@@ -6,21 +6,20 @@
     <mat-expansion-panel hideToggle>
       <mat-expansion-panel-header>
         <mat-panel-title> {{ recentMatchViewData.startDate | date:'MM/dd/yyyy' }}</mat-panel-title>
-        <mat-panel-description>
-          <span>{{ recentMatchViewData.formattedScoreline }}</span>
+        <mat-panel-description class="description-container">
+          <span class="scoreline">{{ recentMatchViewData.formattedScoreline }}</span>
           <div class="action-container">
             <button mat-icon-button
-              matTooltip="Remove from recents"
-              (click)="removeFromRecentMatches(recentMatchViewData.matchId); $event.stopPropagation()">
+                    matTooltip="Remove from recents"
+                    (click)="removeFromRecentMatches(recentMatchViewData.matchId); $event.stopPropagation()">
               <mat-icon>delete</mat-icon>
             </button>
             <a mat-icon-button
-              matTooltip="Go to match"
-              [routerLink]="AppEndpoints.match(recentMatchViewData.matchId)">
+               matTooltip="Go to match"
+               [routerLink]="AppEndpoints.match(recentMatchViewData.matchId)">
               <mat-icon>arrow_forward</mat-icon>
             </a>
           </div>
-
         </mat-panel-description>
       </mat-expansion-panel-header>
       <mat-list>

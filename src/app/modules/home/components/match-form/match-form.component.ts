@@ -3,7 +3,7 @@ import {MatRadioButton, MatRadioGroup} from '@angular/material/radio';
 import {BaseFormComponent} from '../../../../shared/components/base-form/base-form.component';
 import {AbstractControl, FormArray, FormControl, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {MatLabel, MatPrefix} from '@angular/material/form-field';
-import {AsyncPipe} from '@angular/common';
+import {AsyncPipe, NgClass, NgStyle} from '@angular/common';
 import {MatCard, MatCardContent} from '@angular/material/card';
 import {MatIcon} from '@angular/material/icon';
 import {MatTooltip} from '@angular/material/tooltip';
@@ -45,8 +45,9 @@ import {ClearByTwoType} from '../../../../models/common/clear-by-two-type';
     AsyncPipe,
     MatCheckbox,
     MatButtonToggleGroup,
-    MatButtonToggle
-],
+    MatButtonToggle,
+    NgClass
+  ],
   templateUrl: './match-form.component.html',
   styleUrl: './match-form.component.scss',
   standalone: true

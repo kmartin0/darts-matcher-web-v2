@@ -1,10 +1,8 @@
 @use "@angular/material" as mat;
 @use "helpers";
+@use "devices";
 
 :host {
-  @include mat.button-overrides((
-    filled-label-text-size: var(--mat-sys-title-large-size),
-  ));
   @include helpers.dark-mode {
     @include mat.button-overrides((
       filled-container-color: var(--mat-sys-surface-bright),
@@ -13,16 +11,29 @@
   }
 }
 
+// The container holding the key buttons.
 .keypad-component-container {
   height: 100%;
   width: 100%;
   display: grid;
-  grid-template-columns: repeat(3, minmax(100px, 1fr));
-  grid-template-rows: repeat(4, minmax(50px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(4, 1fr);
   gap: 4px;
 
+  // Key button styles.
   button {
     height: 100%;
     width: 100%;
+    font: var(--mat-sys-title-large);
+    font-weight: 500;
+
+    @include devices.device(phone, phablet) {
+      font: var(--mat-sys-title-medium);
+      font-weight: 600;
+    }
+
+    @include devices.tablet {
+      font-weight: 400;
+    }
   }
 }

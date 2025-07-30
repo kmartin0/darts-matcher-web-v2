@@ -1,12 +1,17 @@
 @use "@angular/material" as mat;
+@use "devices";
 
 .header {
   font: var(--mat-sys-title-large);
+
+  @include devices.device(phone, phablet) {
+    font: var(--mat-sys-title-medium);
+  }
 }
 
 .rg-number-options {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: 15px 0;
+  padding: 4px 0;
 }

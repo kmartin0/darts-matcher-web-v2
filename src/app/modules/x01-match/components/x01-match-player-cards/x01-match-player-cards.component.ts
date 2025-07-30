@@ -9,6 +9,8 @@ import {LegSelection} from '../../../../models/common/leg-selection';
 import {X01PlayerCardsViewData} from './view-data-transformer/x01-player-cards-view-data';
 import {ResultType} from '../../../../models/basematch/result-type';
 import {BaseComponent} from '../../../../shared/components/base/base.component';
+import {X01BestOfType} from '../../../../models/x01-match/x01-best-of-type';
+import {MatDivider} from '@angular/material/divider';
 
 @Component({
   selector: 'app-x01-match-player-cards',
@@ -16,7 +18,7 @@ import {BaseComponent} from '../../../../shared/components/base/base.component';
     KeyValuePipe,
     MatCard,
     NgClass
-],
+  ],
   standalone: true,
   templateUrl: './x01-match-player-cards.component.html',
   styleUrl: './x01-match-player-cards.component.scss'
@@ -25,6 +27,7 @@ export class X01MatchPlayerCardsComponent extends BaseComponent implements OnCha
   @Input() match: X01Match | null = null;
   @Input() legSelection: LegSelection | null = null;
   protected readonly ResultType = ResultType;
+  protected readonly X01BestOfType = X01BestOfType;
   viewData: X01PlayerCardsViewData | null = null;
 
   private viewDataTransformer = inject(X01MatchPlayerCardsViewDataTransformer);
