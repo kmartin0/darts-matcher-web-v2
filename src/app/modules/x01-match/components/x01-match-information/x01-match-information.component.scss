@@ -67,11 +67,11 @@
 .row-label {
   font: var(--mat-sys-title-medium);
   font-weight: 400;
-  direction: ltr;
+  text-align: start;
 }
 
 .row-value {
   font: var(--mat-sys-title-medium);
   font-weight: 500;
-  direction: rtl;
+  text-align: end;
 }
