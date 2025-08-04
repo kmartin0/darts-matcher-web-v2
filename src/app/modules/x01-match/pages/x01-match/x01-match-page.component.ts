@@ -27,6 +27,12 @@ import {ERROR_DETAIL_KEYS} from '../../../../api/error/error-detail-keys';
 import {RecentMatchesService} from '../../../../shared/services/recent-matches-service/recent-matches.service';
 import {ThemeToggleComponent} from '../../../../shared/components/theme-toggle/theme-toggle.component';
 import {Clipboard} from '@angular/cdk/clipboard';
+import {X01MatchPageType} from './x01-match-page-type';
+import {X01MatchSummaryComponent} from '../../components/x01-match-summary/x01-match-summary.component';
+import {MatTab, MatTabGroup} from '@angular/material/tabs';
+import {X01MatchInformationComponent} from '../../components/x01-match-information/x01-match-information.component';
+import {X01MatchStatisticsComponent} from '../../components/x01-match-statistics/x01-match-statistics.component';
+import {X01MatchTimelineComponent} from '../../components/x01-match-timeline/x01-match-timeline.component';
 
 
 @Component({
@@ -43,7 +49,8 @@ import {Clipboard} from '@angular/cdk/clipboard';
     MatMenuItem,
     RouterLink,
     MatButton,
-    ThemeToggleComponent
+    ThemeToggleComponent,
+    X01MatchSummaryComponent
   ],
   standalone: true,
   templateUrl: './x01-match-page.component.html',
@@ -55,7 +62,10 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
   matchDeleteEvent: boolean = false;
   webSocketClosed: boolean = false;
   errorMsg: string | null = null;
+  currentPageType: X01MatchPageType = X01MatchPageType.MATCH;
 
+  protected readonly X01MatchPageType = X01MatchPageType;
+  protected readonly AppEndpoints = AppEndpoints;
   private readonly matchIdParamKey = 'matchId';
 
   private route = inject(ActivatedRoute);
@@ -129,6 +139,15 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
       });
       this.subscription.add(sub);
     }
+  }
+
+  togglePageType() {
+    const enumValues = Object.values(X01MatchPageType);
+    const currentIndex = enumValues.indexOf(this.currentPageType);
+    const nextIndex = (currentIndex + 1) % enumValues.length;
+    setTimeout(() => {
+      this.currentPageType = enumValues[nextIndex];
+    }, 100);
   }
 
   /**
@@ -333,6 +352,4 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
   private openSnackBar(message: string) {
     this.snackBar.open(message, undefined, {duration: 1250});
   }
-
-  protected readonly AppEndpoints = AppEndpoints;
 }

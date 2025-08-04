@@ -4,7 +4,7 @@ import {X01Match} from '../../../../models/x01-match/x01-match';
 import {MatIconButton} from '@angular/material/button';
 import {MatIcon} from '@angular/material/icon';
 import {ReactiveFormsModule} from '@angular/forms';
-import {X01MatchInfoComponent} from '../x01-match-info/x01-match-info.component';
+import {X01MatchInfoHeaderComponent} from '../x01-match-info-header/x01-match-info-header.component';
 import {X01MatchPlayerCardsComponent} from '../x01-match-player-cards/x01-match-player-cards.component';
 import {X01MatchLegTableComponent} from '../x01-match-leg-table/x01-match-leg-table.component';
 import {X01ScoreInputComponent} from '../x01-score-input/x01-score-input.component';
@@ -36,7 +36,7 @@ import {NgClass, NgIf, NgStyle} from '@angular/common';
     MatIconButton,
     MatIcon,
     ReactiveFormsModule,
-    X01MatchInfoComponent,
+    X01MatchInfoHeaderComponent,
     X01MatchPlayerCardsComponent,
     X01MatchLegTableComponent,
     X01ScoreInputComponent,

@@ -6,9 +6,9 @@ export interface BaseMatch<PlayerType extends MatchPlayer> {
   id: string;
   version: number;
   broadcastVersion: number;
-  startDate: number;
-  endDate: number;
+  startDate: number; // Unix timestamp in seconds
+  endDate: number | null; // Unix timestamp in seconds
   matchStatus: MatchStatus;
-  players: PlayerType[]
+  players: PlayerType[];
   matchType: MatchType;
 }

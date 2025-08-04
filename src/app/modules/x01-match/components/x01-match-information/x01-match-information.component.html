@@ -1,0 +1,111 @@
+  @if (viewModel) {
+    <mat-card>
+      <mat-card-content class="card-content-container">
+        <span class="information-header"> Match Information</span>
+
+        <!-- Match Result -->
+        <div class="section-container">
+          <span class="section-header">Result</span>
+          @for (playerResult of viewModel.results | keyvalue; track playerResult.key) {
+            <div class="row-container">
+              <span class="row-label">{{ playerResult.value.name }}:</span>
+              <span class="row-value">
+                @if (playerResult.value.result) {
+                  <span>{{ playerResult.value.result }} - </span>
+                }
+                <span>{{ playerResult.value.numWon }}</span>
+              </span>
+            </div>
+          }
+        </div>
+
+        <!-- Match Rules -->
+        @let showSetRules = viewModel.rules.bestOfType === X01BestOfType.SETS ;
+        <div class="section-container">
+          <span class="section-header">Rules</span>
+          <div class="row-container">
+            <span class="row-label">X01:</span>
+            <span class="row-value">{{ viewModel.rules.x01 }}</span>
+          </div>
+          <div class="row-container">
+            <span class="row-label">Format:</span>
+            <span class="row-value">{{ viewModel.rules.format }}</span>
+          </div>
+          <div class="row-container">
+            <span class="row-label">Goal:</span>
+            <span class="row-value">{{ viewModel.rules.goal }} - {{ viewModel.rules.bestOfTypeDisplay }}</span>
+          </div>
+          @if (showSetRules) {
+            <div class="row-container">
+              <span class="row-label">Sets:</span>
+              <span class="row-value">{{ viewModel.rules.sets }}</span>
+            </div>
+          }
+          <div class="row-container">
+            <span class="row-label">Legs:</span>
+            <span class="row-value">{{ viewModel.rules.legs }}</span>
+          </div>
+          @if (showSetRules) {
+            <div class="row-container">
+              <span class="row-label">Clear by two sets:</span>
+              <span class="row-value">{{ viewModel.rules.clearByTwoSetsDisplay }}</span>
+            </div>
+          }
+          <div class="row-container">
+            <span class="row-label">Clear by two legs:</span>
+            <span class="row-value">{{ viewModel.rules.clearByTwoLegsDisplay }}</span>
+          </div>
+          @if (showSetRules) {
+            <div class="row-container">
+              <span class="row-label">Clear by two legs final set:</span>
+              <span class="row-value">{{ viewModel.rules.clearByTwoLegsInFinalSetDisplay }}</span>
+            </div>
+          }
+        </div>
+
+        <!-- Match Date -->
+        <div class="section-container">
+          <span class="section-header">Date</span>
+          <div class="row-container">
+            <span class="row-label">Start:</span>
+            <span class="row-value">
+              {{ viewModel.date.startDate | date: 'EEE. MM-dd-yyy @ HH:mm': 'UTC' }}
+              UTC
+            </span>
+          </div>
+          <div class="row-container">
+            <span class="row-label">End:</span>
+            <span class="row-value">
+              {{ viewModel.date.endDate | date: 'EEE. MM-dd-yyy @ HH:mm': 'UTC' }}
+              @if (viewModel.date.endDate) {
+                UTC
+              } @else {
+                -
+              }
+            </span>
+          </div>
+          <div class="row-container">
+            <span class="row-label">Match Time:</span>
+            <span class="row-value">{{ viewModel.date.matchTimeDisplay }}</span>
+          </div>
+        </div>
+
+        <!-- Match Trivia -->
+        <div class="section-container">
+          <span class="section-header">Trivia</span>
+          <div class="row-container">
+            <span class="row-label">Sets Played:</span>
+            <span class="row-value">{{ viewModel.trivia.setsPlayed }}</span>
+          </div>
+          <div class="row-container">
+            <span class="row-label">Legs Played:</span>
+            <span class="row-value">{{ viewModel.trivia.legsPlayed }}</span>
+          </div>
+          <div class="row-container">
+            <span class="row-label">Match Id:</span>
+            <span class="row-value">{{ viewModel.trivia.matchId }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }

@@ -15,6 +15,19 @@
     </button>
   }
   <mat-menu #menu="matMenu">
+    <button mat-menu-item (click)="togglePageType()">
+      <mat-icon>scoreboard</mat-icon>
+      <span>
+          @switch (currentPageType) {
+            @case (X01MatchPageType.MATCH) {
+              Open match summary
+            }
+            @case (X01MatchPageType.MATCH_SUMMARY) {
+              Open match summary
+            }
+          }
+      </span>
+    </button>
     <button mat-menu-item (click)="copyUrlToClipboard()">
       <mat-icon>content_copy</mat-icon>
       <span>Copy match link</span>
@@ -48,5 +61,12 @@
       <a class="plain" mat-button [routerLink]="AppEndpoints.home()"> Go to home </a>
     </div>
   }
-  <app-x01-match [match]="match"></app-x01-match>
+  @switch (currentPageType) {
+    @case (X01MatchPageType.MATCH) {
+      <app-x01-match [match]="match"></app-x01-match>
+    }
+    @case (X01MatchPageType.MATCH_SUMMARY) {
+      <app-x01-match-summary [match]="match"></app-x01-match-summary>
+    }
+  }
 </div>

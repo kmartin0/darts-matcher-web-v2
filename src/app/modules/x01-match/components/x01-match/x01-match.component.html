@@ -1,7 +1,7 @@
 @if (match && viewData.legSelection) {
   <div class="x01-match-component-container" [class.keyboard-visible]="viewData.displayScoreInput">
     <div class="scrollable-content">
-      <app-x01-match-info [match]="match"/>
+      <app-x01-match-info-header [match]="match"/>
       <app-x01-match-player-cards [match]="match" [legSelection]="viewData.legSelection"/>
       <div class="app-edit-options">
         <div>

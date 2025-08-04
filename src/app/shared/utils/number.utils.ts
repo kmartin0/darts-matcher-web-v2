@@ -27,8 +27,8 @@ export function removeLastDigit(currentInt: number | undefined): number | undefi
  *
  * @param epochSeconds - Unix timestamp in seconds
  */
-export function epochSecondsToDate(epochSeconds: number): Date | null {
-  if (isNaN(epochSeconds)) return null;
+export function epochSecondsToDate(epochSeconds: number|null): Date | null {
+  if (!epochSeconds || isNaN(epochSeconds)) return null;
 
   const date = new Date(epochSeconds * 1000);
   return isNaN(date.getTime()) ? null : date;

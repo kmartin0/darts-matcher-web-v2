@@ -1,5 +1,6 @@
 @use "helpers";
 @use "@angular/material" as mat;
+@use "devices";
 
 :host {
   flex: 1;
@@ -80,4 +81,10 @@ mat-toolbar {
 
 .menu-button {
   color: inherit;
+}
+
+app-x01-match-summary {
+  @include devices.device(phone, phablet) {
+    width: 90dvw;
+  }
 }

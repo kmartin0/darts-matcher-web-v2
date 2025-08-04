@@ -5,5 +5,5 @@ import {X01LegEntry} from './x01-leg-entry';
 export interface X01Set {
   legs: X01LegEntry[];
   throwsFirst: string;
-  result: PlayerMap<ResultType>;
+  result: PlayerMap<ResultType> | null;
 }

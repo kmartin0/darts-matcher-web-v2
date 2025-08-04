@@ -212,7 +212,7 @@ export class X01MatchPlayerCardsViewDataTransformer {
     // Increment sets won if this is the last legEntry in a set for each player that has won or drawn the set.
     if (set.legs.at(-1)?.legNumber === legEntry.legNumber && set.result) {
       Object.entries(winTrackers).forEach(([playerId, tracker]) => {
-        const playerResult = set.result[playerId];
+        const playerResult = set.result?.[playerId];
         if (playerResult === ResultType.WIN || playerResult === ResultType.DRAW) tracker.setsWon++;
       });
     }
