@@ -1,7 +1,7 @@
 @if (cardData) {
   <mat-card>
     <mat-card-content class="card-content-container">
-      <span class="information-header">{{ cardData.header }}</span>
+      <div class="information-header">{{ cardData.header }}</div>
 
       @for (section of cardData.sections; track section.sectionHeader) {
         <div class="section-container">
@@ -10,7 +10,7 @@
             <div class="row-container">
               <span class="row-label">{{ row.label }}:</span>
               <span class="row-value">
-                {{ row.value != '' ? row.value : '-' }}
+                {{ (row.value !== '' && row.value !== null) ? row.value : '-' }}
               </span>
             </div>
           }

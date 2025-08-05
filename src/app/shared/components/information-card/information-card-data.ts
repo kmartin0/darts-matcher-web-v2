@@ -11,7 +11,7 @@ export interface InformationCardData {
  */
 export interface InformationCardRow {
   label: string;
-  value: string | number; // Allowing for numbers as well
+  value: string | number | null;
 }
 
 /**

@@ -1,4 +1,4 @@
-<mat-tab-group class="tab-group" animationDuration="0ms" mat-align-tabs="center" mat-stretch-tabs="false">
+<mat-tab-group class="tab-group" mat-align-tabs="center" mat-stretch-tabs="false">
   <mat-tab label="Information">
     <div class="tab-content-container">
       <app-x01-match-information [match]="match"/>
@@ -6,7 +6,7 @@
   </mat-tab>
   <mat-tab label="Statistics">
     <div class="tab-content-container">
-      <app-x01-match-statistics/>
+      <app-x01-match-statistics [match]="match"/>
     </div>
   </mat-tab>
   <mat-tab label="Timeline">

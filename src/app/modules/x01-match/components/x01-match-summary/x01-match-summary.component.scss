@@ -1,9 +1,14 @@
 @use "helpers";
 @use "dimens";
+@use "devices";
 
 :host {
   width: 100%;
   height: 100%;
+
+  @include devices.device(phone, phablet) {
+    width: 90dvw;
+  }
 }
 
 .tab-group {
@@ -13,9 +18,5 @@
 }
 
 .tab-content-container {
-  padding: 16px;
-  max-width: 650px;
-  margin: auto;
+  padding: 8px;
 }
-
-

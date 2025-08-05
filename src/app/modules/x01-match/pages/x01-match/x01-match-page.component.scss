@@ -82,9 +82,3 @@ mat-toolbar {
 .menu-button {
   color: inherit;
 }
-
-app-x01-match-summary {
-  @include devices.device(phone, phablet) {
-    width: 90dvw;
-  }
-}

@@ -29,10 +29,6 @@ import {ThemeToggleComponent} from '../../../../shared/components/theme-toggle/t
 import {Clipboard} from '@angular/cdk/clipboard';
 import {X01MatchPageType} from './x01-match-page-type';
 import {X01MatchSummaryComponent} from '../../components/x01-match-summary/x01-match-summary.component';
-import {MatTab, MatTabGroup} from '@angular/material/tabs';
-import {X01MatchInformationComponent} from '../../components/x01-match-information/x01-match-information.component';
-import {X01MatchStatisticsComponent} from '../../components/x01-match-statistics/x01-match-statistics.component';
-import {X01MatchTimelineComponent} from '../../components/x01-match-timeline/x01-match-timeline.component';
 
 
 @Component({
@@ -62,7 +58,7 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
   matchDeleteEvent: boolean = false;
   webSocketClosed: boolean = false;
   errorMsg: string | null = null;
-  currentPageType: X01MatchPageType = X01MatchPageType.MATCH;
+  currentPageType: X01MatchPageType = X01MatchPageType.MATCH_SUMMARY;
 
   protected readonly X01MatchPageType = X01MatchPageType;
   protected readonly AppEndpoints = AppEndpoints;

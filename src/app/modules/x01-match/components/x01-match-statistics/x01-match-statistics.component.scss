@@ -1,0 +1,17 @@
+@use "helpers";
+@use "dimens";
+@use "devices";
+
+.players-statistics-container {
+  min-width: fit-content;
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+  justify-content: center;
+  gap: 8px;
+  overflow: auto;
+}
+
+app-information-card {
+  min-width: 150px;
+}
