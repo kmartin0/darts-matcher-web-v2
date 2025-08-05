@@ -28,7 +28,7 @@ import {BaseComponent} from '../../../../shared/components/base/base.component';
 import {X01Leg} from '../../../../models/x01-match/x01-leg';
 import {X01MatchViewData, X01MatchViewDataTransformer} from './x01-match-view-data-transformer';
 import {X01MatchService} from '../../../../shared/services/x01-match-service/x01-match.service';
-import {NgClass, NgIf, NgStyle} from '@angular/common';
+import {NgClass} from '@angular/common';
 
 @Component({
   selector: 'app-x01-match',

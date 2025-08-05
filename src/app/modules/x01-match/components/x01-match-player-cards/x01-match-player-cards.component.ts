@@ -10,7 +10,6 @@ import {X01PlayerCardsViewData} from './view-data-transformer/x01-player-cards-v
 import {ResultType} from '../../../../models/basematch/result-type';
 import {BaseComponent} from '../../../../shared/components/base/base.component';
 import {X01BestOfType} from '../../../../models/x01-match/x01-best-of-type';
-import {MatDivider} from '@angular/material/divider';
 
 @Component({
   selector: 'app-x01-match-player-cards',

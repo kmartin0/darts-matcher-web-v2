@@ -1,0 +1,21 @@
+@if (cardData) {
+  <mat-card>
+    <mat-card-content class="card-content-container">
+      <span class="information-header">{{ cardData.header }}</span>
+
+      @for (section of cardData.sections; track section.sectionHeader) {
+        <div class="section-container">
+          <span class="section-header">{{ section.sectionHeader }}</span>
+          @for (row of section.rows; track row.label) {
+            <div class="row-container">
+              <span class="row-label">{{ row.label }}:</span>
+              <span class="row-value">
+                {{ row.value != '' ? row.value : '-' }}
+              </span>
+            </div>
+          }
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+}

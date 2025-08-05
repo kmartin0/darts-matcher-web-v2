@@ -16,7 +16,6 @@ import {X01PlayerCardLegStats} from './x01-player-card-leg-stats';
 import {SetMap} from '../../../../../types/set-map';
 import {X01PlayerCardLeg} from './x01-player-card-leg';
 import {X01LegEntry} from '../../../../../models/x01-match/x01-leg-entry';
-import {X01Checkout} from '../../../../../models/x01-match/x01-checkout';
 
 @Injectable({providedIn: 'root'})
 export class X01MatchPlayerCardsViewDataTransformer {
