@@ -271,7 +271,7 @@ export class X01MatchInformationCardMapperService {
    */
   private formatMatchTime(startDate: number, endDate: number | null): string {
     if (!endDate) {
-      endDate = Math.floor(Date.now() / 1000);
+      endDate = Date.now() / 1000;
     }
 
     const diffInSeconds = endDate - startDate;

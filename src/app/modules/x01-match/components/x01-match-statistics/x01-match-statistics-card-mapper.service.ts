@@ -8,6 +8,7 @@ import {X01ResultStatistics} from '../../../../models/x01-match/x01-result-stati
 import {X01AverageStatistics} from '../../../../models/x01-match/x01-average-statistics';
 import {X01Statistics} from '../../../../models/x01-match/x01-statistics';
 import {X01CheckoutStatistics} from '../../../../models/x01-match/x01-checkout-statistics';
+import {X01BestOfType} from '../../../../models/x01-match/x01-best-of-type';
 
 
 @Injectable({providedIn: 'root'})
@@ -26,7 +27,7 @@ export class X01MatchStatisticsCardMapperService {
       const test: InformationCardData = {
         header: player.playerName,
         sections: [
-          this.createResultSection(player.statistics.resultStatistics),
+          this.createResultSection(player.statistics.resultStatistics, match.matchSettings.bestOf.bestOfType),
           this.createScoreSection(player.statistics),
           this.createAverageSection(player.statistics.averageStats),
           this.createCheckoutSection(player.statistics.checkoutStats, match.matchSettings.trackDoubles)
@@ -38,15 +39,17 @@ export class X01MatchStatisticsCardMapperService {
 
   /**
    * Creates the Result section for an information card.
+   * Will not show sets won if the match type is not 'best of sets'.
    *
    * @param resultStatistics The result statistics of a player.
+   * @param bestOfType The best of type setting for the match.
    * @returns An InformationCardSection for displaying result stats.
    */
-  private createResultSection(resultStatistics: X01ResultStatistics): InformationCardSection {
+  private createResultSection(resultStatistics: X01ResultStatistics, bestOfType: X01BestOfType): InformationCardSection {
     return {
       sectionHeader: 'Result',
       rows: [
-        {label: 'Sets', value: resultStatistics.setsWon},
+        ...(bestOfType === X01BestOfType.SETS) ? [{label: 'Sets', value: resultStatistics.setsWon}] : [],
         {label: 'Legs', value: resultStatistics.legsWon},
       ]
     };
