@@ -65,7 +65,7 @@ export class X01MatchInfoHeaderComponent extends BaseComponent implements OnChan
 
   private getClearByTwoStr(matchSettings: X01MatchSettings) {
     const bestOfSettings = matchSettings.bestOf;
-    console.log(bestOfSettings);
+
     return (bestOfSettings.clearByTwoSetsRule.enabled ||
       bestOfSettings.clearByTwoLegsRule.enabled ||
       bestOfSettings.clearByTwoLegsInFinalSetRule.enabled

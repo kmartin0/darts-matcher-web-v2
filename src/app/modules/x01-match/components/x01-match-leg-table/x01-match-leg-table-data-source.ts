@@ -20,11 +20,11 @@ export interface X01LegTableRowPlayerData {
  * Data source for the X01 leg table, managing and emitting rows of match data.
  * Extends Angular CDK DataSource to provide data stream for the table.
  */
-export class X01LegTableDataSource extends DataSource<X01LegTableRow> {
+export class X01MatchLegTableDataSource extends DataSource<X01LegTableRow> {
   private _dataStream = new ReplaySubject<X01LegTableRow[]>();
 
   /**
-   * Creates an instance of X01LegTableDataSource with initial data.
+   * Creates an instance of X01MatchLegTableDataSource with initial data.
    *
    * @param initialData - Initial array of rows to populate the data source.
    */

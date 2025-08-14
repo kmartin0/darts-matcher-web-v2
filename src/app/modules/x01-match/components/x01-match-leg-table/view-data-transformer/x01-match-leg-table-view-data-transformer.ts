@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {X01LegTableDataSource, X01LegTableRow, X01LegTableRowPlayerData} from '../x01-leg-table-data-source';
+import {X01MatchLegTableDataSource, X01LegTableRow, X01LegTableRowPlayerData} from '../x01-match-leg-table-data-source';
 import {X01Match} from '../../../../../models/x01-match/x01-match';
 import {X01MatchPlayer} from '../../../../../models/x01-match/x01-match-player';
 import {PlayerMap} from '../../../../../types/player-map';
@@ -34,7 +34,7 @@ export class X01MatchLegTableViewDataTransformer {
     return {
       columnDefinitions: columnDefinitions,
       displayedColumns: displayedColumns,
-      matchTableDataSource: new X01LegTableDataSource(selectedLegTable),
+      matchTableDataSource: new X01MatchLegTableDataSource(selectedLegTable),
       tables: tables,
     };
   }
@@ -178,11 +178,9 @@ export class X01MatchLegTableViewDataTransformer {
 
     // Create row player round info for each player that scored in the round.
     Object.entries(roundEntry.round.scores).forEach(([playerId, roundScore]) => {
-      const remainingBeforeScore = previousRow?.players?.[playerId]?.remaining ?? match.matchSettings.x01;
-      const remainingAfterScore = remainingBeforeScore - roundScore.score;
       playersRoundInfoMap[playerId] = {
         score: roundScore.score,
-        remaining: remainingAfterScore,
+        remaining: roundScore.remaining,
         doublesMissed: roundScore.doublesMissed
       };
     });

@@ -35,7 +35,7 @@ import {
   X01EditScoreDialogData,
   X01EditScoreDialogResult
 } from '../../../../shared/components/x01-edit-score-dialog/x01-edit-score-dialog.types';
-import {X01LegTableRow} from './x01-leg-table-data-source';
+import {X01LegTableRow} from './x01-match-leg-table-data-source';
 import {BaseComponent} from '../../../../shared/components/base/base.component';
 
 @Component({

@@ -9,9 +9,7 @@
           @for (row of section.rows; track row.label) {
             <div class="row-container">
               <span class="row-label">{{ row.label }}:</span>
-              <span class="row-value">
-                {{ (row.value !== '' && row.value !== null) ? row.value : '-' }}
-              </span>
+              <span class="row-value">{{ (row.value !== '' && row.value !== null) ? row.value : '-' }}</span>
             </div>
           }
         </div>
