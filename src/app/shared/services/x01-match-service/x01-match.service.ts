@@ -7,8 +7,6 @@ import {X01Leg} from '../../../models/x01-match/x01-leg';
 import {X01LegRoundEntry} from '../../../models/x01-match/x01-leg-round-entry';
 import {X01MatchPlayer} from '../../../models/x01-match/x01-match-player';
 import {X01LegRoundScore} from '../../../models/x01-match/x01-leg-round-score';
-import {X01PlayerStanding} from '../../../models/common/x01-player-standing';
-import {ResultType} from '../../../models/basematch/result-type';
 
 @Injectable({providedIn: 'root'})
 export class X01MatchService {
@@ -99,7 +97,8 @@ export class X01MatchService {
   getRemainingForPlayer(leg: X01Leg, x01: number, playerId: string) {
     let remaining = x01;
     leg.rounds.forEach(roundEntry => {
-      if (Object.hasOwn(roundEntry.round.scores, playerId)) remaining -= roundEntry.round.scores[playerId].score;
+      const playerScore = roundEntry.round.scores[playerId];
+      if (playerScore) remaining -= playerScore.score;
     });
 
     return remaining;
@@ -130,7 +129,7 @@ export class X01MatchService {
   findLastPlayerScore(leg: X01Leg, playerId: string): X01LegRoundScore | null {
     for (const roundEntry of leg.rounds.slice().reverse()) {
       if (Object.hasOwn(roundEntry.round.scores, playerId)) {
-        return roundEntry.round.scores[playerId];
+        return roundEntry.round.scores[playerId] ?? null;
       }
     }
 
@@ -138,53 +137,22 @@ export class X01MatchService {
   }
 
   /**
-   * Creates a map of player standings based on the completed sets and legs in a match.
-   * @param match The X01Match object.
-   * @returns A Map where keys are player IDs and values are X01PlayerStanding objects.
+   * Finds the checkout score of the winning player in a leg.
+   *
+   * @param leg The leg to get the checkout score for.
+   * @returns The checkout score if found, otherwise `null`.
    */
-  createStandings(match: X01Match): Map<string, X01PlayerStanding> {
-    const standings = this.createEmptyStandings(match);
+  getCheckoutScore(leg: X01Leg): number | null {
+    // No winner means no checkout happened.
+    if (!leg.winner) return null;
 
-    // Go through the match and for each won set/leg increment the winners' standings accordingly.
-    match.sets.forEach(setEntry => {
-      setEntry.set.legs.forEach(legEntry => {
-        const legWinner = legEntry.leg.winner;
-        if (legWinner) {
-          const playerStanding = standings.get(legWinner);
-          if (playerStanding) {
-            playerStanding.legsWon++;
-            if (setEntry.setNumber === match.matchProgress.currentSet) playerStanding.legsWonInCurrentSet++;
-          }
-        }
-      });
-      if (setEntry.set.result) {
-        Object.entries(setEntry.set.result).forEach(([playerId, result]) => {
-          const playerStanding = standings.get(playerId);
-          if (playerStanding && result === ResultType.WIN) playerStanding.setsWon++;
-        });
-      }
-    });
+    // Traverse rounds backwards to find winner's last score
+    for (let i = leg.rounds.length - 1; i >= 0; i--) {
+      const round = leg.rounds[i].round;
+      const checkoutScore = round.scores[leg.winner];
+      if (checkoutScore != null) return round.scores[leg.winner].score;
+    }
 
-    return standings;
-  }
-
-  /**
-   * Creates an empty map of player standings, initialized with an entry for each match player with scores set to zero.
-   * @param match The X01Match object.
-   * @returns A Map where keys are player IDs and values are X01PlayerStanding objects.
-   */
-  private createEmptyStandings(match: X01Match): Map<string, X01PlayerStanding> {
-    return new Map(
-      match.players.map(player => [
-        player.playerId,
-        {
-          playerId: player.playerId,
-          playerName: player.playerName,
-          setsWon: 0,
-          legsWon: 0,
-          legsWonInCurrentSet: 0,
-        }
-      ])
-    );
+    return null;
   }
 }

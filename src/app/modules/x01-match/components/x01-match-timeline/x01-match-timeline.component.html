@@ -1,1 +1,111 @@
-<p>x01-match-timeline works!</p>
+<div class="timeline-component-container">
+  @if (viewModel) {
+
+    <!-- Header -->
+    <div class="header-container">
+      @for (playerInfo of viewModel.players.values(); track playerInfo.id) {
+        <div class="name-container">
+          <span class="name">{{ playerInfo.name }}</span>
+          <span class="initials">({{ playerInfo.initials }})</span>
+        </div>
+        @if (!$last) {
+          <div class="name-container">
+            <span class="name">vs</span>
+          </div>
+        }
+      }
+    </div>
+
+    <!-- Match timeline, 1 card per leg -->
+    @for (setInfo of viewModel.sets; track setInfo.setNumber) {
+      @for (legInfo of setInfo.legs; track legInfo.legNumber) {
+        <mat-card class="card">
+          <mat-card-content class="card-content-container">
+            <!-- Leg header (Set number, Leg number, Leg starter and Leg Winner) -->
+            <div class="leg-info-container">
+              <div class="label-value-container">
+                <span class="label">Set {{ setInfo.setNumber }}</span>
+                <span class="value">Leg {{ legInfo.legNumber }}</span>
+              </div>
+
+              <div class="label-value-container">
+                <span class="label">Starter</span>
+                <span class="value">{{ viewModel.players.get(legInfo.throwsFirstId)?.initials }}</span>
+              </div>
+              <div class="label-value-container">
+                <span class="label">Winner</span>
+                <span class="value">
+                  @if (legInfo.winnerId && legInfo.winnerCheckout) {
+                    <span>{{ viewModel.players.get(legInfo.winnerId)?.initials }}</span>
+                    <span>&nbsp;</span>
+                    <span>({{ legInfo.winnerCheckout }})</span>
+                  } @else {
+                    <span>-</span>
+                  }
+                </span>
+              </div>
+            </div>
+
+            <!-- Leg table with the leg stats per player -->
+            <table mat-table [dataSource]="legInfo.tableDatasource" class="my-table">
+              <!-- Player Column -->
+              <ng-container [matColumnDef]="displayedColumns[0]">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell class="player-cell" *matCellDef="let element">
+                  <span class="initials-cell">{{ element.initials }}</span>
+                  @if (legInfo.throwsFirstId === element.playerId) {
+                    <mat-icon class="starter-icon" svgIcon="darts"></mat-icon>
+                  }
+
+                  @if (legInfo.winnerId && legInfo.winnerId === element.playerId) {
+                    <mat-icon class="leg-winner-icon">trophy</mat-icon>
+                  }
+                </td>
+              </ng-container>
+
+              <!-- Score Column -->
+              <ng-container [matColumnDef]="displayedColumns[1]">
+                <th mat-header-cell *matHeaderCellDef> Score</th>
+                <td mat-cell *matCellDef="let element">
+                  @if (viewModel.bestOfType === X01BestOfType.LEGS) {
+                    {{ element.legsWonInSet }}
+                  } @else {
+                    {{ element.setsWon }} ({{ element.legsWonInSet }})
+                  }
+                </td>
+              </ng-container>
+
+              <!-- Darts Column -->
+              <ng-container [matColumnDef]="displayedColumns[2]">
+                <th mat-header-cell *matHeaderCellDef> Darts</th>
+                <td mat-cell *matCellDef="let element"> {{ element.dartsUsed }}</td>
+              </ng-container>
+
+              <!-- Avg Column -->
+              <ng-container [matColumnDef]="displayedColumns[3]">
+                <th mat-header-cell *matHeaderCellDef> Avg.</th>
+                <td mat-cell *matCellDef="let element"> {{ element.average | number: '1.2-2' }}</td>
+              </ng-container>
+
+              <!-- Avg Column -->
+              <ng-container [matColumnDef]="displayedColumns[4]">
+                <th mat-header-cell *matHeaderCellDef> Left</th>
+                <td mat-cell *matCellDef="let element"> {{ element.remaining }}</td>
+              </ng-container>
+
+              <!-- Checkout Column -->
+              <ng-container [matColumnDef]="displayedColumns[5]">
+                <th mat-header-cell *matHeaderCellDef> Checkout</th>
+                <td mat-cell *matCellDef="let element"> {{ element.checkoutHit }}/{{ element.doublesMissed }}</td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+
+          </mat-card-content>
+        </mat-card>
+      }
+    }
+  }
+</div>

@@ -5,4 +5,6 @@ export interface X01PlayerCardData {
   threeDartAvg: number;
   firstNineAvg: number;
   matchResult: ResultType | null;
+  setsWon: number;
+  legsWonInCurrentSet: number;
 }

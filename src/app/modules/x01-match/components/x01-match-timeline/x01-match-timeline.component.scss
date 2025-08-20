@@ -1,0 +1,143 @@
+@use "@angular/material" as mat;
+
+$card-corner: var(--mat-sys-corner-medium);
+
+:host {
+  display: block;
+  @include mat.table-overrides((
+    row-item-container-height: auto,
+    header-container-height: auto
+  ));
+
+  @include mat.card-overrides((
+    elevated-container-shape: $card-corner
+  ));
+}
+
+// Timeline wrapper
+.timeline-component-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+// Header section
+.header-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 1ch;
+  background-color: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+  font: var(--mat-sys-title-medium);
+  border-radius: $card-corner;
+  padding: 8px 16px;
+  justify-content: center;
+  width: fit-content;
+
+  .name-container {
+    display: flex;
+    gap: 0.5ch;
+  }
+}
+
+// Card container
+.card {
+  max-width: 650px;
+}
+
+.card-content-container {
+  display: flex;
+  flex-direction: column;
+  padding: 0 !important;
+}
+
+// Leg info inside card
+.leg-info-container {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  text-align: center;
+  background-color: var(--mat-sys-surface-container-highest);
+  color: var(--mat-sys-on-surface);
+  border-radius: $card-corner $card-corner 0 0;
+  padding: 8px;
+}
+
+.label-value-container {
+  display: flex;
+  flex-direction: column;
+
+  .label {
+    font: var(--mat-sys-title-medium);
+    font-weight: 500;
+  }
+
+  .value {
+    font: var(--mat-sys-title-medium);
+    font-weight: 400;
+  }
+}
+
+// Table styling
+.my-table {
+  table-layout: fixed;
+  width: 100%;
+  border-radius: 0 0 $card-corner $card-corner;
+  overflow: hidden;
+}
+
+table {
+  background-color: var(--mat-sys-surface-container);
+  color: var(--mat-sys-on-surface);
+}
+
+.mat-mdc-header-cell {
+  max-width: 20px;
+}
+
+th, td {
+  padding: 8px;
+  text-align: center;
+}
+
+td.mat-column-initials {
+  border-right: 1px solid black;
+  font-weight: 500;
+}
+
+// Player cell grid
+.player-cell {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  justify-items: center;
+  align-items: center;
+
+  .initials-cell {
+    grid-column: 1;
+  }
+
+  .starter-icon {
+    grid-column: 2;
+  }
+
+  .leg-winner-icon {
+    grid-column: 3;
+  }
+
+  mat-icon {
+    font-size: inherit;
+    width: 1em;
+    height: 1em;
+  }
+
+  .starter-icon {
+    scale: 1.30;
+  }
+
+  .leg-winner-icon {
+    scale: 1.5;
+  }
+}
+

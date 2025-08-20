@@ -9,7 +9,6 @@ import {BaseComponent} from '../../../../shared/components/base/base.component';
 import {DatePipe} from '@angular/common';
 import {MatExpansionModule,} from '@angular/material/expansion';
 import {X01BestOfType} from '../../../../models/x01-match/x01-best-of-type';
-import {X01PlayerStanding} from '../../../../models/common/x01-player-standing';
 import {RecentMatchViewData} from './recent-match-view-data';
 import {epochSecondsToDate} from '../../../../shared/utils/number.utils';
 import {MatList, MatListItem} from '@angular/material/list';
@@ -17,6 +16,9 @@ import {MatTooltip} from '@angular/material/tooltip';
 import {DialogService} from '../../../../shared/services/dialog-service/dialog.service';
 import {ConfirmDialogData} from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import {X01MatchService} from '../../../../shared/services/x01-match-service/x01-match.service';
+import {PlayerMap} from '../../../../types/player-map';
+import {X01StandingsEntry} from '../../../../models/x01-match/x01-standings-entry';
+import {X01MatchPlayer} from '../../../../models/x01-match/x01-match-player';
 
 @Component({
   selector: 'app-recent-matches',
@@ -100,7 +102,7 @@ export class RecentMatchesComponent extends BaseComponent implements OnInit {
         return {
           matchId: match.id,
           startDate: epochSecondsToDate(match.startDate),
-          formattedScoreline: this.formatScoreline(this.matchService.createStandings(match), match.matchSettings.bestOf.bestOfType),
+          formattedScoreline: this.formatScoreline(match.players, match.standings, match.matchSettings.bestOf.bestOfType),
           formattedBestOfSets: this.formatBestOfSets(match),
           formattedBestOfLegs: this.formatBestOfLegs(match),
           formattedClearByTwoInFinalSet: this.formattedClearByTwoInFinalSet(match)
@@ -115,14 +117,16 @@ export class RecentMatchesComponent extends BaseComponent implements OnInit {
    * The scoreline is based on either sets or legs won, depending on `bestOfType`.
    * Example output: `"John [2] vs Jane [1]"`.
    *
-   * @param playerStandings - A map of player ID to their current match standing.
+   * @param players - The match players
+   * @param standings - The match standings
    * @param bestOfType - Determines whether to show set or leg wins.
    * @returns A formatted scoreline string.
    */
-  private formatScoreline(playerStandings: Map<string, X01PlayerStanding>, bestOfType: X01BestOfType) {
-    return Array.from(playerStandings.values()).map(playerStanding => {
-      const score = bestOfType === X01BestOfType.SETS ? playerStanding.setsWon : playerStanding.legsWon;
-      return `${playerStanding.playerName} [${score}]`;
+  private formatScoreline(players: X01MatchPlayer[], standings: PlayerMap<X01StandingsEntry>, bestOfType: X01BestOfType) {
+    return players.map(player => {
+      const playerStanding = standings[player.playerId];
+      const score = bestOfType === X01BestOfType.SETS ? playerStanding?.setsWon ?? 0 : playerStanding?.legsWonInCurrentSet ?? 0;
+      return `${player.playerName} [${score}]`;
     }).join(' vs ');
   }
 

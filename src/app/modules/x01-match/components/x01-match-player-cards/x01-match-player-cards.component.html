@@ -17,9 +17,9 @@
             <span class="player-name">{{ playerInfo?.name }}</span>
             <span class="player-score">
             @if (match?.matchSettings?.bestOf?.bestOfType === X01BestOfType.SETS) {
-              Score: {{ playerLegStats.setsWon }} ({{ playerLegStats.legsWonInSet }})
+              Score: {{ playerInfo.setsWon }} ({{ playerInfo.legsWonInCurrentSet }})
             } @else {
-              Score: {{ playerLegStats.legsWonInSet }}
+              Score: {{ playerInfo.legsWonInCurrentSet }}
             }
             </span>
           </mat-card>

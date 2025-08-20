@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {X01MatchLegTableDataSource, X01LegTableRow, X01LegTableRowPlayerData} from '../x01-match-leg-table-data-source';
+import {X01LegTableRow, X01LegTableRowPlayerData, X01MatchLegTableDataSource} from '../x01-match-leg-table-data-source';
 import {X01Match} from '../../../../../models/x01-match/x01-match';
 import {X01MatchPlayer} from '../../../../../models/x01-match/x01-match-player';
 import {PlayerMap} from '../../../../../types/player-map';
