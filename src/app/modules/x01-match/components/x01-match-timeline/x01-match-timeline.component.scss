@@ -1,4 +1,6 @@
 @use "@angular/material" as mat;
+@use "helpers";
+@use "devices";
 
 $card-corner: var(--mat-sys-corner-medium);
 
@@ -18,7 +20,6 @@ $card-corner: var(--mat-sys-corner-medium);
 .timeline-component-container {
   display: flex;
   flex-direction: column;
-  gap: 12px;
   align-items: center;
 }
 
@@ -28,8 +29,9 @@ $card-corner: var(--mat-sys-corner-medium);
   flex-direction: row;
   flex-wrap: wrap;
   gap: 1ch;
-  background-color: var(--mat-sys-primary-container);
-  color: var(--mat-sys-on-primary-container);
+  margin-bottom: 16px;
+  background-color: var(--mat-sys-tertiary-container);
+  color: var(--mat-sys-on-tertiary-container);
   font: var(--mat-sys-title-medium);
   border-radius: $card-corner;
   padding: 8px 16px;
@@ -40,11 +42,19 @@ $card-corner: var(--mat-sys-corner-medium);
     display: flex;
     gap: 0.5ch;
   }
+
+  @include devices.device(phone, phablet) {
+    font: var(--mat-sys-title-small);
+  }
 }
 
 // Card container
 .card {
   max-width: 650px;
+
+  @include devices.device(tablet) {
+    max-width: 550px;
+  }
 }
 
 .card-content-container {
@@ -59,23 +69,34 @@ $card-corner: var(--mat-sys-corner-medium);
   grid-auto-flow: column;
   grid-auto-columns: 1fr;
   text-align: center;
-  background-color: var(--mat-sys-surface-container-highest);
-  color: var(--mat-sys-on-surface);
+  background-color: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
   border-radius: $card-corner $card-corner 0 0;
   padding: 8px;
+
+  @include helpers.dark-mode {
+    background-color: var(--mat-sys-surface-container-highest);
+    color: var(--mat-sys-on-surface);
+  }
 }
 
 .label-value-container {
   display: flex;
   flex-direction: column;
 
-  .label {
+  .label, .value {
     font: var(--mat-sys-title-medium);
+
+    @include devices.device(phone, phablet) {
+      font: var(--mat-sys-title-small);
+    }
+  }
+
+  .label {
     font-weight: 500;
   }
 
   .value {
-    font: var(--mat-sys-title-medium);
     font-weight: 400;
   }
 }
@@ -103,7 +124,7 @@ th, td {
 }
 
 td.mat-column-initials {
-  border-right: 1px solid black;
+  border-right: 1px solid var(--mat-sys-outline);
   font-weight: 500;
 }
 
@@ -113,6 +134,7 @@ td.mat-column-initials {
   grid-template-columns: 1fr 1fr 1fr;
   justify-items: center;
   align-items: center;
+  justify-content: center;
 
   .initials-cell {
     grid-column: 1;
@@ -138,6 +160,70 @@ td.mat-column-initials {
 
   .leg-winner-icon {
     scale: 1.5;
+  }
+}
+
+@include devices.device(phone, phablet) {
+  .player-cell {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+
+    .initials-cell {
+      grid-column: 1 / span 2;
+      grid-row: 1;
+    }
+
+    .starter-icon {
+      grid-column: 1;
+      grid-row: 2;
+      scale: 1.0;
+    }
+
+    .leg-winner-icon {
+      grid-column: 2;
+      grid-row: 2;
+      scale: 1.2;
+    }
+  }
+}
+
+// Divider between cards
+.divider {
+  width: 4px;
+  height: 40px;
+  background-color: var(--mat-sys-primary);
+  position: relative;
+  
+  &::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 12px;
+    height: 12px;
+    background-color: var(--mat-sys-primary);
+    border-radius: 50%;
+  }
+
+  &.set-divider {
+    background-color: var(--mat-sys-secondary);
+
+    &::after {
+      border-radius: 0;
+      transform: translate(-50%, -50%) rotate(45deg);
+      background-color: var(--mat-sys-secondary);
+    }
+  }
+
+  @include devices.device(phone, phablet) {
+    width: 2px;
+    height: 30px;
+
+    &::after {
+      width: 8px;
+      height: 8px;
+    }
   }
 }
 

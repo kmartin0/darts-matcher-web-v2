@@ -22,3 +22,15 @@
     @content;
   }
 }
+
+@mixin light-mode-top-level {
+  :host-context(.theme-mode-light) {
+    @content;
+  }
+}
+
+@mixin dark-mode-top-level {
+  :host-context(.theme-mode-dark) {
+    @content;
+  }
+}

@@ -19,6 +19,7 @@ import {X01MatchTimelineViewmodel} from './x01-match-timeline-viewmodel';
 import {X01MatchTimelineViewmodelMapper} from './x01-match-timeline-viewmodel-mapper';
 import {X01BestOfType} from '../../../../models/x01-match/x01-best-of-type';
 import {MatIcon} from '@angular/material/icon';
+import {MatDivider} from '@angular/material/divider';
 
 @Component({
   selector: 'app-x01-match-timeline',

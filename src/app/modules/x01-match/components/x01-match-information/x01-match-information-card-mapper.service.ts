@@ -93,6 +93,7 @@ export class X01MatchInformationCardMapperService {
           label: 'Clear by two legs final set',
           value: this.formatClearByTwoRule(bestOfSettings.clearByTwoLegsInFinalSetRule)
         }] : [],
+        {label: 'Track Doubles', value: matchSettings.trackDoubles ? 'Yes' : 'No'}
       ]
     };
   }

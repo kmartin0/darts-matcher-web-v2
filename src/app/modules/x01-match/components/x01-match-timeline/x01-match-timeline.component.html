@@ -17,8 +17,8 @@
     </div>
 
     <!-- Match timeline, 1 card per leg -->
-    @for (setInfo of viewModel.sets; track setInfo.setNumber) {
-      @for (legInfo of setInfo.legs; track legInfo.legNumber) {
+    @for (setInfo of viewModel.sets; track setInfo.setNumber; let isLastSet = $last) {
+      @for (legInfo of setInfo.legs; track legInfo.legNumber; let isLastLeg = $last) {
         <mat-card class="card">
           <mat-card-content class="card-content-container">
             <!-- Leg header (Set number, Leg number, Leg starter and Leg Winner) -->
@@ -105,6 +105,9 @@
 
           </mat-card-content>
         </mat-card>
+        @if(!isLastLeg || !isLastSet) {
+          <div class="divider" [class.set-divider]="isLastLeg"></div>
+        }
       }
     }
   }
