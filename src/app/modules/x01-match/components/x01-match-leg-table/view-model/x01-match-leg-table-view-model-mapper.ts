@@ -3,7 +3,7 @@ import {X01LegTableRow, X01LegTableRowPlayerData, X01MatchLegTableDataSource} fr
 import {X01Match} from '../../../../../models/x01-match/x01-match';
 import {X01MatchPlayer} from '../../../../../models/x01-match/x01-match-player';
 import {PlayerMap} from '../../../../../types/player-map';
-import {X01MatchLegTableViewData} from './x01-match-leg-table-view-data';
+import {X01MatchLegTableViewModel} from './x01-match-leg-table-view-model';
 import {X01LegTableSetsMap} from './x01-match-leg-table-sets-map';
 import {X01LegTableLegsMap} from './x01-leg-table-legs-map';
 import {LegSelection} from '../../../../../models/common/leg-selection';
@@ -14,7 +14,7 @@ import {X01LegRoundEntry} from '../../../../../models/x01-match/x01-leg-round-en
 import {X01SetEntry} from '../../../../../models/x01-match/x01-set-entry';
 
 @Injectable({providedIn: 'root'})
-export class X01MatchLegTableViewDataTransformer {
+export class X01MatchLegTableViewModelMapper {
 
   /**
    * Transforms a match and leg selection into table view data used for rendering.
@@ -23,7 +23,7 @@ export class X01MatchLegTableViewDataTransformer {
    * @param legSelection The currently selected set/leg combination.
    * @returns The view data structure or null if no match is provided.
    */
-  transform(match: X01Match | null, legSelection: LegSelection | null): X01MatchLegTableViewData | null {
+  mapToViewModel(match: X01Match | null, legSelection: LegSelection | null): X01MatchLegTableViewModel | null {
     if (!match) return null;
 
     const columnDefinitions = this.createColumnDefinitions(match.players);

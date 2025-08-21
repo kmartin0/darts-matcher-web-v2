@@ -7,7 +7,7 @@ import {X01Set} from '../../../../../models/x01-match/x01-set';
 import {X01Leg} from '../../../../../models/x01-match/x01-leg';
 import {getAreaPrefix} from '../../../../../models/dartboard/dartboard-section-area';
 import {DartboardSectionToNumber} from '../../../../../models/dartboard/dartboard-section';
-import {X01PlayerCardsViewData} from './x01-player-cards-view-data';
+import {X01PlayerCardsViewModel} from './x01-player-cards-view-model';
 import {X01PlayerCardData} from './x01-player-card-data';
 import {X01PlayerCardSet} from './x01-player-card-set';
 import {X01PlayerCardLegStats} from './x01-player-card-leg-stats';
@@ -26,7 +26,7 @@ export class X01MatchPlayerCardsViewDataTransformer {
    * @param match The X01 match data.
    * @returns A promise resolving to the view data or null if no match.
    */
-  async transform(match: X01Match | null): Promise<X01PlayerCardsViewData | null> {
+  async transform(match: X01Match | null): Promise<X01PlayerCardsViewModel | null> {
     if (!match) return null;
 
     return {

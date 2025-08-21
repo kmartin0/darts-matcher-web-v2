@@ -26,9 +26,10 @@ import {X01EditTurn} from '../../../../models/x01-match/x01-edit-turn';
 import {X01Turn} from '../../../../models/x01-match/x01-turn';
 import {BaseComponent} from '../../../../shared/components/base/base.component';
 import {X01Leg} from '../../../../models/x01-match/x01-leg';
-import {X01MatchViewData, X01MatchViewDataTransformer} from './x01-match-view-data-transformer';
+import {X01MatchViewModelMapper} from './x01-match-view-model-mapper';
 import {X01MatchService} from '../../../../shared/services/x01-match-service/x01-match.service';
 import {NgClass} from '@angular/common';
+import {X01MatchViewModel} from './x01-match-view-model';
 
 @Component({
   selector: 'app-x01-match',
@@ -51,19 +52,19 @@ import {NgClass} from '@angular/common';
 export class X01MatchComponent extends BaseComponent implements OnInit, OnChanges {
   @Input() match: X01Match | null = null;
   @ViewChild('scoreInputComponent') scoreInputComponent!: X01ScoreInputComponent;
-  viewData: X01MatchViewData;
+  viewModel: X01MatchViewModel;
 
   private webSocketService = inject(DartsMatcherWebSocketService);
   private checkoutService = inject(X01CheckoutService);
   private dialogService = inject(DialogService);
   private apiErrorBodyHandler = inject(ApiErrorBodyHandler);
   private destroyRef = inject(DestroyRef);
-  private viewDataTransformer = inject(X01MatchViewDataTransformer);
+  private viewModelMapper = inject(X01MatchViewModelMapper);
   private matchService = inject(X01MatchService);
 
   constructor() {
     super();
-    this.viewData = this.viewDataTransformer.transform(null);
+    this.viewModel = this.viewModelMapper.mapToViewModel(null);
   }
 
   /**
@@ -80,7 +81,7 @@ export class X01MatchComponent extends BaseComponent implements OnInit, OnChange
    */
   ngOnChanges(changes: SimpleChanges) {
     if (changes['match']) {
-      this.viewData = this.viewDataTransformer.transform(this.match);
+      this.viewModel = this.viewModelMapper.mapToViewModel(this.match);
     }
   }
 
@@ -88,7 +89,7 @@ export class X01MatchComponent extends BaseComponent implements OnInit, OnChange
    * Updates the view data for a new leg selection using the transformer.
    */
   onLegSelectionChange() {
-    this.viewData = this.viewDataTransformer.updateForNewLegSelection(this.viewData, this.match);
+    this.viewModel = this.viewModelMapper.updateForNewLegSelection(this.viewModel, this.match);
   }
 
   /**
@@ -101,7 +102,7 @@ export class X01MatchComponent extends BaseComponent implements OnInit, OnChange
   async onSubmitScore(score: number): Promise<void> {
     if (!this.match) return;
     if (this.match.matchStatus === MatchStatus.CONCLUDED) {
-      this.viewData.errorMsg = 'Match is concluded';
+      this.viewModel.errorMsg = 'Match is concluded';
       return;
     }
 
@@ -317,23 +318,23 @@ export class X01MatchComponent extends BaseComponent implements OnInit, OnChange
     if (errorDestinations.includes(apiWsErrorBody.destination)) {
       switch (apiWsErrorBody.error) {
         case ApiErrorEnum.RESOURCE_NOT_FOUND: {
-          this.viewData.errorMsg = Object.values(apiWsErrorBody.details ?? {})[0] ?? 'Error: Not found.';
+          this.viewModel.errorMsg = Object.values(apiWsErrorBody.details ?? {})[0] ?? 'Error: Not found.';
           break;
         }
 
         case ApiErrorEnum.INVALID_ARGUMENTS: {
           const errorKey = Object.keys(apiWsErrorBody.details ?? {})[0];
-          this.viewData.errorMsg = apiWsErrorBody.details?.[errorKey];
+          this.viewModel.errorMsg = apiWsErrorBody.details?.[errorKey];
           break;
         }
 
         case ApiErrorEnum.PROCESSING_LIMIT_REACHED: {
-          this.viewData.errorMsg = 'Bot turn limit reached, press sync match to try again.';
+          this.viewModel.errorMsg = 'Bot turn limit reached, press sync match to try again.';
           break;
         }
 
         case ApiErrorEnum.CONFLICT: {
-          this.viewData.errorMsg = 'Please try again.';
+          this.viewModel.errorMsg = 'Please try again.';
           break;
         }
 

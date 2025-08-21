@@ -1,6 +1,6 @@
 import {inject, Injectable} from '@angular/core';
 import {X01Match} from '../../../../models/x01-match/x01-match';
-import {X01MatchTimelineViewmodel} from './x01-match-timeline-viewmodel';
+import {X01MatchTimelineViewModel} from './x01-match-timeline-view-model';
 import {X01MatchPlayer} from '../../../../models/x01-match/x01-match-player';
 import {X01SetEntry} from '../../../../models/x01-match/x01-set-entry';
 import {X01LegEntry} from '../../../../models/x01-match/x01-leg-entry';
@@ -21,7 +21,7 @@ import {X01MatchService} from '../../../../shared/services/x01-match-service/x01
 import {X01LegRoundScore} from '../../../../models/x01-match/x01-leg-round-score';
 
 @Injectable({providedIn: 'root'})
-export class X01MatchTimelineViewmodelMapper {
+export class X01MatchTimelineViewModelMapper {
   matchService: X01MatchService = inject(X01MatchService);
   matchTimelineService: X01MatchTimelineService = inject(X01MatchTimelineService);
 
@@ -29,9 +29,9 @@ export class X01MatchTimelineViewmodelMapper {
    * Maps an `X01Match` object to a timeline view model.
    *
    * @param match The match to map, or `null` if no match exists.
-   * @returns A {@link X01MatchTimelineViewmodel} or `null`.
+   * @returns A {@link X01MatchTimelineViewModel} or `null`.
    */
-  mapToViewModel(match: X01Match | null): X01MatchTimelineViewmodel | null {
+  mapToViewModel(match: X01Match | null): X01MatchTimelineViewModel | null {
     if (!match) return null;
 
     const playersDetails = this.mapPlayers(match.players);
@@ -50,8 +50,8 @@ export class X01MatchTimelineViewmodelMapper {
    * @param players The list of match players.
    * @returns A Map with key player ID and value player details object.
    */
-  private mapPlayers(players: X01MatchPlayer[]): X01MatchTimelineViewmodel['players'] {
-    const playersDetails: X01MatchTimelineViewmodel['players'] = new Map();
+  private mapPlayers(players: X01MatchPlayer[]): X01MatchTimelineViewModel['players'] {
+    const playersDetails: X01MatchTimelineViewModel['players'] = new Map();
 
     // Fill player map with id, name, and generated initials
     players.forEach(player => {
@@ -73,7 +73,7 @@ export class X01MatchTimelineViewmodelMapper {
    *
    * @param playersDetails Map of players keyed by ID.
    */
-  private resolveDuplicateInitials(playersDetails: X01MatchTimelineViewmodel['players']) {
+  private resolveDuplicateInitials(playersDetails: X01MatchTimelineViewModel['players']) {
     // Count how many times each set of initials occurs
     const initialsCount: Record<string, number> = {};
     playersDetails.forEach((playerDetails => {
@@ -116,9 +116,9 @@ export class X01MatchTimelineViewmodelMapper {
   private mapSets(
     sets: X01SetEntry[],
     x01: number,
-    playersDetails: X01MatchTimelineViewmodel['players'],
+    playersDetails: X01MatchTimelineViewModel['players'],
     standingsTimeline: X01StandingsTimeline
-  ): X01MatchTimelineViewmodel['sets'] {
+  ): X01MatchTimelineViewModel['sets'] {
     return sets.map(setEntry => {
       return {
         setNumber: setEntry.setNumber,
@@ -139,9 +139,9 @@ export class X01MatchTimelineViewmodelMapper {
   private mapLegs(
     legs: X01LegEntry[],
     x01: number,
-    playersDetails: X01MatchTimelineViewmodel['players'],
+    playersDetails: X01MatchTimelineViewModel['players'],
     setStandings: X01SetStandingsTimeline | undefined
-  ): X01MatchTimelineViewmodel['sets'][number]['legs'] {
+  ): X01MatchTimelineViewModel['sets'][number]['legs'] {
     return legs.map(legEntry => {
       return {
         legNumber: legEntry.legNumber,
@@ -165,7 +165,7 @@ export class X01MatchTimelineViewmodelMapper {
   private MapLegTableDataSource(
     leg: X01Leg,
     x01: number,
-    playersDetails: X01MatchTimelineViewmodel['players'],
+    playersDetails: X01MatchTimelineViewModel['players'],
     legStandings: X01LegStandings | undefined
   ): X01MatchTimelineLegTableDataSource {
     const lastRoundNumber = leg.rounds.at(-1)?.roundNumber ?? 0;
@@ -194,7 +194,7 @@ export class X01MatchTimelineViewmodelMapper {
    * @returns A Map of player ID to {@link X01MatchTimelineLegTableRow} with initial values.
    */
   private initializeTableRows(
-    playersDetails: X01MatchTimelineViewmodel['players'],
+    playersDetails: X01MatchTimelineViewModel['players'],
     legStandings: X01LegStandings | undefined,
     x01: number
   ): Map<string, X01MatchTimelineLegTableRow> {

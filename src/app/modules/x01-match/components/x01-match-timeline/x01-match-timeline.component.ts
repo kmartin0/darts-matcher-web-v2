@@ -15,8 +15,8 @@ import {
 import {MatCard, MatCardContent} from '@angular/material/card';
 import {X01Match} from '../../../../models/x01-match/x01-match';
 import {DecimalPipe} from '@angular/common';
-import {X01MatchTimelineViewmodel} from './x01-match-timeline-viewmodel';
-import {X01MatchTimelineViewmodelMapper} from './x01-match-timeline-viewmodel-mapper';
+import {X01MatchTimelineViewModel} from './x01-match-timeline-view-model';
+import {X01MatchTimelineViewModelMapper} from './x01-match-timeline-view-model-mapper';
 import {X01BestOfType} from '../../../../models/x01-match/x01-best-of-type';
 import {MatIcon} from '@angular/material/icon';
 import {MatDivider} from '@angular/material/divider';
@@ -46,8 +46,8 @@ import {MatDivider} from '@angular/material/divider';
 export class X01MatchTimelineComponent extends BaseComponent implements OnChanges {
   @Input() match: X01Match | null = null;
 
-  viewModelMapper: X01MatchTimelineViewmodelMapper = inject(X01MatchTimelineViewmodelMapper);
-  viewModel: X01MatchTimelineViewmodel | null = null;
+  viewModelMapper: X01MatchTimelineViewModelMapper = inject(X01MatchTimelineViewModelMapper);
+  viewModel: X01MatchTimelineViewModel | null = null;
   displayedColumns: string[] = [];
 
   protected readonly X01BestOfType = X01BestOfType;

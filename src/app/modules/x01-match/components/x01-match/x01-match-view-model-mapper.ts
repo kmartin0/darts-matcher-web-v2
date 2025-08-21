@@ -3,17 +3,11 @@ import {LegSelection} from '../../../../models/common/leg-selection';
 import {X01Match} from '../../../../models/x01-match/x01-match';
 import {MatchStatus} from '../../../../models/basematch/match-status';
 import {X01MatchService} from '../../../../shared/services/x01-match-service/x01-match.service';
+import {X01MatchViewModel} from './x01-match-view-model';
 
-export interface X01MatchViewData {
-  legSelection: LegSelection | null;
-  errorMsg: string | undefined;
-  editScoreMode: boolean;
-  displayScoreInput: boolean;
-  displayUndoScore: boolean;
-}
 
 @Injectable({providedIn: 'root'})
-export class X01MatchViewDataTransformer {
+export class X01MatchViewModelMapper {
 
   private matchService = inject(X01MatchService);
 
@@ -22,9 +16,9 @@ export class X01MatchViewDataTransformer {
    * Initializes the leg selection based on the current or last leg in the match and sets default UI flags.
    *
    * @param match - The match object to transform, or null if unavailable.
-   * @returns A X01MatchViewData object with leg selection and display flags.
+   * @returns A X01MatchViewModel object with leg selection and display flags.
    */
-  transform(match: X01Match | null): X01MatchViewData {
+  mapToViewModel(match: X01Match | null): X01MatchViewModel {
     const legSelection: LegSelection | null = this.selectCurrentOrLastLeg(match);
 
     return {
@@ -41,9 +35,9 @@ export class X01MatchViewDataTransformer {
    *
    * @param currentViewData - The current view data to update.
    * @param match - The match object.
-   * @returns An X01MatchViewData with updated flags.
+   * @returns An X01MatchViewModel with updated flags.
    */
-  updateForNewLegSelection(currentViewData: X01MatchViewData, match: X01Match | null): X01MatchViewData {
+  updateForNewLegSelection(currentViewData: X01MatchViewModel, match: X01Match | null): X01MatchViewModel {
     return {
       ...currentViewData,
       displayScoreInput: this.shouldDisplayScoreInput(match, currentViewData.legSelection),

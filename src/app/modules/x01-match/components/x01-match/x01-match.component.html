@@ -1,27 +1,27 @@
-@if (match && viewData.legSelection) {
-  <div class="x01-match-component-container" [class.keyboard-visible]="viewData.displayScoreInput">
+@if (match && viewModel.legSelection) {
+  <div class="x01-match-component-container" [class.keyboard-visible]="viewModel.displayScoreInput">
     <div class="scrollable-content">
       <app-x01-match-info-header [match]="match"/>
-      <app-x01-match-player-cards [match]="match" [legSelection]="viewData.legSelection"/>
+      <app-x01-match-player-cards [match]="match" [legSelection]="viewModel.legSelection"/>
       <div class="app-edit-options">
         <div>
-          @if (viewData.displayUndoScore) {
+          @if (viewModel.displayUndoScore) {
             <button class="open-edit-dialog-btn" mat-icon-button (click)="deleteLastTurn()" matTooltip="Undo last score">
               <mat-icon>undo</mat-icon>
             </button>
           }
         </div>
-        <app-select-leg-form [match]="match" [(legSelection)]="viewData.legSelection" (legSelectionChange)="onLegSelectionChange()"/>
-        <button class="toggle-edit-mode-btn" mat-icon-button matTooltip="Edit score" (click)="viewData.editScoreMode = !viewData.editScoreMode">
+        <app-select-leg-form [match]="match" [(legSelection)]="viewModel.legSelection" (legSelectionChange)="onLegSelectionChange()"/>
+        <button class="toggle-edit-mode-btn" mat-icon-button matTooltip="Edit score" (click)="viewModel.editScoreMode = !viewModel.editScoreMode">
           <mat-icon>content_cut</mat-icon>
         </button>
       </div>
       <div class="app-leg-table">
-        <app-x01-match-leg-table [match]="match" [legSelection]="viewData.legSelection" [(editMode)]="viewData.editScoreMode" (submitScoreEdit)="onEditScoreResult($event)"/>
+        <app-x01-match-leg-table [match]="match" [legSelection]="viewModel.legSelection" [(editMode)]="viewModel.editScoreMode" (submitScoreEdit)="onEditScoreResult($event)"/>
       </div>
     </div>
-    <div class="error-label" [ngClass]="{'no-error': !viewData.errorMsg}">{{ viewData.errorMsg }}</div>
-    @if (viewData.displayScoreInput) {
+    <div class="error-label" [ngClass]="{'no-error': !viewModel.errorMsg}">{{ viewModel.errorMsg }}</div>
+    @if (viewModel.displayScoreInput) {
       <app-x01-score-input (submitScoreEvent)="onSubmitScore($event)" #scoreInputComponent/>
     }
   </div>

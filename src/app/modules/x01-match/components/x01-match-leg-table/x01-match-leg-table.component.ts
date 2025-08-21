@@ -25,8 +25,8 @@ import {
   MatRowDef,
   MatTable
 } from '@angular/material/table';
-import {X01MatchLegTableViewDataTransformer} from './view-data-transformer/x01-match-leg-table-view-data-transformer';
-import {X01MatchLegTableViewData} from './view-data-transformer/x01-match-leg-table-view-data';
+import {X01MatchLegTableViewModelMapper} from './view-model/x01-match-leg-table-view-model-mapper';
+import {X01MatchLegTableViewModel} from './view-model/x01-match-leg-table-view-model';
 import {LegSelection} from '../../../../models/common/leg-selection';
 import {MatIconButton} from '@angular/material/button';
 import {MatIcon} from '@angular/material/icon';
@@ -68,9 +68,9 @@ export class X01MatchLegTableComponent extends BaseComponent implements OnChange
   @Input() editMode: boolean = false;
   @Output() editModeChange: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Output() submitScoreEdit: EventEmitter<X01EditScoreDialogResult> = new EventEmitter<X01EditScoreDialogResult>();
-  viewData: X01MatchLegTableViewData | null = null;
+  viewData: X01MatchLegTableViewModel | null = null;
 
-  private viewDataTransformer = inject(X01MatchLegTableViewDataTransformer);
+  private viewDataTransformer = inject(X01MatchLegTableViewModelMapper);
   private dialogService = inject(DialogService);
 
   /**
@@ -221,6 +221,6 @@ export class X01MatchLegTableComponent extends BaseComponent implements OnChange
    * Updates the full view data (columns, tables, and initial leg data).
    */
   private updateViewData() {
-    this.viewData = this.viewDataTransformer.transform(this.match, this.legSelection);
+    this.viewData = this.viewDataTransformer.mapToViewModel(this.match, this.legSelection);
   }
 }

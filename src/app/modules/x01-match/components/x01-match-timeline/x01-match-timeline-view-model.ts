@@ -1,7 +1,7 @@
 import {X01MatchTimelineLegTableDataSource} from './x01-match-timeline-leg-table-data-source';
 import {X01BestOfType} from '../../../../models/x01-match/x01-best-of-type';
 
-export interface X01MatchTimelineViewmodel {
+export interface X01MatchTimelineViewModel {
   trackDoubles: boolean;
   bestOfType: X01BestOfType;
   players: Map<string, {

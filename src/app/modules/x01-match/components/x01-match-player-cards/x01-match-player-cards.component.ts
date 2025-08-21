@@ -2,11 +2,11 @@ import {Component, inject, Input, OnChanges, SimpleChanges} from '@angular/core'
 import {X01Match} from '../../../../models/x01-match/x01-match';
 import {
   X01MatchPlayerCardsViewDataTransformer
-} from './view-data-transformer/x01-match-player-cards-view-data-transformer.service';
+} from './view-model/x01-match-player-cards-view-model-mapper.service';
 import {KeyValuePipe, NgClass} from '@angular/common';
 import {MatCard} from '@angular/material/card';
 import {LegSelection} from '../../../../models/common/leg-selection';
-import {X01PlayerCardsViewData} from './view-data-transformer/x01-player-cards-view-data';
+import {X01PlayerCardsViewModel} from './view-model/x01-player-cards-view-model';
 import {ResultType} from '../../../../models/basematch/result-type';
 import {BaseComponent} from '../../../../shared/components/base/base.component';
 import {X01BestOfType} from '../../../../models/x01-match/x01-best-of-type';
@@ -27,7 +27,7 @@ export class X01MatchPlayerCardsComponent extends BaseComponent implements OnCha
   @Input() legSelection: LegSelection | null = null;
   protected readonly ResultType = ResultType;
   protected readonly X01BestOfType = X01BestOfType;
-  viewData: X01PlayerCardsViewData | null = null;
+  viewData: X01PlayerCardsViewModel | null = null;
 
   private viewDataTransformer = inject(X01MatchPlayerCardsViewDataTransformer);
 

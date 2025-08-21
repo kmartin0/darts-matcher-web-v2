@@ -58,7 +58,7 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
   matchDeleteEvent: boolean = false;
   webSocketClosed: boolean = false;
   errorMsg: string | null = null;
-  currentPageType: X01MatchPageType = X01MatchPageType.MATCH_SUMMARY;
+  currentPageType: X01MatchPageType = X01MatchPageType.MATCH;
 
   protected readonly X01MatchPageType = X01MatchPageType;
   protected readonly AppEndpoints = AppEndpoints;
