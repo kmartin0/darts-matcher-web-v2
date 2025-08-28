@@ -1,7 +1,6 @@
 import {Injectable} from '@angular/core';
 import {X01Match} from '../../../../models/x01-match/x01-match';
 import {X01BestOfType} from '../../../../models/x01-match/x01-best-of-type';
-import {ResultType} from '../../../../models/basematch/result-type';
 import {X01ClearByTwoRule} from '../../../../models/x01-match/x01-clear-by-two-rule';
 import {epochSecondsToDate} from '../../../../shared/utils/number.utils';
 import {
@@ -9,7 +8,8 @@ import {
   InformationCardRow,
   InformationCardSection
 } from '../../../../shared/components/information-card/information-card-data';
-import {PlayerMap} from '../../../../types/player-map';
+import {MatchStatus} from '../../../../models/basematch/match-status';
+import {X01StandingsEntry} from '../../../../models/x01-match/x01-standings-entry';
 
 @Injectable({providedIn: 'root'})
 export class X01MatchInformationCardMapperService {
@@ -42,28 +42,41 @@ export class X01MatchInformationCardMapperService {
    * @returns InformationCardSection containing player names, results (win/lose/draw), and sets/legs won.
    */
   private createResultsSection(match: X01Match): InformationCardSection {
-    let playerWinCount: PlayerMap<number>;
-    switch (match.matchSettings.bestOf.bestOfType) {
-      case X01BestOfType.SETS: {
-        playerWinCount = this.legWinnersCount(match);
-        break;
-      }
-      case X01BestOfType.LEGS: {
-        playerWinCount = this.setWinnersCount(match);
-        break;
-      }
-      default: {
-        playerWinCount = {};
-      }
-    }
+    const standingRows: InformationCardRow[] = match.players.flatMap(player => {
+      let formattedPlayerStanding = this.formatPlayerStanding(
+        match.standings[player.playerId],
+        match.matchStatus,
+        match.matchSettings.bestOf.bestOfType
+      )
+
+      return {
+        label: `${player.playerName}`,
+        value: (player.resultType ? `${player.resultType} - ` : '') + `${formattedPlayerStanding}`
+      };
+    });
 
     return {
       sectionHeader: 'Result',
-      rows: match.players.flatMap(player => {
-        return this.createPlayerResultRow(player.playerName, player.resultType, playerWinCount[player.playerId] ?? 0);
-      })
+      rows: standingRows
     };
   }
+
+  private formatPlayerStanding(playerStanding: X01StandingsEntry | undefined, matchStatus: MatchStatus, bestOfType: X01BestOfType) {
+    const isMatchInPlay = matchStatus === MatchStatus.IN_PLAY;
+
+    switch (bestOfType) {
+      case X01BestOfType.SETS: {
+        const setsWon = playerStanding?.setsWon ?? '';
+        const legsWonInCurrentSet = playerStanding?.legsWonInCurrentSet ?? '';
+        return isMatchInPlay ? `${setsWon} (${legsWonInCurrentSet})` : `${setsWon}`;
+      }
+      case X01BestOfType.LEGS:
+      default: {
+        return playerStanding?.legsWonInCurrentSet?.toString() ?? '';
+      }
+    }
+  }
+
 
   /**
    * Creates the rules section containing the rules of the match.
@@ -130,65 +143,6 @@ export class X01MatchInformationCardMapperService {
         {label: 'Match id', value: match.id}
       ]
     };
-  }
-
-  /**
-   * Creates the row for a player result where the label is player name and the
-   * value is the player's result type (won/draw/lose if present) and the number of won sets/legs.
-   *
-   * @param playerName The player name to display.
-   * @param resultType The player result type or null if no result yet.
-   * @param numWon The number of sets/legs won by the player.
-   */
-  private createPlayerResultRow(playerName: string, resultType: ResultType | null, numWon: number): InformationCardRow {
-    return {
-      label: `${playerName}`,
-      value: (resultType ? `${resultType} - ` : '') + `${numWon}`
-    };
-  }
-
-  /**
-   * Creates results for each player where the key is the player id and the value is the total number of legs won.
-   *
-   * @param match The X01Match object.
-   * @returns PlayerResults with number of legs won per player.
-   */
-  private legWinnersCount(match: X01Match): PlayerMap<number> {
-    const legResults: PlayerMap<number> = {};
-
-    const firstSetEntry = match.sets.at(0);
-    if (firstSetEntry) {
-      firstSetEntry.set.legs.forEach(legEntry => {
-        const legWinner = legEntry.leg.winner;
-        if (legWinner) {
-          legResults[legWinner] = (legResults[legWinner] ?? 0) + 1;
-        }
-      });
-    }
-
-    return legResults;
-  }
-
-  /**
-   * Creates results for each player where the key is the player id and the value is the total number of sets won.
-   *
-   * @param match The X01Match object.
-   * @returns PlayerResults with number of sets won per player.
-   */
-  private setWinnersCount(match: X01Match): PlayerMap<number> {
-    const setResults: PlayerMap<number> = {};
-
-    match.sets.forEach(setEntry => {
-      if (setEntry.set.result) {
-        Object.entries(setEntry.set.result).forEach(([playerId, setResult]) => {
-          if (setResult === ResultType.WIN || setResult === ResultType.DRAW) {
-            setResults[playerId] = (setResults[playerId] ?? 0) + 1;
-          }
-        });
-      }
-    });
-
-    return setResults;
   }
 
   /**
