@@ -1,8 +1,6 @@
 import {Component, inject, Input, OnChanges, SimpleChanges} from '@angular/core';
 import {X01Match} from '../../../../models/x01-match/x01-match';
-import {
-  X01MatchPlayerCardsViewDataTransformer
-} from './view-model/x01-match-player-cards-view-model-mapper.service';
+import {X01MatchPlayerCardsViewDataTransformer} from './view-model/x01-match-player-cards-view-model-mapper.service';
 import {KeyValuePipe, NgClass} from '@angular/common';
 import {MatCard} from '@angular/material/card';
 import {LegSelection} from '../../../../models/common/leg-selection';

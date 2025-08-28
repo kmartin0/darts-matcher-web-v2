@@ -1,0 +1,14 @@
+.subtitle {
+  font: var(--mat-sys-title-medium);
+  margin-bottom: 8px;
+}
+
+.scoring-for-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cb-score-for {
+  width: 100%;
+}

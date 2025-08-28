@@ -1,0 +1,15 @@
+<div class="header" mat-dialog-title>Settings</div>
+<mat-dialog-content>
+  <div class="subtitle">Who are you scoring for?</div>
+  <div class="scoring-for-container" [formGroup]="form.controls.scoreFor">
+    @for (player of dialogData.players; track player.playerId) {
+      <mat-checkbox class="cb-score-for" [formControlName]="player.playerId">
+        {{ player.playerName }}
+      </mat-checkbox>
+    }
+  </div>
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="cancelDialog()">Cancel</button>
+    <button mat-button (click)="submitDialog()">Ok</button>
+  </mat-dialog-actions>
+</mat-dialog-content>

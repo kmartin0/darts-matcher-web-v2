@@ -22,7 +22,7 @@
     </div>
     <div class="error-label" [ngClass]="{'no-error': !viewModel.errorMsg}">{{ viewModel.errorMsg }}</div>
     @if (viewModel.displayScoreInput) {
-      <app-x01-score-input (submitScoreEvent)="onSubmitScore($event)" #scoreInputComponent/>
+      <app-x01-score-input (submitScoreEvent)="onSubmitScore($event)" [match]="match" #scoreInputComponent/>
     }
   </div>
 }

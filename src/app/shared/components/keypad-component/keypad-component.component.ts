@@ -1,4 +1,4 @@
-import {Component, DestroyRef, EventEmitter, inject, Output} from '@angular/core';
+import {Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output} from '@angular/core';
 import {MatButton} from '@angular/material/button';
 import {
   KeydownEventDispatcherService
@@ -29,7 +29,9 @@ export enum KeypadButton {
   templateUrl: './keypad-component.component.html',
   styleUrl: './keypad-component.component.scss'
 })
-export class KeypadComponentComponent extends BaseComponent {
+export class KeypadComponentComponent extends BaseComponent implements OnInit {
+  protected readonly KeypadButton = KeypadButton;
+
   /**
    * The ordered list of keypad buttons to be displayed in the template.
    */
@@ -40,6 +42,7 @@ export class KeypadComponentComponent extends BaseComponent {
     KeypadButton.DELETE, KeypadButton.ZERO, KeypadButton.ENTER,
   ];
 
+  @Input() enableEnter: boolean = true;
   @Output() keyPress = new EventEmitter<KeypadButton>();
 
   private keydownEventDispatcher = inject(KeydownEventDispatcherService);
@@ -47,6 +50,9 @@ export class KeypadComponentComponent extends BaseComponent {
 
   constructor() {
     super();
+  }
+
+  ngOnInit() {
     this.initKeyDownListener();
   }
 
@@ -66,6 +72,7 @@ export class KeypadComponentComponent extends BaseComponent {
    * @param key - The keypad button clicked by the user
    */
   onKeyClick(key: KeypadButton): void {
+    if (key === KeypadButton.ENTER && !this.enableEnter) return;
     this.keyPress.emit(key);
   }
 
@@ -81,7 +88,7 @@ export class KeypadComponentComponent extends BaseComponent {
     const key = this.mapKey(event);
     if (key !== null) {
       event.preventDefault();
-      this.keyPress.emit(key);
+      this.onKeyClick(key);
     }
   }
 
@@ -123,5 +130,4 @@ export class KeypadComponentComponent extends BaseComponent {
         return null;
     }
   }
-
 }

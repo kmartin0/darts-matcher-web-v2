@@ -6,7 +6,7 @@ import {firstValueFrom} from 'rxjs';
 @Injectable({providedIn: 'root'})
 export class X01CheckoutService {
 
-  private readonly X01_CHECKOUTS_LOCAL_STORAGE_KEY = 'x01_checkouts';
+  private readonly X01_CHECKOUTS_LOCAL_STORAGE_KEY = 'x01-checkouts';
   private apiService = inject(DartsMatcherApiService);
 
   /**

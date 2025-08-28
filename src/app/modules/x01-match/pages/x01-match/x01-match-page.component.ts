@@ -1,6 +1,6 @@
 import {Component, DestroyRef, inject, OnInit} from '@angular/core';
 import {ActivatedRoute, RouterLink} from '@angular/router';
-import {concatMap, debounceTime, delay, EMPTY, Observable, of, switchMap} from 'rxjs';
+import {concatMap, debounceTime, delay, EMPTY, map, Observable, of, switchMap} from 'rxjs';
 import {X01Match} from '../../../../models/x01-match/x01-match';
 
 import {MatToolbar} from '@angular/material/toolbar';
@@ -29,6 +29,10 @@ import {ThemeToggleComponent} from '../../../../shared/components/theme-toggle/t
 import {Clipboard} from '@angular/cdk/clipboard';
 import {X01MatchPageType} from './x01-match-page-type';
 import {X01MatchSummaryComponent} from '../../components/x01-match-summary/x01-match-summary.component';
+import {
+  LocalX01SettingsDialogData
+} from '../../../../shared/components/local-x01-settings-dialog/local-x01-settings-dialog.types';
+import {LocalX01SettingsService} from '../../../../shared/services/local-x01-settings/local-x01-settings.service';
 
 
 @Component({
@@ -72,6 +76,7 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
   private snackBar = inject(MatSnackBar);
   private recentMatchesService = inject(RecentMatchesService);
   private clipboard = inject(Clipboard);
+  private localX01SettingsService = inject(LocalX01SettingsService);
 
   private persistedInRecentMatches = false;
 
@@ -84,6 +89,28 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
 
     this.subscribeErrorQueue();
     this.getMatch();
+  }
+
+  async openX01PlayerSettingsDialog() {
+    if (!this.match) return;
+
+    const localX01SettingsRecord = await this.localX01SettingsService.getX01Settings(this.match.id)
+      ?? this.localX01SettingsService.createDefaultX01Record(this.match.id);
+
+    const dialogData: LocalX01SettingsDialogData = {
+      players: this.match.players,
+      localX01SettingsRecord: localX01SettingsRecord
+    };
+
+    const dialogRef = this.dialogService.openLocalX01SettingsDialog(dialogData);
+    if (dialogRef) {
+      const sub = dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          this.localX01SettingsService.saveX01Settings(result);
+        }
+      });
+      this.subscription.add(sub);
+    }
   }
 
   /**
@@ -187,15 +214,22 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
    */
   private getAndValidateMatchIdFromRoute(): Observable<string> {
     return this.route.paramMap.pipe(
-      switchMap(params => {
-        const matchId = params.get(this.matchIdParamKey) ?? '';
+      map(() => this.getMatchIdFromRoute()),
+      switchMap(matchId => {
         if (!isValidObjectId(matchId)) {
-          this.handleInvalidMatchId();
+          this.handleInvalidMatchId(matchId);
           return EMPTY;
         }
         return of(matchId);
       })
     );
+  }
+
+  /**
+   * @returns string - the match ID from the current route
+   */
+  private getMatchIdFromRoute(): string {
+    return this.route.snapshot.paramMap.get(this.matchIdParamKey) ?? '';
   }
 
   /**
@@ -217,7 +251,7 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
         break;
       }
       case X01MatchEventType.DELETE_MATCH: {
-        this.handleDeleteMatchEvent();
+        this.handleDeleteMatchEvent(event.payload);
         break;
       }
     }
@@ -239,17 +273,19 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
     this.match = match;
   }
 
-  private handleDeleteMatchEvent() {
+  private handleDeleteMatchEvent(matchId: string) {
     this.match = null;
     this.matchDeleteEvent = true;
+    this.localX01SettingsService.deleteX01Settings(matchId);
   }
 
   /**
    * Sets the invalid match ID flag when the route contains an invalid ObjectId.
    */
-  private handleInvalidMatchId() {
+  private handleInvalidMatchId(matchId: string) {
     this.match = null;
     this.matchNotFound = true;
+    this.localX01SettingsService.deleteX01Settings(matchId);
   }
 
   /**
@@ -303,7 +339,7 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
     if (errorDestinations.includes(apiWsErrorBody.destination)) {
       switch (apiWsErrorBody.error) {
         case ApiErrorEnum.RESOURCE_NOT_FOUND: {
-          if (Object.hasOwn(apiWsErrorBody.details ?? {}, ERROR_DETAIL_KEYS.X01_MATCH)) this.handleInvalidMatchId();
+          if (Object.hasOwn(apiWsErrorBody.details ?? {}, ERROR_DETAIL_KEYS.X01_MATCH)) this.handleInvalidMatchId(this.getMatchIdFromRoute());
           else this.errorMsg = 'Error: not found.';
 
           break;

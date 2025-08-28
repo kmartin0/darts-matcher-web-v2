@@ -15,6 +15,13 @@ import {
 } from '../../components/x01-edit-score-dialog/x01-edit-score-dialog.types';
 import {ConfirmDialogComponent, ConfirmDialogData} from '../../components/confirm-dialog/confirm-dialog.component';
 import {ComponentType} from '@angular/cdk/portal';
+import {
+  LocalX01SettingsDialogComponent
+} from '../../components/local-x01-settings-dialog/local-x01-settings-dialog.component';
+import {
+  LocalX01SettingsDialogData,
+  LocalX01SettingsDialogResult
+} from '../../components/local-x01-settings-dialog/local-x01-settings-dialog.types';
 
 @Injectable({
   providedIn: 'root'
@@ -93,7 +100,7 @@ export class DialogService {
   public openX01EditScoreDialog(
     dialogData: X01EditScoreDialogData,
     stackable: boolean = false
-  ): MatDialogRef<X01EditScoreDialogComponent, (X01EditScoreDialogResult)> | null {
+  ): MatDialogRef<X01EditScoreDialogComponent, X01EditScoreDialogResult> | null {
     return this._open(X01EditScoreDialogComponent, {data: dialogData}, stackable);
   }
 
@@ -102,6 +109,13 @@ export class DialogService {
     stackable: boolean = false
   ): MatDialogRef<ConfirmDialogComponent, boolean> | null {
     return this._open(ConfirmDialogComponent, {data: dialogData}, stackable);
+  }
+
+  public openLocalX01SettingsDialog(
+    dialogData: LocalX01SettingsDialogData,
+    stackable: boolean = false
+  ): MatDialogRef<LocalX01SettingsDialogComponent, LocalX01SettingsDialogResult> | null {
+    return this._open(LocalX01SettingsDialogComponent, {data: dialogData}, stackable);
   }
 
   /**
@@ -120,7 +134,7 @@ export class DialogService {
     stackable: boolean = true
   ): MatDialogRef<T> | null {
     if (!stackable && this.isDialogOpen()) return null;
-    return this.matDialog.open(component, {...config, restoreFocus: false});
+    return this.matDialog.open(component, {...config, restoreFocus: false, autoFocus: false});
   }
 
   private isDialogOpen(): boolean {

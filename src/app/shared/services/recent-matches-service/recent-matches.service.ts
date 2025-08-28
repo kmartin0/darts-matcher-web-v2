@@ -8,7 +8,7 @@ import {isValidObjectId} from '../../utils/object-id.utils';
 export class RecentMatchesService {
 
   private apiService: DartsMatcherApiService = inject(DartsMatcherApiService);
-  private static readonly STORAGE_KEY = 'recentMatches';
+  private static readonly STORAGE_KEY = 'recent-matches';
 
   /**
    * Persists a match ID to local storage as a recently visited match.

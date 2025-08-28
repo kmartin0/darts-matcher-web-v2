@@ -20,13 +20,17 @@
       <span>
           @switch (currentPageType) {
             @case (X01MatchPageType.MATCH) {
-              Open match summary
+              Match summary
             }
             @case (X01MatchPageType.MATCH_SUMMARY) {
-              Open match summary
+              Match summary
             }
           }
       </span>
+    </button>
+    <button mat-menu-item (click)="openX01PlayerSettingsDialog()">
+      <mat-icon>account_circle</mat-icon>
+      <span>Player Settings</span>
     </button>
     <button mat-menu-item (click)="copyUrlToClipboard()">
       <mat-icon>content_copy</mat-icon>
