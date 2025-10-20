@@ -91,9 +91,13 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
     this.getMatch();
   }
 
+  /**
+   * Opens the X01 Player Settings dialog for the current match. And save changes, if they are made.
+   */
   async openX01PlayerSettingsDialog() {
     if (!this.match) return;
 
+    // Retrieves the local match settings. If no settings present, create default settings.
     const localX01SettingsRecord = await this.localX01SettingsService.getX01Settings(this.match.id)
       ?? this.localX01SettingsService.createDefaultX01Record(this.match.id);
 
@@ -102,6 +106,7 @@ export class X01MatchPageComponent extends BaseComponent implements OnInit {
       localX01SettingsRecord: localX01SettingsRecord
     };
 
+    // Open the settings dialog. If a result is returned, save these new settings.
     const dialogRef = this.dialogService.openLocalX01SettingsDialog(dialogData);
     if (dialogRef) {
       const sub = dialogRef.afterClosed().subscribe(result => {
