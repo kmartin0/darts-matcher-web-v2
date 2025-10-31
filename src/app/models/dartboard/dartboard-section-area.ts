@@ -21,12 +21,14 @@ export const DartboardSectionAreaToMultiplier: Record<DartboardSectionArea, numb
 export function getAreaPrefix(area: DartboardSectionArea): string {
   switch (area) {
     case DartboardSectionArea.DOUBLE:
+    case DartboardSectionArea.DOUBLE_BULL:
       return 'D';
     case DartboardSectionArea.TRIPLE:
       return 'T';
 
     case DartboardSectionArea.INNER_SINGLE:
     case DartboardSectionArea.OUTER_SINGLE:
+    case DartboardSectionArea.SINGLE_BULL:
     case DartboardSectionArea.MISS:
     default:
       return '';
