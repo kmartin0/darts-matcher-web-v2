@@ -38,7 +38,7 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Remove the default nginx content and add the application content. Dist path is defined in angular.json "outputPath"
 RUN rm -rf /usr/share/nginx/html/*
-COPY --from=build-stage /app/dist/darts-matcher-web-v2/browser /usr/share/nginx/html
+COPY --from=build-stage /app/dist/darts-matcher-web/browser /usr/share/nginx/html
 
 # Expose port 80, which NGINX will be listening on inside the container.
 EXPOSE 80

@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  dartsMatcherApiUrl: 'https://api.dartsmatcherv2.kmartin.nl',
-  dartsMatcherWebSocketUrl: 'wss://api.dartsmatcherv2.kmartin.nl/darts-matcher-websocket',
+  dartsMatcherApiUrl: 'https://api.dartsmatcher.kmartin.nl',
+  dartsMatcherWebSocketUrl: 'wss://api.dartsmatcher.kmartin.nl/darts-matcher-websocket',
 };

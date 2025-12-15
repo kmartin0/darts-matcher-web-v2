@@ -1,8 +1,8 @@
 services:
-  darts-matcher-web-v2:
+  darts-matcher-web:
     restart: always
-    image: darts-matcher-web-v2
-    container_name: darts-matcher-web-v2
+    image: darts-matcher-web
+    container_name: darts-matcher-web
     build:
       context: .
       args:
