@@ -1,0 +1,36 @@
+@use "config/dimens";
+
+@mixin module-page {
+  padding: dimens.$default-page-padding;
+  width: 100%;
+  max-width: 1600px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: auto;
+}
+
+@mixin light-mode {
+  :host-context(.theme-mode-light) & {
+    @content;
+  }
+}
+
+@mixin dark-mode {
+  :host-context(.theme-mode-dark) & {
+    @content;
+  }
+}
+
+@mixin light-mode-top-level {
+  :host-context(.theme-mode-light) {
+    @content;
+  }
+}
+
+@mixin dark-mode-top-level {
+  :host-context(.theme-mode-dark) {
+    @content;
+  }
+}

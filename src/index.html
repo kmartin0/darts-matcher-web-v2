@@ -1,13 +1,35 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>DartsMatcherWebV2</title>
-  <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <meta charset="utf-8" />
+  <title>Darts Matcher</title>
+  <base href="/" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" type="image/x-icon" href="/darts.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap"
+    rel="stylesheet"
+  />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
 </head>
 <body>
-  <app-root></app-root>
+<!--
+  Apply the persisted theme before Angular boots to prevent a light-theme flash.
+  Keep the 'theme-mode' storage key and theme values in sync with SettingsRepository.
+-->
+<script>
+  (function () {
+    try {
+      const mode = localStorage.getItem('theme-mode');
+      document.body.classList.add(mode === 'dark' ? 'theme-mode-dark' : 'theme-mode-light');
+    } catch {
+      document.body.classList.add('theme-mode-light');
+    }
+  })();
+</script>
+
+<app-root></app-root>
 </body>
 </html>

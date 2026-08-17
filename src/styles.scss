@@ -1,0 +1,58 @@
+/* You can add global styles to this file, and also import other style files */
+@use '@angular/material' as mat;
+
+html, body, app-root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--mat-sys-body-medium-font), serif;
+  background-color: var(--mat-sys-background);
+  color: var(--mat-sys-on-background);
+
+// Make all buttons have the same shape.
+@include mat.button-overrides((
+filled-container-shape: var(--mat-sys-corner-extra-small),
+outlined-container-shape: var(--mat-sys-corner-extra-small),
+protected-container-shape: var(--mat-sys-corner-extra-small),
+text-container-shape: var(--mat-sys-corner-extra-small),
+protected-touch-target-display: none,
+filled-touch-target-display: none,
+outlined-touch-target-display: none,
+text-touch-target-display: none,
+));
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+button {
+  touch-action: manipulation;
+}
+
+.container-horizontal, .container-vertical {
+  display: flex;
+  gap: 12px;
+
+  &.no-gap {
+    gap: 0;
+  }
+}
+
+.container-horizontal {
+  flex-direction: row;
+}
+
+.container-vertical {
+  flex-direction: column;
+}

@@ -8,7 +8,11 @@
   "projects": {
     "darts-matcher-web-v2": {
       "projectType": "application",
-      "schematics": {},
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
@@ -25,8 +29,14 @@
               }
             ],
             "styles": [
-              "src/styles.css"
-            ]
+              "src/theme/app-theme.scss",
+              "src/styles.scss"
+            ],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "src/theme"
+              ]
+            }
           },
           "configurations": {
             "production": {

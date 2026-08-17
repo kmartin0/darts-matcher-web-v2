@@ -1,0 +1,43 @@
+@use "config/helpers";
+@use "config/devices";
+
+.home-page-component-container {
+  @include helpers.module-page();
+  gap: 24px;
+}
+
+// Container for header and subheader
+.header-container {
+  margin-bottom: 8px;
+}
+
+.header, .subheader {
+  margin: 4px;
+  text-align: center;
+}
+
+.header {
+  font: var(--mat-sys-headline-large);
+  @include devices.device(phone, phablet) {
+    font: var(--mat-sys-headline-small);
+  }
+}
+
+.subheader {
+  font: var(--mat-sys-headline-small);
+  @include devices.device(phone, phablet) {
+    font: var(--mat-sys-title-medium);
+  }
+}
+
+// Container for the 'create match' label and light/dark mode toggle.
+.create-match-header {
+  align-items: center;
+  justify-content: space-between
+}
+
+// Container for the create match form.
+.form-container {
+  width: 100%;
+  max-width: 575px;
+}
