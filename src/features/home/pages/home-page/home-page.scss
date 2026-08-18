@@ -1,5 +1,5 @@
-@use "config/helpers";
-@use "config/devices";
+@use "mixins/helpers";
+@use "mixins/devices";
 
 .home-page-component-container {
   @include helpers.module-page();

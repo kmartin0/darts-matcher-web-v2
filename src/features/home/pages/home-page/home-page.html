@@ -9,5 +9,8 @@
       <h3>Create Match</h3>
       <app-theme-toggle></app-theme-toggle>
     </div>
+    <app-create-x01-match-form
+      [loading]="uiState().isCreatingX01Match"
+      (createMatch)="onX01MatchSubmit($event)"/>
   </div>
 </div>

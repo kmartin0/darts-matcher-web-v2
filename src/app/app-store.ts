@@ -1,6 +1,6 @@
 import {DOCUMENT, effect, inject, Injectable} from '@angular/core';
 import {SettingsRepository} from '../data/repository/settings-repository';
-import {ThemeMode} from '../data/model/theme-mode';
+import {ThemeMode} from '../data/model/settings/theme-mode';
 
 /**
  * Application-level store that exposes global UI state and actions.

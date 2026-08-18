@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, Component, computed, inject} from '@angular/core';
-import {ThemeMode} from '../../data/model/theme-mode';
-import {AppStore} from '../../app/app-store';
-import {LoseFocusAfterClickDirective} from '../directives/lose-focus-after-click';
+import {ThemeMode} from '../../../data/model/settings/theme-mode';
+import {AppStore} from '../../../app/app-store';
+import {LoseFocusAfterClickDirective} from '../../directives/lose-focus-after-click';
 import {MatIconButton} from '@angular/material/button';
 import {MatTooltip} from '@angular/material/tooltip';
 import {MatIcon} from '@angular/material/icon';

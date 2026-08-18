@@ -1,0 +1,11 @@
+@if (message()) {
+  <div
+    class="error-message-container"
+    animate.enter="error-enter"
+    animate.leave="error-leave">
+
+    <div class="error-message">
+      {{ message() }}
+    </div>
+  </div>
+}

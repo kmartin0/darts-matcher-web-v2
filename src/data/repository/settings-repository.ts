@@ -1,6 +1,6 @@
-import {AppSettings} from '../model/app-settings';
+import {AppSettings} from '../model/settings/app-settings';
 import {computed, Injectable, signal} from '@angular/core';
-import {ThemeMode, themeModeFromId} from '../model/theme-mode';
+import {ThemeMode, themeModeFromId} from '../model/settings/theme-mode';
 
 /**
  * Repository responsible for application settings.
