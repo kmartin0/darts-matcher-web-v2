@@ -12,7 +12,7 @@ import {
 import {PlayerType} from '../../../../data/model/match/player-type';
 import {X01BestOfType} from '../../../../data/model/x01/x01-best-of-type';
 import {CreateX01MatchFormModel, X01ClearByTwoType, X01PlayerFormModel} from './create-x01-match-form.model';
-import {ValidationErrorMessageUtil, ValidationErrorKey,} from '../../../../shared/utils/error-message.util';
+import {ValidationErrorKey, ValidationErrorMessageUtil,} from '../../../../shared/utils/error-message.util';
 import {registerBotRequiresHumanValidator, registerMaxOneBotValidator} from './create-x01-match-form.validators';
 
 const MIN_X01 = 101;

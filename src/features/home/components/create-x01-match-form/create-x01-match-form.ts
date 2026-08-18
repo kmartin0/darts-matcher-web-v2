@@ -6,13 +6,7 @@ import {FormError} from '../../../../shared/components/form-error/form-error';
 import {MatFormField, MatInput, MatLabel, MatPrefix} from '@angular/material/input';
 import {MatButtonToggle, MatButtonToggleGroup} from '@angular/material/button-toggle';
 import {MatCheckbox} from '@angular/material/checkbox';
-import {
-  CdkDrag,
-  CdkDragDrop,
-  CdkDragHandle,
-  CdkDropList,
-  moveItemInArray
-} from '@angular/cdk/drag-drop';
+import {CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList, moveItemInArray} from '@angular/cdk/drag-drop';
 import {MatIcon} from '@angular/material/icon';
 import {MatButton, MatIconButton} from '@angular/material/button';
 import {MatCard, MatCardContent} from '@angular/material/card';
@@ -20,7 +14,9 @@ import {MatTooltip} from '@angular/material/tooltip';
 import {
   createEmptyPlayer,
   createInitialX01MatchFormModel,
-  CreateX01MatchFormModel, X01PlayerFormModel, X01ClearByTwoType
+  CreateX01MatchFormModel,
+  X01ClearByTwoType,
+  X01PlayerFormModel
 } from './create-x01-match-form.model';
 import {createX01MatchFormSchema, MAX_PLAYERS, MIN_PLAYERS} from './create-x01-match-form.schema';
 import {form, FormField, FormRoot} from '@angular/forms/signals';
@@ -73,13 +69,6 @@ export class CreateX01MatchForm {
       },
     },
   );
-
-  /**
-   * Resets the form to its initial state.
-   */
-  public reset(): void {
-    this.matchForm().reset(createInitialX01MatchFormModel());
-  }
 
   /**
    * Adds a new player when the maximum player count has not been reached.

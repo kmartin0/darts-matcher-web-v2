@@ -1,0 +1,8 @@
+import {MatchPlayer} from '../match/match-player';
+import {X01DartBotSettings} from './x01-dart-bot-settings';
+import {X01Statistics} from './x01-statistics';
+
+export interface X01MatchPlayer extends MatchPlayer {
+  x01DartBotSettings: X01DartBotSettings | null;
+  statistics: X01Statistics;
+}

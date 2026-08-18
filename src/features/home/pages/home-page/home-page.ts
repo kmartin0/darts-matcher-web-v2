@@ -1,23 +1,28 @@
-import {Component, inject, viewChild} from '@angular/core';
-import {HomeStore} from './home-store';
+import {Component, inject} from '@angular/core';
+import {HomePageStore} from './home-page-store';
 import {ThemeToggle} from '../../../../shared/components/theme-toggle/theme-toggle';
 import {CreateX01MatchForm} from '../../components/create-x01-match-form/create-x01-match-form';
 import {CreateX01MatchFormModel} from '../../components/create-x01-match-form/create-x01-match-form.model';
 import {observeSignalProperty} from '../../../../shared/utils/signal.util';
+import {Router} from '@angular/router';
+import {AppEndpoints} from '../../../../app/app-endpoints';
 
 @Component({
   selector: 'app-home-page',
-  providers: [HomeStore],
+  providers: [HomePageStore],
   imports: [ThemeToggle, CreateX01MatchForm],
   templateUrl: './home-page.html',
   styleUrl: './home-page.scss'
 })
 export class HomePage {
-  private readonly store = inject(HomeStore);
+  private readonly store = inject(HomePageStore);
+  private readonly router = inject(Router);
+
   protected readonly uiState = this.store.state;
 
-  private readonly createMatchForm = viewChild.required(CreateX01MatchForm);
-
+  /**
+   * Initializes page-level state observers.
+   */
   constructor() {
     this.observeX01MatchCreated();
   }
@@ -28,7 +33,7 @@ export class HomePage {
    * @param matchForm - X01 match form model to create the match from.
    */
   protected onX01MatchSubmit(matchForm: CreateX01MatchFormModel): void {
-    void this.store.createX01Match(matchForm);
+    this.store.createX01Match(matchForm);
     console.log(matchForm);
   }
 
@@ -43,19 +48,12 @@ export class HomePage {
   }
 
   /**
-   * Handles a successfully created X01 match.
+   * Navigates to a successfully created X01 match.
    *
    * @param matchId - ID of the created match, or null when no created match is pending.
    */
   private onX01MatchCreated(matchId: string | null): void {
     if (matchId == null) return;
-
-    // 1. Navigate to Match ID.
-
-    // 2. Reset form.
-    this.createMatchForm().reset();
-
-    // 3. Reset created match id.
-    this.store.onCreatedX01MatchHandled();
+    void this.router.navigateByUrl(AppEndpoints.match(matchId));
   }
 }
