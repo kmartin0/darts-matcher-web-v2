@@ -34,7 +34,6 @@ export class HomePage {
    */
   protected onX01MatchSubmit(matchForm: CreateX01MatchFormModel): void {
     this.store.createX01Match(matchForm);
-    console.log(matchForm);
   }
 
   /**

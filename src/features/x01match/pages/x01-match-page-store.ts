@@ -53,7 +53,7 @@ export class X01MatchPageStore {
           this.patchState({x01Match: match});
         },
         error: error => {
-          console.error(error);
+          //TODO: Error Handling
         }
       });
   }

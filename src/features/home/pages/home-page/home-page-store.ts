@@ -31,11 +31,10 @@ export class HomePageStore {
       )
       .subscribe({
         next: x01Match => {
-          console.log(x01Match);
           this.patchState({createdX01MatchId: x01Match.id});
         },
         error: error => {
-          console.log(error);
+          // TODO: Error handling
         }
       });
   }
