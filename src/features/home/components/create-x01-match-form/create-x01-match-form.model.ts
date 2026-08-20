@@ -1,5 +1,6 @@
 import {PlayerType} from '../../../../data/model/match/player-type';
 import {X01BestOfType} from '../../../../data/model/x01/x01-best-of-type';
+import {FormSubmitAction, FormSubmitError} from '../../../../shared/forms/form-submit';
 
 export enum ClearByTwoType {
   SETS = 'SETS',
@@ -78,9 +79,6 @@ export type FormErrorTarget =
   | StaticFormErrorTarget
   | PlayerFormErrorTarget;
 
-export interface SubmitError {
-  target: FormErrorTarget;
-  message: string;
-}
+export type SubmitError = FormSubmitError<FormErrorTarget>;
 
-export type SubmitAction = (value: FormModel) => Promise<SubmitError[]>;
+export type SubmitAction = FormSubmitAction<FormModel, FormErrorTarget>;

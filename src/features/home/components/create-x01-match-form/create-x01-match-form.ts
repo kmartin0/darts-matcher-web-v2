@@ -12,8 +12,10 @@ import {MatButton, MatIconButton} from '@angular/material/button';
 import {MatCard, MatCardContent} from '@angular/material/card';
 import {MatTooltip} from '@angular/material/tooltip';
 import * as CreateX01MatchFormModel from './create-x01-match-form.model';
+import * as CreateX01MatchFormErrorMapper from './create-x01-match-form-error.mapper';
 import {createX01MatchFormSchema, MAX_PLAYERS, MIN_PLAYERS} from './create-x01-match-form.schema';
-import {FieldTree, form, FormField, FormRoot, ReadonlyFieldTree} from '@angular/forms/signals';
+import {FieldTree, form, FormField, FormOptions, FormRoot, TreeValidationResult} from '@angular/forms/signals';
+import {mapFormSubmitErrors} from '../../../../shared/forms/form-submit';
 
 @Component({
   selector: 'app-create-x01-match-form',
@@ -44,7 +46,6 @@ import {FieldTree, form, FormField, FormRoot, ReadonlyFieldTree} from '@angular/
   styleUrl: './create-x01-match-form.scss',
 })
 export class CreateX01MatchForm {
-  readonly loading = input(false);
   readonly submitAction = input.required<CreateX01MatchFormModel.SubmitAction>();
 
   private readonly matchFormModel = signal(CreateX01MatchFormModel.createInitialFormModel());
@@ -54,27 +55,37 @@ export class CreateX01MatchForm {
   protected readonly X01ClearByTwoType = CreateX01MatchFormModel.ClearByTwoType;
   protected readonly PlayerType = PlayerType;
 
-  readonly matchForm = form(
-    this.matchFormModel,
-    createX01MatchFormSchema,
-    {
+  readonly matchForm = form(this.matchFormModel, createX01MatchFormSchema, this.createFormOptions());
+
+  /**
+   * Creates the Signal Forms options for the create X01 match form.
+   *
+   * @returns Form options containing the submission action.
+   */
+  private createFormOptions(): FormOptions<CreateX01MatchFormModel.FormModel> {
+    return {
       submission: {
-        action: async field => {
-          const errors = await this.submitAction()(field().value());
+        action: fieldTree => this.submit(fieldTree),
+      },
+    };
+  }
 
-          return errors.map(error => {
-            const fieldTree = this.resolveErrorTarget(field, error.target);
+  /**
+   * Submits the current form model and maps returned submission errors
+   * to Signal Forms validation results.
+   *
+   * @param fieldTree - Root field tree of the create X01 match form.
+   * @returns Signal Forms validation results for the submission.
+   */
+  private async submit(fieldTree: FieldTree<CreateX01MatchFormModel.FormModel>): Promise<TreeValidationResult> {
+    const errors = await this.submitAction()(fieldTree().value());
 
-            return {
-              ...(fieldTree !== undefined && {fieldTree: fieldTree}),
-              kind: 'server',
-              message: error.message,
-            };
-          });
-        },
-      }
-    },
-  );
+    return mapFormSubmitErrors(
+      fieldTree,
+      errors,
+      CreateX01MatchFormErrorMapper.mapErrorTargetToFieldTree,
+    );
+  }
 
   /**
    * Adds a new player when the maximum player count has not been reached.
@@ -248,97 +259,5 @@ export class CreateX01MatchForm {
       case PlayerType.DART_BOT:
         return 'Dart Bot';
     }
-  }
-
-  /**
-   * Resolves a form error target to its corresponding Signal Forms field tree.
-   *
-   * @param field - Root field tree of the create X01 match form.
-   * @param target - Form error target to resolve.
-   * @returns The matching field tree, or undefined for root-level errors or invalid targets.
-   */
-  private resolveErrorTarget(
-    field: FieldTree<CreateX01MatchFormModel.FormModel>,
-    target: CreateX01MatchFormModel.FormErrorTarget
-  ): ReadonlyFieldTree<unknown> | undefined {
-    if (this.isPlayerErrorTarget(target)) {
-      return this.resolvePlayerErrorTarget(field, target);
-    }
-
-    return this.resolveStaticErrorTarget(field, target);
-  }
-
-
-  /**
-   * Resolves a static form error target to its corresponding field tree.
-   *
-   * @param field - Root field tree of the create X01 match form.
-   * @param target - Static form error target to resolve.
-   * @returns The matching field tree, or undefined for a root-level error.
-   */
-  private resolveStaticErrorTarget(
-    field: FieldTree<CreateX01MatchFormModel.FormModel>,
-    target: CreateX01MatchFormModel.StaticFormErrorTarget
-  ): ReadonlyFieldTree<unknown> | undefined {
-    switch (target) {
-      case 'root':
-        return undefined;
-      case 'x01':
-        return field.x01;
-      case 'bestOf.sets':
-        return field.bestOf.sets;
-      case 'bestOf.legs':
-        return field.bestOf.legs;
-      case 'clearByTwo.setLimit':
-        return field.clearByTwo.setLimit;
-      case 'clearByTwo.legLimit':
-        return field.clearByTwo.legLimit;
-      case 'clearByTwo.finalSetLegLimit':
-        return field.clearByTwo.finalSetLegLimit;
-      case 'players':
-        return field.players;
-    }
-  }
-
-  /**
-   * Resolves an indexed player error target to its corresponding field tree.
-   *
-   * @param field - Root field tree of the create X01 match form.
-   * @param target - Player error target to resolve.
-   * @returns The matching player field tree, or undefined if the player index or field is invalid.
-   */
-  private resolvePlayerErrorTarget(
-    field: FieldTree<CreateX01MatchFormModel.FormModel>,
-    target: CreateX01MatchFormModel.PlayerFormErrorTarget
-  ): ReadonlyFieldTree<unknown> | undefined {
-    const segments = target.split('.');
-    const player = field.players[Number(segments[1])];
-
-    if (!player) {
-      return undefined;
-    }
-
-    switch (segments[2]) {
-      case 'playerType':
-        return player.playerType;
-      case 'playerName':
-        return player.playerName;
-      case 'threeDartAverage':
-        return player.threeDartAverage;
-      default:
-        return undefined;
-    }
-  }
-
-  /**
-   * Checks whether a form error target refers to an indexed player field.
-   *
-   * @param target - Form error target to check.
-   * @returns True when the target is a player error target.
-   */
-  private isPlayerErrorTarget(
-    target: CreateX01MatchFormModel.FormErrorTarget
-  ): target is CreateX01MatchFormModel.PlayerFormErrorTarget {
-    return target.startsWith('players.');
   }
 }
