@@ -1,4 +1,4 @@
-import {Component, input, output, signal} from '@angular/core';
+import {Component, input, signal} from '@angular/core';
 import {PlayerType} from '../../../../data/model/match/player-type';
 import {X01BestOfType} from '../../../../data/model/x01/x01-best-of-type';
 import {MatRadioButton, MatRadioGroup} from '@angular/material/radio';
@@ -11,15 +11,9 @@ import {MatIcon} from '@angular/material/icon';
 import {MatButton, MatIconButton} from '@angular/material/button';
 import {MatCard, MatCardContent} from '@angular/material/card';
 import {MatTooltip} from '@angular/material/tooltip';
-import {
-  createEmptyPlayer,
-  createInitialX01MatchFormModel,
-  CreateX01MatchFormModel,
-  X01ClearByTwoType,
-  X01PlayerFormModel
-} from './create-x01-match-form.model';
+import * as CreateX01MatchFormModel from './create-x01-match-form.model';
 import {createX01MatchFormSchema, MAX_PLAYERS, MIN_PLAYERS} from './create-x01-match-form.schema';
-import {form, FormField, FormRoot} from '@angular/forms/signals';
+import {FieldTree, form, FormField, FormRoot, ReadonlyFieldTree} from '@angular/forms/signals';
 
 @Component({
   selector: 'app-create-x01-match-form',
@@ -51,20 +45,28 @@ import {form, FormField, FormRoot} from '@angular/forms/signals';
 })
 export class CreateX01MatchForm {
   readonly loading = input(false);
-  readonly createMatch = output<CreateX01MatchFormModel>();
+  readonly submitAction = input.required<CreateX01MatchFormModel.SubmitAction>();
 
-  protected readonly x01Options = [301, 501];
+  private readonly matchFormModel = signal(CreateX01MatchFormModel.createInitialFormModel());
+
+  protected readonly x01Options = CreateX01MatchFormModel.X01_OPTIONS;
   protected readonly X01BestOfType = X01BestOfType;
-  protected readonly X01ClearByTwoType = X01ClearByTwoType;
+  protected readonly X01ClearByTwoType = CreateX01MatchFormModel.ClearByTwoType;
   protected readonly PlayerType = PlayerType;
 
-  private readonly formModel =
-    signal<CreateX01MatchFormModel>(createInitialX01MatchFormModel());
-
-  protected readonly matchForm = form(this.formModel, createX01MatchFormSchema, {
+  readonly matchForm = form(
+    this.matchFormModel,
+    createX01MatchFormSchema,
+    {
       submission: {
         action: async field => {
-          this.createMatch.emit(field().value());
+          const errors = await this.submitAction()(field().value());
+
+          return errors?.map(error => ({
+            fieldTree: this.resolveErrorTarget(field, error.target),
+            kind: 'server',
+            message: error.message,
+          }));
         },
       },
     },
@@ -78,9 +80,9 @@ export class CreateX01MatchForm {
       return;
     }
 
-    this.formModel.update(model => ({
+    this.matchFormModel.update(model => ({
       ...model,
-      players: [...model.players, createEmptyPlayer()],
+      players: [...model.players, CreateX01MatchFormModel.createEmptyPlayer()],
     }));
   }
 
@@ -93,12 +95,12 @@ export class CreateX01MatchForm {
     if (
       this.isMinPlayersReached() ||
       index < 0 ||
-      index >= this.formModel().players.length
+      index >= this.matchFormModel().players.length
     ) {
       return;
     }
 
-    this.formModel.update(model => ({
+    this.matchFormModel.update(model => ({
       ...model,
       players: model.players.filter((_, playerIndex) => playerIndex !== index),
     }));
@@ -109,8 +111,8 @@ export class CreateX01MatchForm {
    *
    * @param event - Drag-and-drop event containing the previous and new player indexes.
    */
-  protected onDropPlayerCard(event: CdkDragDrop<X01PlayerFormModel[]>): void {
-    this.formModel.update(model => {
+  protected onDropPlayerCard(event: CdkDragDrop<CreateX01MatchFormModel.PlayerFormModel[]>): void {
+    this.matchFormModel.update(model => {
       const players = [...model.players];
 
       moveItemInArray(players, event.previousIndex, event.currentIndex);
@@ -126,7 +128,7 @@ export class CreateX01MatchForm {
    * @param playerType - Newly selected player type.
    */
   protected onPlayerTypeChange(index: number, playerType: PlayerType): void {
-    if (index < 0 || index >= this.formModel().players.length) {
+    if (index < 0 || index >= this.matchFormModel().players.length) {
       return;
     }
 
@@ -163,7 +165,7 @@ export class CreateX01MatchForm {
         this.matchForm.bestOf.sets().value.set(1);
 
         this.matchForm.clearByTwo.selectedTypes().value.update(
-          selectedTypes => selectedTypes.filter(type => type === X01ClearByTwoType.LEGS),
+          selectedTypes => selectedTypes.filter(type => type === this.X01ClearByTwoType.LEGS),
         );
 
         this.matchForm.clearByTwo.setLimit().value.set(0);
@@ -178,17 +180,17 @@ export class CreateX01MatchForm {
    * @param type - Clear-by-two rule being changed.
    * @param enabled - Whether the rule is enabled.
    */
-  protected onClearByTwoTypeChange(type: X01ClearByTwoType, enabled: boolean): void {
+  protected onClearByTwoTypeChange(type: CreateX01MatchFormModel.ClearByTwoType, enabled: boolean): void {
     switch (type) {
-      case X01ClearByTwoType.SETS:
+      case this.X01ClearByTwoType.SETS:
         this.matchForm.clearByTwo.setLimit().value.set(enabled ? 1 : 0);
         break;
 
-      case X01ClearByTwoType.LEGS:
+      case this.X01ClearByTwoType.LEGS:
         this.matchForm.clearByTwo.legLimit().value.set(enabled ? 1 : 0);
         break;
 
-      case X01ClearByTwoType.LEGS_FINAL_SET:
+      case this.X01ClearByTwoType.LEGS_FINAL_SET:
         this.matchForm.clearByTwo.finalSetLegLimit().value.set(enabled ? 1 : 0);
         break;
     }
@@ -198,21 +200,21 @@ export class CreateX01MatchForm {
    * @returns Whether the maximum player count has been reached.
    */
   protected isMaxPlayersReached(): boolean {
-    return this.formModel().players.length >= MAX_PLAYERS;
+    return this.matchFormModel().players.length >= MAX_PLAYERS;
   }
 
   /**
    * @returns Whether the minimum player count has been reached.
    */
   protected isMinPlayersReached(): boolean {
-    return this.formModel().players.length <= MIN_PLAYERS;
+    return this.matchFormModel().players.length <= MIN_PLAYERS;
   }
 
   /**
    * @returns Whether a dart bot player is present.
    */
   protected hasBotPlayer(): boolean {
-    return this.formModel().players
+    return this.matchFormModel().players
       .some(player => player.playerType === PlayerType.DART_BOT);
   }
 
@@ -242,5 +244,97 @@ export class CreateX01MatchForm {
       case PlayerType.DART_BOT:
         return 'Dart Bot';
     }
+  }
+
+  /**
+   * Resolves a form error target to its corresponding Signal Forms field tree.
+   *
+   * @param field - Root field tree of the create X01 match form.
+   * @param target - Form error target to resolve.
+   * @returns The matching field tree, or undefined for root-level errors or invalid targets.
+   */
+  private resolveErrorTarget(
+    field: FieldTree<CreateX01MatchFormModel.FormModel>,
+    target: CreateX01MatchFormModel.FormErrorTarget
+  ): ReadonlyFieldTree<unknown> | undefined {
+    if (this.isPlayerErrorTarget(target)) {
+      return this.resolvePlayerErrorTarget(field, target);
+    }
+
+    return this.resolveStaticErrorTarget(field, target);
+  }
+
+
+  /**
+   * Resolves a static form error target to its corresponding field tree.
+   *
+   * @param field - Root field tree of the create X01 match form.
+   * @param target - Static form error target to resolve.
+   * @returns The matching field tree, or undefined for a root-level error.
+   */
+  private resolveStaticErrorTarget(
+    field: FieldTree<CreateX01MatchFormModel.FormModel>,
+    target: CreateX01MatchFormModel.StaticFormErrorTarget
+  ): ReadonlyFieldTree<unknown> | undefined {
+    switch (target) {
+      case 'root':
+        return undefined;
+      case 'x01':
+        return field.x01;
+      case 'bestOf.sets':
+        return field.bestOf.sets;
+      case 'bestOf.legs':
+        return field.bestOf.legs;
+      case 'clearByTwo.setLimit':
+        return field.clearByTwo.setLimit;
+      case 'clearByTwo.legLimit':
+        return field.clearByTwo.legLimit;
+      case 'clearByTwo.finalSetLegLimit':
+        return field.clearByTwo.finalSetLegLimit;
+      case 'players':
+        return field.players;
+    }
+  }
+
+  /**
+   * Resolves an indexed player error target to its corresponding field tree.
+   *
+   * @param field - Root field tree of the create X01 match form.
+   * @param target - Player error target to resolve.
+   * @returns The matching player field tree, or undefined if the player index or field is invalid.
+   */
+  private resolvePlayerErrorTarget(
+    field: FieldTree<CreateX01MatchFormModel.FormModel>,
+    target: CreateX01MatchFormModel.PlayerFormErrorTarget
+  ): ReadonlyFieldTree<unknown> | undefined {
+    const segments = target.split('.');
+    const player = field.players[Number(segments[1])];
+
+    if (!player) {
+      return undefined;
+    }
+
+    switch (segments[2]) {
+      case 'playerType':
+        return player.playerType;
+      case 'playerName':
+        return player.playerName;
+      case 'threeDartAverage':
+        return player.threeDartAverage;
+      default:
+        return undefined;
+    }
+  }
+
+  /**
+   * Checks whether a form error target refers to an indexed player field.
+   *
+   * @param target - Form error target to check.
+   * @returns True when the target is a player error target.
+   */
+  private isPlayerErrorTarget(
+    target: CreateX01MatchFormModel.FormErrorTarget
+  ): target is CreateX01MatchFormModel.PlayerFormErrorTarget {
+    return target.startsWith('players.');
   }
 }

@@ -108,13 +108,9 @@
   </div>
 
   <!-- Section - Track checkout percentage -->
-  <div class="container-vertical no-gap">
-    <!-- Field - Track checkout percentage -->
-    <mat-checkbox [formField]="matchForm.trackDoubles">
-      Track checkout percentage
-    </mat-checkbox>
-    <app-form-error [field]="matchForm.trackDoubles"/>
-  </div>
+  <mat-checkbox [formField]="matchForm.trackDoubles">
+    Track checkout percentage
+  </mat-checkbox>
 
   <!-- Section - Players -->
   <div
@@ -227,5 +223,5 @@
   <app-form-error [field]="matchForm"/>
 
   <!-- Action - Submit form -->
-  <button mat-flat-button type="submit" [disabled]="loading()">Create Match</button>
+  <button mat-flat-button type="submit" [disabled]="matchForm().submitting()">Create Match</button>
 </form>

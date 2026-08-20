@@ -1,19 +1,21 @@
 import {PlayerType} from '../../../../data/model/match/player-type';
 import {X01BestOfType} from '../../../../data/model/x01/x01-best-of-type';
 
-export enum X01ClearByTwoType {
+export enum ClearByTwoType {
   SETS = 'SETS',
   LEGS = 'LEGS',
   LEGS_FINAL_SET = 'LEGS_FINAL_SET',
 }
 
-export interface X01PlayerFormModel {
+export const X01_OPTIONS = [301, 501] as const;
+
+export interface PlayerFormModel {
   playerName: string;
   playerType: PlayerType;
   threeDartAverage: number | null;
 }
 
-export interface CreateX01MatchFormModel {
+export interface FormModel {
   x01: number;
   bestOf: {
     bestOfType: X01BestOfType;
@@ -21,16 +23,16 @@ export interface CreateX01MatchFormModel {
     legs: number;
   };
   clearByTwo: {
-    selectedTypes: X01ClearByTwoType[];
+    selectedTypes: ClearByTwoType[];
     setLimit: number;
     legLimit: number;
     finalSetLegLimit: number;
   };
   trackDoubles: boolean;
-  players: X01PlayerFormModel[];
+  players: PlayerFormModel[];
 }
 
-export function createEmptyPlayer(): X01PlayerFormModel {
+export function createEmptyPlayer(): PlayerFormModel {
   return {
     playerName: '',
     playerType: PlayerType.HUMAN,
@@ -38,7 +40,7 @@ export function createEmptyPlayer(): X01PlayerFormModel {
   };
 }
 
-export function createInitialX01MatchFormModel(): CreateX01MatchFormModel {
+export function createInitialFormModel(): FormModel {
   return {
     x01: 501,
     bestOf: {
@@ -56,3 +58,29 @@ export function createInitialX01MatchFormModel(): CreateX01MatchFormModel {
     players: [createEmptyPlayer()],
   };
 }
+
+export type StaticFormErrorTarget =
+  | 'root'
+  | 'x01'
+  | 'bestOf.sets'
+  | 'bestOf.legs'
+  | 'clearByTwo.setLimit'
+  | 'clearByTwo.legLimit'
+  | 'clearByTwo.finalSetLegLimit'
+  | 'players';
+
+export type PlayerFormErrorTarget =
+  | `players.${number}.playerType`
+  | `players.${number}.playerName`
+  | `players.${number}.threeDartAverage`;
+
+export type FormErrorTarget =
+  | StaticFormErrorTarget
+  | PlayerFormErrorTarget;
+
+export interface SubmitError {
+  target: FormErrorTarget;
+  message: string;
+}
+
+export type SubmitAction = (value: FormModel) => Promise<SubmitError[]>;

@@ -1,7 +1,4 @@
-import {
-  CreateX01MatchFormModel,
-  X01ClearByTwoType
-} from '../components/create-x01-match-form/create-x01-match-form.model';
+import * as CreateX01MatchFormModel from '../components/create-x01-match-form/create-x01-match-form.model';
 import {CreateX01MatchRequestDto} from '../../../data/dto/create-x01-match-request.dto';
 import {PlayerType} from '../../../data/model/match/player-type';
 
@@ -11,7 +8,7 @@ import {PlayerType} from '../../../data/model/match/player-type';
  * @param form - Create X01 match form model to map.
  * @returns Create X01 match request DTO.
  */
-export function mapToCreateX01MatchRequest(form: CreateX01MatchFormModel): CreateX01MatchRequestDto {
+export function mapToCreateX01MatchRequest(form: CreateX01MatchFormModel.FormModel): CreateX01MatchRequestDto {
   return {
     matchSettings: {
       x01: form.x01,
@@ -21,16 +18,16 @@ export function mapToCreateX01MatchRequest(form: CreateX01MatchFormModel): Creat
         legs: form.bestOf.legs,
         bestOfType: form.bestOf.bestOfType,
         clearByTwoSetsRule: {
-          enabled: form.clearByTwo.selectedTypes.includes(X01ClearByTwoType.SETS),
+          enabled: form.clearByTwo.selectedTypes.includes(CreateX01MatchFormModel.ClearByTwoType.SETS),
           limit: form.clearByTwo.setLimit,
         },
         clearByTwoLegsRule: {
-          enabled: form.clearByTwo.selectedTypes.includes(X01ClearByTwoType.LEGS),
+          enabled: form.clearByTwo.selectedTypes.includes(CreateX01MatchFormModel.ClearByTwoType.LEGS),
           limit: form.clearByTwo.legLimit,
         },
         clearByTwoLegsInFinalSetRule: {
           enabled: form.clearByTwo.selectedTypes.includes(
-            X01ClearByTwoType.LEGS_FINAL_SET,
+            CreateX01MatchFormModel.ClearByTwoType.LEGS_FINAL_SET,
           ),
           limit: form.clearByTwo.finalSetLegLimit,
         },

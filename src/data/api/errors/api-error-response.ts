@@ -1,5 +1,6 @@
 import {ApiErrorCode} from './api-error-code';
 import {ApiTargetErrors, isApiTargetErrors} from './api-target-errors';
+import {HttpErrorResponse} from '@angular/common/http';
 
 export interface ApiErrorResponse {
   error: ApiErrorCode;
@@ -32,4 +33,14 @@ export function isApiErrorResponse(value: unknown): value is ApiErrorResponse {
     (!('error_description' in value) || typeof value.error_description === 'string') &&
     (!('details' in value) || isApiTargetErrors(value.details))
   );
+}
+
+export function getApiErrorResponse(error: unknown): ApiErrorResponse | undefined {
+  if (!(error instanceof HttpErrorResponse)) {
+    return undefined;
+  }
+
+  return isApiErrorResponse(error.error)
+    ? error.error
+    : undefined;
 }

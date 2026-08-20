@@ -1,7 +1,4 @@
-import {
-  HttpInterceptorFn,
-  HttpResponse
-} from '@angular/common/http';
+import {HttpInterceptorFn, HttpResponse} from '@angular/common/http';
 import {tap} from 'rxjs';
 import {environment} from '../../../environments/environment';
 

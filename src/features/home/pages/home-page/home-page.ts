@@ -2,7 +2,7 @@ import {Component, inject} from '@angular/core';
 import {HomePageStore} from './home-page-store';
 import {ThemeToggle} from '../../../../shared/components/theme-toggle/theme-toggle';
 import {CreateX01MatchForm} from '../../components/create-x01-match-form/create-x01-match-form';
-import {CreateX01MatchFormModel} from '../../components/create-x01-match-form/create-x01-match-form.model';
+import * as CreateX01MatchFormModel from '../../components/create-x01-match-form/create-x01-match-form.model';
 import {observeSignalProperty} from '../../../../shared/utils/signal.util';
 import {Router} from '@angular/router';
 import {AppEndpoints} from '../../../../app/app-endpoints';
@@ -21,19 +21,20 @@ export class HomePage {
   protected readonly uiState = this.store.state;
 
   /**
+   * Submits the create-X01-match form through the page store.
+   *
+   * @param formModel - Current create-X01-match form model.
+   * @returns Submission errors returned by the store.
+   */
+  protected readonly onX01MatchSubmit: CreateX01MatchFormModel.SubmitAction = formModel => {
+    return this.store.createX01Match(formModel);
+  };
+
+  /**
    * Initializes page-level state observers.
    */
   constructor() {
     this.observeX01MatchCreated();
-  }
-
-  /**
-   * Submits the X01 match form for creation.
-   *
-   * @param matchForm - X01 match form model to create the match from.
-   */
-  protected onX01MatchSubmit(matchForm: CreateX01MatchFormModel): void {
-    this.store.createX01Match(matchForm);
   }
 
   /**

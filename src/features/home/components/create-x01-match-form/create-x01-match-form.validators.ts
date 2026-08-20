@@ -1,5 +1,5 @@
 import {PlayerType} from '../../../../data/model/match/player-type';
-import {X01PlayerFormModel} from './create-x01-match-form.model';
+import * as CreateX01MatchForm from './create-x01-match-form.model';
 import {SchemaPathTree, validate} from '@angular/forms/signals';
 import {ValidationErrorKey, ValidationErrorMessageUtil} from '../../../../shared/utils/error-message.util';
 
@@ -8,7 +8,7 @@ import {ValidationErrorKey, ValidationErrorMessageUtil} from '../../../../shared
  *
  * @param path - Path of the players array in the create X01 match form.
  */
-export function registerMaxOneBotValidator(path: SchemaPathTree<X01PlayerFormModel[]>): void {
+export function registerMaxOneBotValidator(path: SchemaPathTree<CreateX01MatchForm.PlayerFormModel[]>): void {
   validate(path, ({value}) => {
     const botCount = value()
       .filter(player => player.playerType === PlayerType.DART_BOT)
@@ -28,7 +28,7 @@ export function registerMaxOneBotValidator(path: SchemaPathTree<X01PlayerFormMod
  *
  * @param path - Path of the players array in the create X01 match form.
  */
-export function registerBotRequiresHumanValidator(path: SchemaPathTree<X01PlayerFormModel[]>): void {
+export function registerBotRequiresHumanValidator(path: SchemaPathTree<CreateX01MatchForm.PlayerFormModel[]>): void {
   validate(path, ({value}) => {
     const players = value();
 

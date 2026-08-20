@@ -1,9 +1,5 @@
 import {Component} from '@angular/core';
-import {
-  MatDialogActions,
-  MatDialogClose,
-  MatDialogContent
-} from '@angular/material/dialog';
+import {MatDialogActions, MatDialogClose, MatDialogContent} from '@angular/material/dialog';
 import {MatButton} from '@angular/material/button';
 import {MatIcon} from '@angular/material/icon';
 
