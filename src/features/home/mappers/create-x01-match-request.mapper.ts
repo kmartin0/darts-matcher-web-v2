@@ -36,11 +36,11 @@ export function mapToCreateX01MatchRequest(form: CreateX01MatchFormModel.FormMod
     players: form.players.map(player => ({
       playerName: player.playerName,
       playerType: player.playerType,
-      x01DartBotSettings:
-        player.playerType === PlayerType.DART_BOT &&
-        player.threeDartAverage !== null
-          ? {threeDartAverage: player.threeDartAverage}
-          : undefined,
+      ...(player.playerType === PlayerType.DART_BOT && player.threeDartAverage !== null && {
+        x01DartBotSettings: {
+          threeDartAverage: player.threeDartAverage,
+        },
+      }),
     })),
   };
 }

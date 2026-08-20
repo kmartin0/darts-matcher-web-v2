@@ -3,7 +3,6 @@ import {MatProgressSpinner} from '@angular/material/progress-spinner';
 import {JsonPipe} from '@angular/common';
 import {X01MatchPageStore} from './x01-match-page-store';
 
-//TODO: empty match state
 @Component({
   selector: 'app-x01-match-page',
   templateUrl: './x01-match-page.html',

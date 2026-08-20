@@ -1,5 +1,15 @@
-@if (uiState().isLoadingX01Match) {
-  <mat-spinner />
-} @else if (uiState().x01Match; as x01Match) {
-  <pre>{{ x01Match | json }}</pre>
+@switch (uiState().x01MatchStatus) {
+  @case ('loading') {
+    <mat-spinner/>
+  }
+
+  @case ('notFound') {
+    <h3>Could not find the match</h3>
+  }
+
+  @case ('loaded') {
+    @if (uiState().x01Match; as x01Match) {
+      <pre>{{ x01Match | json }}</pre>
+    }
+  }
 }

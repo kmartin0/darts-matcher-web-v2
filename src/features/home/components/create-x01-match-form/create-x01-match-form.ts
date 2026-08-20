@@ -62,13 +62,17 @@ export class CreateX01MatchForm {
         action: async field => {
           const errors = await this.submitAction()(field().value());
 
-          return errors?.map(error => ({
-            fieldTree: this.resolveErrorTarget(field, error.target),
-            kind: 'server',
-            message: error.message,
-          }));
+          return errors.map(error => {
+            const fieldTree = this.resolveErrorTarget(field, error.target);
+
+            return {
+              ...(fieldTree !== undefined && {fieldTree: fieldTree}),
+              kind: 'server',
+              message: error.message,
+            };
+          });
         },
-      },
+      }
     },
   );
 
