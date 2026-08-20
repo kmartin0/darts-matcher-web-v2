@@ -1,8 +1,6 @@
-import {ApiTargetErrors} from '../../../data/api/errors/api-target-errors';
-import * as CreateX01MatchFormModel from '../components/create-x01-match-form/create-x01-match-form.model';
 import {ApiErrorResponse} from '../../../data/api/errors/api-error-response';
-import {ApiErrorCode} from '../../../data/api/errors/api-error-code';
-import {ValidationErrorKey, ValidationErrorMessageUtil} from '../../../shared/utils/error-message.util';
+import {mapApiErrorToFormSubmitErrors} from '../../../shared/forms/api-form-error.mapper';
+import * as CreateX01MatchFormModel from '../components/create-x01-match-form/create-x01-match-form.model';
 
 const INVALID_ARGUMENT_MAP: Record<string, CreateX01MatchFormModel.StaticFormErrorTarget> = {
   'matchSettings.x01': 'x01',
@@ -25,45 +23,24 @@ const PLAYER_TARGET_PATTERN = /^players\[(?<index>\d+)]\.(?<field>.+)$/;
 export function mapToCreateX01MatchSubmitErrors(
   errorResponse: ApiErrorResponse | undefined,
 ): CreateX01MatchFormModel.SubmitError[] {
-  switch (errorResponse?.error) {
-    case ApiErrorCode.INVALID_ARGUMENTS:
-      return mapInvalidArguments(errorResponse.details);
-
-    default:
-      return [defaultError()];
-  }
-}
-
-/**
- * Maps API invalid-argument target errors to form submission errors.
- *
- * Falls back to a root-level error when no target errors are provided.
- *
- * @param targetErrors - Target-keyed validation errors returned by the API.
- * @returns Mapped form submission errors.
- */
-function mapInvalidArguments(targetErrors: ApiTargetErrors | undefined): CreateX01MatchFormModel.SubmitError[] {
-  const errors: CreateX01MatchFormModel.SubmitError[] =
-    Object.entries(targetErrors ?? {}).map(([apiTarget, message]) => {
-      return {
-        target: mapInvalidArgumentTarget(apiTarget),
-        message,
-      };
-    });
-
-  return errors.length > 0 ? errors : [defaultError()];
+  return mapApiErrorToFormSubmitErrors(
+    errorResponse,
+    mapInvalidArgumentTarget,
+    'root',
+  );
 }
 
 /**
  * Maps an API invalid-argument target to its corresponding form error target.
  *
  * @param apiTarget - Target path returned by the API.
- * @returns The mapped form target, or root when the target is unknown.
+ * @returns The mapped form target, or undefined when the target is unsupported.
  */
-function mapInvalidArgumentTarget(apiTarget: string): CreateX01MatchFormModel.FormErrorTarget {
+function mapInvalidArgumentTarget(
+  apiTarget: string
+): CreateX01MatchFormModel.FormErrorTarget | undefined {
   return INVALID_ARGUMENT_MAP[apiTarget]
-    ?? mapPlayerTarget(apiTarget)
-    ?? 'root';
+    ?? mapPlayerTarget(apiTarget);
 }
 
 /**
@@ -72,11 +49,14 @@ function mapInvalidArgumentTarget(apiTarget: string): CreateX01MatchFormModel.Fo
  * @param apiTarget - API target in the `players[index].field` format.
  * @returns The mapped player form target, or undefined when the target is unsupported.
  */
-function mapPlayerTarget(apiTarget: string): CreateX01MatchFormModel.PlayerFormErrorTarget | undefined {
+function mapPlayerTarget(
+  apiTarget: string
+): CreateX01MatchFormModel.PlayerFormErrorTarget | undefined {
   const match = PLAYER_TARGET_PATTERN.exec(apiTarget);
   if (!match?.groups) return undefined;
 
   const {index, field} = match.groups;
+
   switch (field) {
     case 'playerName':
       return `players.${Number(index)}.playerName`;
@@ -90,18 +70,4 @@ function mapPlayerTarget(apiTarget: string): CreateX01MatchFormModel.PlayerFormE
     default:
       return undefined;
   }
-}
-
-/**
- * Creates the generic root-level submission error.
- *
- * @returns A default form submission error.
- */
-function defaultError(): CreateX01MatchFormModel.SubmitError {
-  return {
-    target: 'root',
-    message: ValidationErrorMessageUtil.getErrorMessage({
-      key: ValidationErrorKey.UNKNOWN,
-    }),
-  };
 }
