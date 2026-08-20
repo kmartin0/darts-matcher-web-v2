@@ -1,8 +1,10 @@
 import {Routes} from '@angular/router';
 import {HomePage} from '../features/home/pages/home-page/home-page';
 import {X01MatchPage} from '../features/x01match/pages/x01-match-page';
+import {PageNotFound} from '../shared/components/page-not-found/page-not-found';
 
 export const routes: Routes = [
   {path: '', component: HomePage},
-  {path: 'matches/:matchId', component: X01MatchPage}
+  {path: 'matches/:matchId', component: X01MatchPage},
+  {path: '**', component: PageNotFound}
 ];
