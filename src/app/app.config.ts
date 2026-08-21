@@ -5,7 +5,7 @@ import {
   provideAppInitializer,
   provideBrowserGlobalErrorListeners
 } from '@angular/core';
-import {provideRouter} from '@angular/router';
+import {provideRouter, withComponentInputBinding} from '@angular/router';
 
 import {routes} from './app.routes';
 import {AppStore} from './app-store';
@@ -25,7 +25,10 @@ export const appConfig: ApplicationConfig = {
         apiLoggingInterceptor
       ])
     ),
-    provideRouter(routes),
+    provideRouter(
+      routes,
+      withComponentInputBinding()
+    ),
     {provide: MAT_ICON_DEFAULT_OPTIONS, useValue: {fontSet: 'material-symbols-outlined'}},
     provideAppInitializer(() => {
       inject(AppStore);

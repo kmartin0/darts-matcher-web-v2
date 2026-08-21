@@ -2,11 +2,9 @@
   @case ('loading') {
     <mat-spinner/>
   }
-
   @case ('notFound') {
-    <h3>Could not find the match</h3>
+    <app-page-error message="The match could not be found"/>
   }
-
   @case ('loaded') {
     @if (uiState().x01Match; as x01Match) {
       <pre>{{ x01Match | json }}</pre>
