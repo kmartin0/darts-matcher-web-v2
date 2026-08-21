@@ -7,7 +7,7 @@ export interface ApiErrorResponse {
   description?: string;
   error_description?: string;
   code: number;
-  details?: ApiTargetErrors;
+  targetErrors?: ApiTargetErrors;
 }
 
 /**
@@ -31,7 +31,7 @@ export function isApiErrorResponse(value: unknown): value is ApiErrorResponse {
     typeof value.code === 'number' &&
     (!('description' in value) || typeof value.description === 'string') &&
     (!('error_description' in value) || typeof value.error_description === 'string') &&
-    (!('details' in value) || isApiTargetErrors(value.details))
+    (!('targetErrors' in value) || isApiTargetErrors(value.targetErrors))
   );
 }
 

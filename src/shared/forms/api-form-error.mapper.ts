@@ -30,10 +30,10 @@ export function mapToFormSubmitErrors<TFormErrorTarget extends string>(
   apiErrorTargetMapper: ApiErrorTargetMapper<TFormErrorTarget>,
   defaultFormErrorTarget: TFormErrorTarget,
 ): FormSubmitError<TFormErrorTarget>[] {
-  if (errorResponse?.details === undefined) return [createDefaultError(defaultFormErrorTarget)];
+  if (errorResponse?.targetErrors === undefined) return [createDefaultError(defaultFormErrorTarget)];
 
   return mapApiTargetErrorsToFormSubmitErrors(
-    errorResponse.details,
+    errorResponse.targetErrors,
     apiErrorTargetMapper,
     defaultFormErrorTarget,
   );
