@@ -40,7 +40,8 @@ export class HomePageStore {
             const errorResponse = getApiErrorResponse(error);
             return of<CreateX01MatchFormModel.SubmitError[]>(mapToCreateX01MatchSubmitErrors(errorResponse));
           })
-        )
+        ),
+      {defaultValue: []}
     );
   }
 
@@ -66,7 +67,8 @@ export class HomePageStore {
             const errorResponse = getApiErrorResponse(error);
             return of<MatchIdFormModel.SubmitError[]>(mapToMatchIdSubmitErrors(errorResponse));
           })
-        )
+        ),
+      {defaultValue: []}
     );
   }
 
