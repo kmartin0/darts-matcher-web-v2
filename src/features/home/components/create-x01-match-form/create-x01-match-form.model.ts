@@ -79,6 +79,8 @@ export type FormErrorTarget =
   | StaticFormErrorTarget
   | PlayerFormErrorTarget;
 
+export const DEFAULT_ERROR_TARGET: FormErrorTarget = 'root';
+
 export type SubmitError = FormSubmitError<FormErrorTarget>;
 
 export type SubmitAction = FormSubmitAction<FormModel, FormErrorTarget>;

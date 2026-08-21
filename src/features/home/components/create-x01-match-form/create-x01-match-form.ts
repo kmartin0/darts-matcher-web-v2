@@ -1,4 +1,4 @@
-import {Component, input, signal} from '@angular/core';
+import {Component, input} from '@angular/core';
 import {PlayerType} from '../../../../data/model/match/player-type';
 import {X01BestOfType} from '../../../../data/model/x01/x01-best-of-type';
 import {MatRadioButton, MatRadioGroup} from '@angular/material/radio';
@@ -12,10 +12,10 @@ import {MatButton, MatIconButton} from '@angular/material/button';
 import {MatCard, MatCardContent} from '@angular/material/card';
 import {MatTooltip} from '@angular/material/tooltip';
 import * as CreateX01MatchFormModel from './create-x01-match-form.model';
-import * as CreateX01MatchFormErrorMapper from './create-x01-match-form-error.mapper';
+import * as CreateX01MatchFormErrorResolver from './create-x01-match-form-error.resolver';
 import {createX01MatchFormSchema, MAX_PLAYERS, MIN_PLAYERS} from './create-x01-match-form.schema';
-import {FieldTree, form, FormField, FormOptions, FormRoot, TreeValidationResult} from '@angular/forms/signals';
-import {mapFormSubmitErrors} from '../../../../shared/forms/form-submit';
+import {FormField, FormRoot} from '@angular/forms/signals';
+import {createSubmittingForm} from '../../../../shared/forms/submitting-form.factory';
 
 @Component({
   selector: 'app-create-x01-match-form',
@@ -48,44 +48,20 @@ import {mapFormSubmitErrors} from '../../../../shared/forms/form-submit';
 export class CreateX01MatchForm {
   readonly submitAction = input.required<CreateX01MatchFormModel.SubmitAction>();
 
-  private readonly matchFormModel = signal(CreateX01MatchFormModel.createInitialFormModel());
+  private readonly submittingForm = createSubmittingForm({
+    createInitialModel: CreateX01MatchFormModel.createInitialFormModel,
+    schema: createX01MatchFormSchema,
+    submitAction: this.submitAction,
+    formErrorTargetResolver: CreateX01MatchFormErrorResolver.resolveTargetFieldTree,
+  });
+
+  readonly matchForm = this.submittingForm.form;
+  private readonly formModel = this.submittingForm.formModel;
 
   protected readonly x01Options = CreateX01MatchFormModel.X01_OPTIONS;
   protected readonly X01BestOfType = X01BestOfType;
   protected readonly X01ClearByTwoType = CreateX01MatchFormModel.ClearByTwoType;
   protected readonly PlayerType = PlayerType;
-
-  readonly matchForm = form(this.matchFormModel, createX01MatchFormSchema, this.createFormOptions());
-
-  /**
-   * Creates the Signal Forms options for the create X01 match form.
-   *
-   * @returns Form options containing the submission action.
-   */
-  private createFormOptions(): FormOptions<CreateX01MatchFormModel.FormModel> {
-    return {
-      submission: {
-        action: fieldTree => this.submit(fieldTree),
-      },
-    };
-  }
-
-  /**
-   * Submits the current form model and maps returned submission errors
-   * to Signal Forms validation results.
-   *
-   * @param fieldTree - Root field tree of the create X01 match form.
-   * @returns Signal Forms validation results for the submission.
-   */
-  private async submit(fieldTree: FieldTree<CreateX01MatchFormModel.FormModel>): Promise<TreeValidationResult> {
-    const errors = await this.submitAction()(fieldTree().value());
-
-    return mapFormSubmitErrors(
-      fieldTree,
-      errors,
-      CreateX01MatchFormErrorMapper.mapErrorTargetToFieldTree,
-    );
-  }
 
   /**
    * Adds a new player when the maximum player count has not been reached.
@@ -95,7 +71,7 @@ export class CreateX01MatchForm {
       return;
     }
 
-    this.matchFormModel.update(model => ({
+    this.formModel.update(model => ({
       ...model,
       players: [...model.players, CreateX01MatchFormModel.createEmptyPlayer()],
     }));
@@ -110,12 +86,12 @@ export class CreateX01MatchForm {
     if (
       this.isMinPlayersReached() ||
       index < 0 ||
-      index >= this.matchFormModel().players.length
+      index >= this.formModel().players.length
     ) {
       return;
     }
 
-    this.matchFormModel.update(model => ({
+    this.formModel.update(model => ({
       ...model,
       players: model.players.filter((_, playerIndex) => playerIndex !== index),
     }));
@@ -127,7 +103,7 @@ export class CreateX01MatchForm {
    * @param event - Drag-and-drop event containing the previous and new player indexes.
    */
   protected onDropPlayerCard(event: CdkDragDrop<CreateX01MatchFormModel.PlayerFormModel[]>): void {
-    this.matchFormModel.update(model => {
+    this.formModel.update(model => {
       const players = [...model.players];
 
       moveItemInArray(players, event.previousIndex, event.currentIndex);
@@ -143,7 +119,7 @@ export class CreateX01MatchForm {
    * @param playerType - Newly selected player type.
    */
   protected onPlayerTypeChange(index: number, playerType: PlayerType): void {
-    if (index < 0 || index >= this.matchFormModel().players.length) {
+    if (index < 0 || index >= this.formModel().players.length) {
       return;
     }
 
@@ -215,21 +191,21 @@ export class CreateX01MatchForm {
    * @returns Whether the maximum player count has been reached.
    */
   protected isMaxPlayersReached(): boolean {
-    return this.matchFormModel().players.length >= MAX_PLAYERS;
+    return this.formModel().players.length >= MAX_PLAYERS;
   }
 
   /**
    * @returns Whether the minimum player count has been reached.
    */
   protected isMinPlayersReached(): boolean {
-    return this.matchFormModel().players.length <= MIN_PLAYERS;
+    return this.formModel().players.length <= MIN_PLAYERS;
   }
 
   /**
    * @returns Whether a dart bot player is present.
    */
   protected hasBotPlayer(): boolean {
-    return this.matchFormModel().players
+    return this.formModel().players
       .some(player => player.playerType === PlayerType.DART_BOT);
   }
 

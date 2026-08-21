@@ -1,7 +1,7 @@
 import {DestroyRef, inject, Injectable, signal} from '@angular/core';
 import {X01MatchRepository} from '../../../data/repository/x01-match-repository';
 import {initialX01MatchPageState, X01MatchPageState} from './x01-match-page-state';
-import {catchError, EMPTY, filter, map, Observable, of, switchMap, tap} from 'rxjs';
+import {catchError, EMPTY, map, Observable, switchMap, tap} from 'rxjs';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute} from '@angular/router';
 import {isValidObjectId} from '../../../data/api/utils/object-id.util';

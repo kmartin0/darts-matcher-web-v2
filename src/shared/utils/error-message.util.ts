@@ -8,6 +8,7 @@ export enum ValidationErrorKey {
   MAX_LENGTH_ARRAY = 'maxLengthArray',
   MAX_ONE_BOT = 'maxOneBot',
   BOT_REQUIRES_HUMAN = 'botRequiresHuman',
+  INVALID_MATCH_ID = 'invalidMatchId',
   CUSTOM_ERROR = 'customError',
   UNKNOWN = 'unknown',
 }
@@ -22,6 +23,7 @@ export type ValidationErrorType =
   | { key: ValidationErrorKey.MAX_LENGTH_ARRAY; max: number; name: string }
   | { key: ValidationErrorKey.MAX_ONE_BOT }
   | { key: ValidationErrorKey.BOT_REQUIRES_HUMAN }
+  | { key: ValidationErrorKey.INVALID_MATCH_ID }
   | { key: ValidationErrorKey.CUSTOM_ERROR; message: string }
   | { key: ValidationErrorKey.UNKNOWN };
 
@@ -46,6 +48,8 @@ export class ValidationErrorMessageUtil {
         return this.maxOneBot();
       case ValidationErrorKey.BOT_REQUIRES_HUMAN:
         return this.botRequiresHuman();
+      case ValidationErrorKey.INVALID_MATCH_ID:
+        return this.invalidMatchId();
       case ValidationErrorKey.CUSTOM_ERROR:
         return this.customError(error.message);
       case ValidationErrorKey.UNKNOWN:
@@ -87,6 +91,10 @@ export class ValidationErrorMessageUtil {
 
   private static botRequiresHuman(): string {
     return 'A bot game requires a human player.';
+  }
+
+  private static invalidMatchId(): string {
+    return 'Invalid Match ID';
   }
 
   private static customError(message: string): string {

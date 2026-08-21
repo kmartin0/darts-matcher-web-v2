@@ -13,7 +13,7 @@ import {PlayerType} from '../../../../data/model/match/player-type';
 import {X01BestOfType} from '../../../../data/model/x01/x01-best-of-type';
 import * as CreateX01MatchFormModel from './create-x01-match-form.model';
 import {ValidationErrorKey, ValidationErrorMessageUtil,} from '../../../../shared/utils/error-message.util';
-import {registerBotRequiresHumanValidator, registerMaxOneBotValidator} from './create-x01-match-form.validators';
+import * as CreateX01MatchFormValidators from './create-x01-match-form.validators';
 
 const MIN_X01 = 101;
 const MAX_X01 = 1001;
@@ -222,8 +222,8 @@ function registerPlayersRules(
     }),
   });
 
-  registerMaxOneBotValidator(path.players);
-  registerBotRequiresHumanValidator(path.players);
+  CreateX01MatchFormValidators.registerMaxOneBotValidator(path.players);
+  CreateX01MatchFormValidators.registerBotRequiresHumanValidator(path.players);
 
   applyEach(path.players, registerPlayerRules);
 }

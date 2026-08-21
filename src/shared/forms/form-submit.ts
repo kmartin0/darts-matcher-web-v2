@@ -20,28 +20,34 @@ export type FormSubmitAction<TFormModel, TFormErrorTarget extends string> =
   (value: TFormModel) => Promise<FormSubmitError<TFormErrorTarget>[]>;
 
 /**
- * Maps form submission errors to Signal Forms validation results.
+ * Resolves a form error target to its corresponding Signal Forms field tree.
  *
- * Each error target is resolved to its corresponding field tree. When no
+ * @typeParam TFormModel - Type of the form model.
+ * @typeParam TFormErrorTarget - Type describing the valid form error targets.
+ */
+export type FormErrorTargetResolver<TFormModel, TFormErrorTarget extends string> =
+  (formErrorTarget: TFormErrorTarget, fieldTree: FieldTree<TFormModel>) => ReadonlyFieldTree<unknown> | undefined;
+
+/**
+ * Maps form submission errors to a Signal Forms validation result.
+ *
+ * Each form error target is resolved to its corresponding field tree. When no
  * specific field tree is resolved, the error is applied at the form root.
  *
  * @typeParam TFormModel - Type of the form model.
  * @typeParam TFormErrorTarget - Type describing the valid form error targets.
+ * @param submitErrors - Form submission errors to map.
  * @param fieldTree - Root field tree of the submitted form.
- * @param errors - Form submission errors to map.
- * @param resolveTarget - Resolves an error target to its corresponding field tree.
- * @returns Signal Forms validation results for the submission errors.
+ * @param formErrorTargetResolver - Resolves a form error target to its corresponding field tree.
+ * @returns Signal Forms validation result for the submission errors.
  */
-export function mapFormSubmitErrors<TFormModel, TFormErrorTarget extends string>(
+export function mapToTreeValidationResult<TFormModel, TFormErrorTarget extends string>(
+  submitErrors: FormSubmitError<TFormErrorTarget>[],
   fieldTree: FieldTree<TFormModel>,
-  errors: FormSubmitError<TFormErrorTarget>[],
-  resolveTarget: (
-    fieldTree: FieldTree<TFormModel>,
-    target: TFormErrorTarget
-  ) => ReadonlyFieldTree<unknown> | undefined
+  formErrorTargetResolver: FormErrorTargetResolver<TFormModel, TFormErrorTarget>
 ): TreeValidationResult {
-  return errors.map(error => {
-    const targetFieldTree = resolveTarget(fieldTree, error.target);
+  return submitErrors.map(error => {
+    const targetFieldTree = formErrorTargetResolver(error.target, fieldTree);
 
     return {
       ...(targetFieldTree !== undefined && {fieldTree: targetFieldTree}),

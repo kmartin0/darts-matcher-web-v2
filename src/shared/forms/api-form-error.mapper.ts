@@ -1,14 +1,13 @@
-import {ApiErrorCode} from '../../data/api/errors/api-error-code';
 import {ApiErrorResponse} from '../../data/api/errors/api-error-response';
 import {ApiTargetErrors} from '../../data/api/errors/api-target-errors';
 import {ValidationErrorKey, ValidationErrorMessageUtil} from '../utils/error-message.util';
 import {FormSubmitError} from './form-submit';
 
 /**
- * Maps an API validation target to a form error target.
+ * Maps an API error target to a form error target.
  *
  * @typeParam TFormErrorTarget - Type describing the valid form error targets.
- * @param apiTarget - Target path returned by the API.
+ * @param apiTarget - Target returned by the API.
  * @returns The mapped form error target, or undefined when the API target is unsupported.
  */
 export type ApiErrorTargetMapper<TFormErrorTarget extends string> =
@@ -17,72 +16,71 @@ export type ApiErrorTargetMapper<TFormErrorTarget extends string> =
 /**
  * Maps an API error response to form submission errors.
  *
+ * API target errors are mapped to their corresponding form error targets.
+ * When no target errors are provided, a default form submission error is returned.
+ *
  * @typeParam TFormErrorTarget - Type describing the valid form error targets.
  * @param errorResponse - Parsed API error response, or undefined when the error could not be parsed.
- * @param mapTarget - Maps an API validation target to a form error target.
- * @param rootTarget - Form target used for root-level errors.
+ * @param apiErrorTargetMapper - Maps an API error target to a form error target.
+ * @param defaultFormErrorTarget - Form error target used when no specific target can be mapped.
  * @returns Form submission errors.
  */
-export function mapApiErrorToFormSubmitErrors<TFormErrorTarget extends string>(
+export function mapToFormSubmitErrors<TFormErrorTarget extends string>(
   errorResponse: ApiErrorResponse | undefined,
-  mapTarget: ApiErrorTargetMapper<TFormErrorTarget>,
-  rootTarget: TFormErrorTarget,
+  apiErrorTargetMapper: ApiErrorTargetMapper<TFormErrorTarget>,
+  defaultFormErrorTarget: TFormErrorTarget,
 ): FormSubmitError<TFormErrorTarget>[] {
-  switch (errorResponse?.error) {
-    case ApiErrorCode.INVALID_ARGUMENTS:
-      return mapInvalidArguments(
-        errorResponse.details,
-        mapTarget,
-        rootTarget,
-      );
+  if (errorResponse?.details === undefined) return [createDefaultError(defaultFormErrorTarget)];
 
-    default:
-      return [defaultError(rootTarget)];
-  }
+  return mapApiTargetErrorsToFormSubmitErrors(
+    errorResponse.details,
+    apiErrorTargetMapper,
+    defaultFormErrorTarget,
+  );
 }
 
 /**
- * Maps API invalid-argument target errors to form submission errors.
+ * Maps API target errors to form submission errors.
  *
- * Unknown API targets are mapped to the provided root target.
- * When no target errors are provided, a default root-level error is returned.
+ * Unknown API targets are mapped to the provided default form error target.
+ * When the target errors are empty, a default form submission error is returned.
  *
  * @typeParam TFormErrorTarget - Type describing the valid form error targets.
- * @param targetErrors - Target-keyed validation errors returned by the API.
- * @param mapTarget - Maps an API target to a form error target.
- * @param rootTarget - Form target used for root-level errors.
+ * @param apiTargetErrors - Target-keyed errors returned by the API.
+ * @param apiErrorTargetMapper - Maps an API error target to a form error target.
+ * @param defaultFormErrorTarget - Form error target used when an API target cannot be mapped.
  * @returns Mapped form submission errors.
  */
-function mapInvalidArguments<TFormErrorTarget extends string>(
-  targetErrors: ApiTargetErrors | undefined,
-  mapTarget: ApiErrorTargetMapper<TFormErrorTarget>,
-  rootTarget: TFormErrorTarget,
+function mapApiTargetErrorsToFormSubmitErrors<TFormErrorTarget extends string>(
+  apiTargetErrors: ApiTargetErrors,
+  apiErrorTargetMapper: ApiErrorTargetMapper<TFormErrorTarget>,
+  defaultFormErrorTarget: TFormErrorTarget,
 ): FormSubmitError<TFormErrorTarget>[] {
   const errors: FormSubmitError<TFormErrorTarget>[] =
-    Object.entries(targetErrors ?? {}).map(([apiTarget, message]) => {
+    Object.entries(apiTargetErrors).map(([apiTarget, message]) => {
       return {
-        target: mapTarget(apiTarget) ?? rootTarget,
-        message,
+        target: apiErrorTargetMapper(apiTarget) ?? defaultFormErrorTarget,
+        message: message,
       };
     });
 
   return errors.length > 0
     ? errors
-    : [defaultError(rootTarget)];
+    : [createDefaultError(defaultFormErrorTarget)];
 }
 
 /**
- * Creates a generic root-level form submission error.
+ * Creates a default form submission error.
  *
  * @typeParam TFormErrorTarget - Type describing the valid form error targets.
- * @param rootTarget - Form target used for the root-level error.
+ * @param defaultFormErrorTarget - Form error target used for the default error.
  * @returns A default form submission error.
  */
-function defaultError<TFormErrorTarget extends string>(
-  rootTarget: TFormErrorTarget
+function createDefaultError<TFormErrorTarget extends string>(
+  defaultFormErrorTarget: TFormErrorTarget
 ): FormSubmitError<TFormErrorTarget> {
   return {
-    target: rootTarget,
+    target: defaultFormErrorTarget,
     message: ValidationErrorMessageUtil.getErrorMessage({
       key: ValidationErrorKey.UNKNOWN,
     }),

@@ -9,6 +9,11 @@
       <h3>Create Match</h3>
       <app-theme-toggle></app-theme-toggle>
     </div>
-    <app-create-x01-match-form [submitAction]="onX01MatchSubmit"/>
+    <app-create-x01-match-form [submitAction]="onCreateX01MatchSubmit"/>
+  </div>
+
+  <div class="form-container">
+    <h3>Go to match page</h3>
+    <app-match-id-form [submitAction]="onMatchIdSubmit"></app-match-id-form>
   </div>
 </div>

@@ -3,37 +3,37 @@ import {CreateX01MatchRequestDto} from '../../../data/dto/create-x01-match-reque
 import {PlayerType} from '../../../data/model/match/player-type';
 
 /**
- * Maps the create X01 match form model to the API request DTO.
+ * Maps the create X01 match formModel model to the API request DTO.
  *
- * @param form - Create X01 match form model to map.
+ * @param formModel - Create X01 match formModel model to map.
  * @returns Create X01 match request DTO.
  */
-export function mapToCreateX01MatchRequest(form: CreateX01MatchFormModel.FormModel): CreateX01MatchRequestDto {
+export function mapToCreateX01MatchRequest(formModel: CreateX01MatchFormModel.FormModel): CreateX01MatchRequestDto {
   return {
     matchSettings: {
-      x01: form.x01,
-      trackDoubles: form.trackDoubles,
+      x01: formModel.x01,
+      trackDoubles: formModel.trackDoubles,
       bestOf: {
-        sets: form.bestOf.sets,
-        legs: form.bestOf.legs,
-        bestOfType: form.bestOf.bestOfType,
+        sets: formModel.bestOf.sets,
+        legs: formModel.bestOf.legs,
+        bestOfType: formModel.bestOf.bestOfType,
         clearByTwoSetsRule: {
-          enabled: form.clearByTwo.selectedTypes.includes(CreateX01MatchFormModel.ClearByTwoType.SETS),
-          limit: form.clearByTwo.setLimit,
+          enabled: formModel.clearByTwo.selectedTypes.includes(CreateX01MatchFormModel.ClearByTwoType.SETS),
+          limit: formModel.clearByTwo.setLimit,
         },
         clearByTwoLegsRule: {
-          enabled: form.clearByTwo.selectedTypes.includes(CreateX01MatchFormModel.ClearByTwoType.LEGS),
-          limit: form.clearByTwo.legLimit,
+          enabled: formModel.clearByTwo.selectedTypes.includes(CreateX01MatchFormModel.ClearByTwoType.LEGS),
+          limit: formModel.clearByTwo.legLimit,
         },
         clearByTwoLegsInFinalSetRule: {
-          enabled: form.clearByTwo.selectedTypes.includes(
+          enabled: formModel.clearByTwo.selectedTypes.includes(
             CreateX01MatchFormModel.ClearByTwoType.LEGS_FINAL_SET,
           ),
-          limit: form.clearByTwo.finalSetLegLimit,
+          limit: formModel.clearByTwo.finalSetLegLimit,
         },
       },
     },
-    players: form.players.map(player => ({
+    players: formModel.players.map(player => ({
       playerName: player.playerName,
       playerType: player.playerType,
       ...(player.playerType === PlayerType.DART_BOT && player.threeDartAverage !== null && {

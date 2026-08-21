@@ -16,4 +16,8 @@ export class X01MatchRepository {
   getX01Match(matchId: string): Observable<X01Match> {
     return this.http.get<X01Match>(DARTS_MATCHER_API_ENDPOINTS.X01_MATCH(matchId));
   }
+
+  matchExists(matchId: string): Observable<void> {
+    return this.http.get<void>(DARTS_MATCHER_API_ENDPOINTS.X01_MATCH_EXISTS(matchId));
+  }
 }
