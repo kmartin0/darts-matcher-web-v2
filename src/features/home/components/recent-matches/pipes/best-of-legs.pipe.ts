@@ -3,13 +3,13 @@ import {X01Match} from '../../../../../data/model/x01/x01-match';
 import {formatCount} from '../../../../../shared/utils/number.util';
 
 @Pipe({
-  name: 'x01BestOfLegs',
+  name: 'bestOfLegs',
   pure: true,
 })
-export class X01BestOfLegsPipe implements PipeTransform {
+export class BestOfLegsPipe implements PipeTransform {
 
   /**
-   * Formats the best-of-legs configuration for an X01 match.
+   * Formats the best-of-legs configuration for a match.
    *
    * When clear-by-two legs is enabled, the configured extra-leg limit is included.
    *

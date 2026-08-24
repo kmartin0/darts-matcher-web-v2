@@ -3,15 +3,15 @@ import {isValidObjectId} from '../api/utils/object-id.util';
 import {isPlatformBrowser} from '@angular/common';
 
 /**
- * Repository responsible for recently visited X01 matches.
+ * Repository responsible for recently visited matches.
  *
- * Owns the reactive recent X01 match ID state and synchronizes it with local storage.
+ * Owns the reactive recent match ID state and synchronizes it with local storage.
  */
 @Injectable({
   providedIn: 'root',
 })
-export class RecentX01MatchesRepository {
-  private readonly storageKey = 'recent-x01-matches';
+export class RecentMatchesRepository {
+  private readonly storageKey = 'recent-matches';
   private readonly maxMatches = 5;
 
   private readonly _recentMatchIds = signal<string[]>([]);
@@ -31,7 +31,7 @@ export class RecentX01MatchesRepository {
   }
 
   /**
-   * Adds a match ID as the most recently visited X01 match.
+   * Adds a match ID as the most recently visited match.
    *
    * Invalid match IDs are ignored. Existing entries are moved to the front
    * and the number of stored matches is limited to the configured maximum.
@@ -51,7 +51,7 @@ export class RecentX01MatchesRepository {
   }
 
   /**
-   * Removes a match ID from the recently visited X01 matches.
+   * Removes a match ID from the recently visited matches.
    *
    * @param matchId - Match ID to remove.
    */
@@ -62,7 +62,7 @@ export class RecentX01MatchesRepository {
   }
 
   /**
-   * Loads recently visited X01 match IDs from local storage.
+   * Loads recently visited match IDs from local storage.
    *
    * Stored values are cleaned before being applied to the repository state.
    * When cleaning changes the stored value, the cleaned IDs are written back to local storage.
@@ -90,7 +90,7 @@ export class RecentX01MatchesRepository {
   }
 
   /**
-   * Cleans recently visited X01 match IDs.
+   * Cleans recently visited match IDs.
    *
    * Non-array values and invalid match IDs are removed, and the number of
    * returned IDs is limited to the configured maximum.

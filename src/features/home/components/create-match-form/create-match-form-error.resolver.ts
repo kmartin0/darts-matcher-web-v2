@@ -1,16 +1,16 @@
 import {FieldTree, ReadonlyFieldTree} from '@angular/forms/signals';
-import * as CreateX01MatchFormModel from './create-x01-match-form.model';
+import * as CreateMatchFormModel from './create-match-form.model';
 
 /**
  * Resolves a form error target to its corresponding Signal Forms field tree.
  *
  * @param formErrorTarget - Form error target to resolve.
- * @param fieldTree - Root field tree of the create X01 match form.
+ * @param fieldTree - Root field tree of the create match form.
  * @returns The matching field tree, or undefined for root-level errors or invalid targets.
  */
 export function resolveTargetFieldTree(
-  formErrorTarget: CreateX01MatchFormModel.FormErrorTarget,
-  fieldTree: FieldTree<CreateX01MatchFormModel.FormModel>
+  formErrorTarget: CreateMatchFormModel.FormErrorTarget,
+  fieldTree: FieldTree<CreateMatchFormModel.FormModel>
 ): ReadonlyFieldTree<unknown> | undefined {
   if (isPlayerErrorTarget(formErrorTarget)) {
     return resolvePlayerTargetFieldTree(formErrorTarget, fieldTree);
@@ -23,12 +23,12 @@ export function resolveTargetFieldTree(
  * Resolves a static form error target to its corresponding field tree.
  *
  * @param formErrorTarget - Static form error target to resolve.
- * @param fieldTree - Root field tree of the create X01 match form.
+ * @param fieldTree - Root field tree of the create match form.
  * @returns The matching field tree, or undefined for a root-level error.
  */
 function resolveStaticTargetFieldTree(
-  formErrorTarget: CreateX01MatchFormModel.StaticFormErrorTarget,
-  fieldTree: FieldTree<CreateX01MatchFormModel.FormModel>
+  formErrorTarget: CreateMatchFormModel.StaticFormErrorTarget,
+  fieldTree: FieldTree<CreateMatchFormModel.FormModel>
 ): ReadonlyFieldTree<unknown> | undefined {
   switch (formErrorTarget) {
     case 'root':
@@ -54,12 +54,12 @@ function resolveStaticTargetFieldTree(
  * Resolves an indexed player error target to its corresponding field tree.
  *
  * @param formErrorTarget - Player error target to resolve.
- * @param fieldTree - Root field tree of the create X01 match form.
+ * @param fieldTree - Root field tree of the create match form.
  * @returns The matching player field tree, or undefined if the player index or field is invalid.
  */
 function resolvePlayerTargetFieldTree(
-  formErrorTarget: CreateX01MatchFormModel.PlayerFormErrorTarget,
-  fieldTree: FieldTree<CreateX01MatchFormModel.FormModel>
+  formErrorTarget: CreateMatchFormModel.PlayerFormErrorTarget,
+  fieldTree: FieldTree<CreateMatchFormModel.FormModel>
 ): ReadonlyFieldTree<unknown> | undefined {
   const segments = formErrorTarget.split('.');
   const player = fieldTree.players[Number(segments[1])];
@@ -87,7 +87,7 @@ function resolvePlayerTargetFieldTree(
  * @returns True when the target is a player error target.
  */
 function isPlayerErrorTarget(
-  formErrorTarget: CreateX01MatchFormModel.FormErrorTarget
-): formErrorTarget is CreateX01MatchFormModel.PlayerFormErrorTarget {
+  formErrorTarget: CreateMatchFormModel.FormErrorTarget
+): formErrorTarget is CreateMatchFormModel.PlayerFormErrorTarget {
   return formErrorTarget.startsWith('players.');
 }

@@ -11,14 +11,14 @@ import {MatIcon} from '@angular/material/icon';
 import {MatButton, MatIconButton} from '@angular/material/button';
 import {MatCard, MatCardContent} from '@angular/material/card';
 import {MatTooltip} from '@angular/material/tooltip';
-import * as CreateX01MatchFormModel from './create-x01-match-form.model';
-import * as CreateX01MatchFormErrorResolver from './create-x01-match-form-error.resolver';
-import {createX01MatchFormSchema, MAX_PLAYERS, MIN_PLAYERS} from './create-x01-match-form.schema';
+import * as CreateMatchFormModel from './create-match-form.model';
+import * as CreateMatchFormErrorResolver from './create-match-form-error.resolver';
+import {createMatchFormSchema, MAX_PLAYERS, MIN_PLAYERS} from './create-match-form.schema';
 import {FormField, FormRoot} from '@angular/forms/signals';
 import {createSubmittingForm} from '../../../../shared/forms/submitting-form.factory';
 
 @Component({
-  selector: 'app-create-x01-match-form',
+  selector: 'app-create-match-form',
   imports: [
     MatRadioGroup,
     FormError,
@@ -42,25 +42,25 @@ import {createSubmittingForm} from '../../../../shared/forms/submitting-form.fac
     FormRoot,
     FormField
   ],
-  templateUrl: './create-x01-match-form.html',
-  styleUrl: './create-x01-match-form.scss',
+  templateUrl: './create-match-form.html',
+  styleUrl: './create-match-form.scss',
 })
-export class CreateX01MatchForm {
-  readonly submitAction = input.required<CreateX01MatchFormModel.SubmitAction>();
+export class CreateMatchForm {
+  readonly submitAction = input.required<CreateMatchFormModel.SubmitAction>();
 
   private readonly submittingForm = createSubmittingForm({
-    createInitialModel: CreateX01MatchFormModel.createInitialFormModel,
-    schema: createX01MatchFormSchema,
+    createInitialModel: CreateMatchFormModel.createInitialFormModel,
+    schema: createMatchFormSchema,
     submitAction: this.submitAction,
-    formErrorTargetResolver: CreateX01MatchFormErrorResolver.resolveTargetFieldTree,
+    formErrorTargetResolver: CreateMatchFormErrorResolver.resolveTargetFieldTree,
   });
 
   readonly matchForm = this.submittingForm.form;
   private readonly formModel = this.submittingForm.formModel;
 
-  protected readonly x01Options = CreateX01MatchFormModel.X01_OPTIONS;
-  protected readonly X01BestOfType = X01BestOfType;
-  protected readonly X01ClearByTwoType = CreateX01MatchFormModel.ClearByTwoType;
+  protected readonly x01Options = CreateMatchFormModel.X01_OPTIONS;
+  protected readonly BestOfType = X01BestOfType;
+  protected readonly ClearByTwoType = CreateMatchFormModel.ClearByTwoType;
   protected readonly PlayerType = PlayerType;
 
   /**
@@ -73,7 +73,7 @@ export class CreateX01MatchForm {
 
     this.formModel.update(model => ({
       ...model,
-      players: [...model.players, CreateX01MatchFormModel.createEmptyPlayer()],
+      players: [...model.players, CreateMatchFormModel.createEmptyPlayer()],
     }));
   }
 
@@ -102,7 +102,7 @@ export class CreateX01MatchForm {
    *
    * @param event - Drag-and-drop event containing the previous and new player indexes.
    */
-  protected onDropPlayerCard(event: CdkDragDrop<CreateX01MatchFormModel.PlayerFormModel[]>): void {
+  protected onDropPlayerCard(event: CdkDragDrop<CreateMatchFormModel.PlayerFormModel[]>): void {
     this.formModel.update(model => {
       const players = [...model.players];
 
@@ -156,7 +156,7 @@ export class CreateX01MatchForm {
         this.matchForm.bestOf.sets().value.set(1);
 
         this.matchForm.clearByTwo.selectedTypes().value.update(
-          selectedTypes => selectedTypes.filter(type => type === this.X01ClearByTwoType.LEGS),
+          selectedTypes => selectedTypes.filter(type => type === this.ClearByTwoType.LEGS),
         );
 
         this.matchForm.clearByTwo.setLimit().value.set(0);
@@ -171,17 +171,17 @@ export class CreateX01MatchForm {
    * @param type - Clear-by-two rule being changed.
    * @param enabled - Whether the rule is enabled.
    */
-  protected onClearByTwoTypeChange(type: CreateX01MatchFormModel.ClearByTwoType, enabled: boolean): void {
+  protected onClearByTwoTypeChange(type: CreateMatchFormModel.ClearByTwoType, enabled: boolean): void {
     switch (type) {
-      case this.X01ClearByTwoType.SETS:
+      case this.ClearByTwoType.SETS:
         this.matchForm.clearByTwo.setLimit().value.set(enabled ? 1 : 0);
         break;
 
-      case this.X01ClearByTwoType.LEGS:
+      case this.ClearByTwoType.LEGS:
         this.matchForm.clearByTwo.legLimit().value.set(enabled ? 1 : 0);
         break;
 
-      case this.X01ClearByTwoType.LEGS_FINAL_SET:
+      case this.ClearByTwoType.LEGS_FINAL_SET:
         this.matchForm.clearByTwo.finalSetLegLimit().value.set(enabled ? 1 : 0);
         break;
     }

@@ -1,14 +1,14 @@
 import {PlayerType} from '../../../../data/model/match/player-type';
-import * as CreateX01MatchForm from './create-x01-match-form.model';
+import * as CreateMatchForm from './create-match-form.model';
 import {SchemaPathTree, validate} from '@angular/forms/signals';
 import {ValidationErrorKey, ValidationErrorMessageUtil} from '../../../../shared/utils/error-message.util';
 
 /**
  * Registers a validator that ensures no more than one dart bot is present.
  *
- * @param path - Path of the players array in the create X01 match form.
+ * @param path - Path of the players array in the create match form.
  */
-export function registerMaxOneBotValidator(path: SchemaPathTree<CreateX01MatchForm.PlayerFormModel[]>): void {
+export function registerMaxOneBotValidator(path: SchemaPathTree<CreateMatchForm.PlayerFormModel[]>): void {
   validate(path, ({value}) => {
     const botCount = value()
       .filter(player => player.playerType === PlayerType.DART_BOT)
@@ -26,9 +26,9 @@ export function registerMaxOneBotValidator(path: SchemaPathTree<CreateX01MatchFo
 /**
  * Registers a validator that ensures a dart bot is accompanied by at least one human player.
  *
- * @param path - Path of the players array in the create X01 match form.
+ * @param path - Path of the players array in the create match form.
  */
-export function registerBotRequiresHumanValidator(path: SchemaPathTree<CreateX01MatchForm.PlayerFormModel[]>): void {
+export function registerBotRequiresHumanValidator(path: SchemaPathTree<CreateMatchForm.PlayerFormModel[]>): void {
   validate(path, ({value}) => {
     const players = value();
 

@@ -19,8 +19,8 @@
       <mat-radio-group
         [formField]="matchForm.bestOf.bestOfType"
         (change)="onBestOfTypeChange($event.value)">
-        <mat-radio-button [value]="X01BestOfType.SETS">Sets</mat-radio-button>
-        <mat-radio-button [value]="X01BestOfType.LEGS">Legs</mat-radio-button>
+        <mat-radio-button [value]="BestOfType.SETS">Sets</mat-radio-button>
+        <mat-radio-button [value]="BestOfType.LEGS">Legs</mat-radio-button>
       </mat-radio-group>
     </div>
 
@@ -49,7 +49,7 @@
   <label>Clear by two</label>
   <div class="container-vertical clear-by-two-container">
     @let isBestOfTypeSets =
-      matchForm.bestOf.bestOfType().value() === X01BestOfType.SETS;
+      matchForm.bestOf.bestOfType().value() === BestOfType.SETS;
 
     <!-- Field - Clear by two types -->
     <mat-button-toggle-group
@@ -59,22 +59,22 @@
       [formField]="matchForm.clearByTwo.selectedTypes">
 
       <mat-button-toggle
-        [value]="X01ClearByTwoType.SETS"
+        [value]="ClearByTwoType.SETS"
         [disabled]="!isBestOfTypeSets"
-        (change)="onClearByTwoTypeChange(X01ClearByTwoType.SETS, $event.source.checked)">
+        (change)="onClearByTwoTypeChange(ClearByTwoType.SETS, $event.source.checked)">
         Sets
       </mat-button-toggle>
 
       <mat-button-toggle
-        [value]="X01ClearByTwoType.LEGS"
-        (change)="onClearByTwoTypeChange(X01ClearByTwoType.LEGS, $event.source.checked)">
+        [value]="ClearByTwoType.LEGS"
+        (change)="onClearByTwoTypeChange(ClearByTwoType.LEGS, $event.source.checked)">
         Legs
       </mat-button-toggle>
 
       <mat-button-toggle
-        [value]="X01ClearByTwoType.LEGS_FINAL_SET"
+        [value]="ClearByTwoType.LEGS_FINAL_SET"
         [disabled]="!isBestOfTypeSets"
-        (change)="onClearByTwoTypeChange(X01ClearByTwoType.LEGS_FINAL_SET, $event.source.checked)">
+        (change)="onClearByTwoTypeChange(ClearByTwoType.LEGS_FINAL_SET, $event.source.checked)">
         Legs Final Set
       </mat-button-toggle>
     </mat-button-toggle-group>

@@ -20,7 +20,7 @@
               </mat-panel-title>
 
               <mat-panel-description class="description-container">
-                <span class="scoreline">{{ match | x01Scoreline }}</span>
+                <span class="scoreline">{{ match | scoreline }}</span>
 
                 <div class="action-container">
                   <button
@@ -41,15 +41,15 @@
             </mat-expansion-panel-header>
 
             <mat-list>
-              @if (match | x01BestOfSets; as bestOfSets) {
+              @if (match | bestOfSets; as bestOfSets) {
                 <mat-list-item>{{ bestOfSets }}</mat-list-item>
               }
 
               <mat-list-item>
-                {{ match | x01BestOfLegs }}
+                {{ match | bestOfLegs }}
               </mat-list-item>
 
-              @if (match | x01ClearByTwoFinalSet; as clearByTwoFinalSet) {
+              @if (match | clearByTwoFinalSet; as clearByTwoFinalSet) {
                 <mat-list-item>{{ clearByTwoFinalSet }}</mat-list-item>
               }
             </mat-list>

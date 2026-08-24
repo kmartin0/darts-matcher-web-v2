@@ -4,7 +4,6 @@
  * @param epochSeconds - Unix timestamp in seconds
  */
 export function epochSecondsToDate(epochSeconds: number | null): Date | null {
-  console.log("epochsecondstodate")
   if (!epochSeconds || Number.isNaN(epochSeconds)) {
     return null;
   }

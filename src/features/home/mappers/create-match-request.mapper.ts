@@ -1,14 +1,14 @@
-import * as CreateX01MatchFormModel from '../components/create-x01-match-form/create-x01-match-form.model';
-import {CreateX01MatchRequestDto} from '../../../data/dto/create-x01-match-request.dto';
+import * as CreateMatchFormModel from '../components/create-match-form/create-match-form.model';
+import {CreateMatchRequestDto} from '../../../data/dto/create-match-request.dto';
 import {PlayerType} from '../../../data/model/match/player-type';
 
 /**
- * Maps the create X01 match formModel model to the API request DTO.
+ * Maps the create match formModel model to the API request DTO.
  *
- * @param formModel - Create X01 match formModel model to map.
- * @returns Create X01 match request DTO.
+ * @param formModel - Create match formModel model to map.
+ * @returns Create match request DTO.
  */
-export function mapToCreateX01MatchRequest(formModel: CreateX01MatchFormModel.FormModel): CreateX01MatchRequestDto {
+export function mapToCreateMatchRequest(formModel: CreateMatchFormModel.FormModel): CreateMatchRequestDto {
   return {
     matchSettings: {
       x01: formModel.x01,
@@ -18,16 +18,16 @@ export function mapToCreateX01MatchRequest(formModel: CreateX01MatchFormModel.Fo
         legs: formModel.bestOf.legs,
         bestOfType: formModel.bestOf.bestOfType,
         clearByTwoSetsRule: {
-          enabled: formModel.clearByTwo.selectedTypes.includes(CreateX01MatchFormModel.ClearByTwoType.SETS),
+          enabled: formModel.clearByTwo.selectedTypes.includes(CreateMatchFormModel.ClearByTwoType.SETS),
           limit: formModel.clearByTwo.setLimit,
         },
         clearByTwoLegsRule: {
-          enabled: formModel.clearByTwo.selectedTypes.includes(CreateX01MatchFormModel.ClearByTwoType.LEGS),
+          enabled: formModel.clearByTwo.selectedTypes.includes(CreateMatchFormModel.ClearByTwoType.LEGS),
           limit: formModel.clearByTwo.legLimit,
         },
         clearByTwoLegsInFinalSetRule: {
           enabled: formModel.clearByTwo.selectedTypes.includes(
-            CreateX01MatchFormModel.ClearByTwoType.LEGS_FINAL_SET,
+            CreateMatchFormModel.ClearByTwoType.LEGS_FINAL_SET,
           ),
           limit: formModel.clearByTwo.finalSetLegLimit,
         },

@@ -4,13 +4,13 @@ import {X01BestOfType} from '../../../../../data/model/x01/x01-best-of-type';
 import {formatCount} from '../../../../../shared/utils/number.util';
 
 @Pipe({
-  name: 'x01BestOfSets',
+  name: 'bestOfSets',
   pure: true,
 })
-export class X01BestOfSetsPipe implements PipeTransform {
+export class BestOfSetsPipe implements PipeTransform {
 
   /**
-   * Formats the best-of-sets configuration for an X01 match.
+   * Formats the best-of-sets configuration for a match.
    *
    * Returns an empty string when the match is not set-based.
    * When clear-by-two sets is enabled, the configured extra-set limit is included.

@@ -3,13 +3,13 @@ import {X01Match} from '../../../../../data/model/x01/x01-match';
 import {X01BestOfType} from '../../../../../data/model/x01/x01-best-of-type';
 
 @Pipe({
-  name: 'x01Scoreline',
+  name: 'scoreline',
   pure: true,
 })
-export class X01ScorelinePipe implements PipeTransform {
+export class ScorelinePipe implements PipeTransform {
 
   /**
-   * Formats the current scoreline for an X01 match.
+   * Formats the current scoreline for a match.
    *
    * The score is based on sets or legs won, depending on the match best-of type.
    * Example: "John [2] vs Jane [1]".

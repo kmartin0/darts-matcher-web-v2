@@ -11,9 +11,9 @@ import {
 } from '@angular/forms/signals';
 import {PlayerType} from '../../../../data/model/match/player-type';
 import {X01BestOfType} from '../../../../data/model/x01/x01-best-of-type';
-import * as CreateX01MatchFormModel from './create-x01-match-form.model';
+import * as CreateMatchFormModel from './create-match-form.model';
+import * as CreateMatchFormValidators from './create-match-form.validators';
 import {ValidationErrorKey, ValidationErrorMessageUtil,} from '../../../../shared/utils/error-message.util';
-import * as CreateX01MatchFormValidators from './create-x01-match-form.validators';
 
 const MIN_X01 = 101;
 const MAX_X01 = 1001;
@@ -31,8 +31,8 @@ const MAX_CLEAR_BY_TWO_LIMIT = 20;
 export const MIN_PLAYERS = 1;
 export const MAX_PLAYERS = 4;
 
-export const createX01MatchFormSchema =
-  schema<CreateX01MatchFormModel.FormModel>(path => {
+export const createMatchFormSchema =
+  schema<CreateMatchFormModel.FormModel>(path => {
     registerX01Rules(path);
     registerBestOfRules(path);
     registerClearByTwoRules(path);
@@ -40,7 +40,7 @@ export const createX01MatchFormSchema =
   });
 
 function registerX01Rules(
-  path: SchemaPathTree<CreateX01MatchFormModel.FormModel>
+  path: SchemaPathTree<CreateMatchFormModel.FormModel>
 ): void {
   required(path.x01, {
     message: ValidationErrorMessageUtil.getErrorMessage({
@@ -64,7 +64,7 @@ function registerX01Rules(
 }
 
 function registerBestOfRules(
-  path: SchemaPathTree<CreateX01MatchFormModel.FormModel>
+  path: SchemaPathTree<CreateMatchFormModel.FormModel>
 ): void {
   required(path.bestOf.bestOfType, {
     message: ValidationErrorMessageUtil.getErrorMessage({
@@ -119,7 +119,7 @@ function registerBestOfRules(
 }
 
 function registerClearByTwoRules(
-  path: SchemaPathTree<CreateX01MatchFormModel.FormModel>
+  path: SchemaPathTree<CreateMatchFormModel.FormModel>
 ): void {
   required(path.clearByTwo.setLimit, {
     message: ValidationErrorMessageUtil.getErrorMessage({
@@ -144,7 +144,7 @@ function registerClearByTwoRules(
   disabled(path.clearByTwo.setLimit, {
     when: ({valueOf}) =>
       !valueOf(path.clearByTwo.selectedTypes).includes(
-        CreateX01MatchFormModel.ClearByTwoType.SETS
+        CreateMatchFormModel.ClearByTwoType.SETS
       ),
   });
 
@@ -171,7 +171,7 @@ function registerClearByTwoRules(
   disabled(path.clearByTwo.legLimit, {
     when: ({valueOf}) =>
       !valueOf(path.clearByTwo.selectedTypes).includes(
-        CreateX01MatchFormModel.ClearByTwoType.LEGS
+        CreateMatchFormModel.ClearByTwoType.LEGS
       ),
   });
 
@@ -198,13 +198,13 @@ function registerClearByTwoRules(
   disabled(path.clearByTwo.finalSetLegLimit, {
     when: ({valueOf}) =>
       !valueOf(path.clearByTwo.selectedTypes).includes(
-        CreateX01MatchFormModel.ClearByTwoType.LEGS_FINAL_SET
+        CreateMatchFormModel.ClearByTwoType.LEGS_FINAL_SET
       ),
   });
 }
 
 function registerPlayersRules(
-  path: SchemaPathTree<CreateX01MatchFormModel.FormModel>
+  path: SchemaPathTree<CreateMatchFormModel.FormModel>
 ): void {
   minLength(path.players, MIN_PLAYERS, {
     message: ValidationErrorMessageUtil.getErrorMessage({
@@ -222,14 +222,14 @@ function registerPlayersRules(
     }),
   });
 
-  CreateX01MatchFormValidators.registerMaxOneBotValidator(path.players);
-  CreateX01MatchFormValidators.registerBotRequiresHumanValidator(path.players);
+  CreateMatchFormValidators.registerMaxOneBotValidator(path.players);
+  CreateMatchFormValidators.registerBotRequiresHumanValidator(path.players);
 
   applyEach(path.players, registerPlayerRules);
 }
 
 function registerPlayerRules(
-  path: SchemaPathTree<CreateX01MatchFormModel.PlayerFormModel>
+  path: SchemaPathTree<CreateMatchFormModel.PlayerFormModel>
 ): void {
   required(path.playerName, {
     message: ValidationErrorMessageUtil.getErrorMessage({

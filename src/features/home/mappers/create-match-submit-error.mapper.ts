@@ -1,8 +1,8 @@
 import {ApiErrorResponse} from '../../../data/api/errors/api-error-response';
 import {mapToFormSubmitErrors} from '../../../shared/forms/api-form-error.mapper';
-import * as CreateX01MatchFormModel from '../components/create-x01-match-form/create-x01-match-form.model';
+import * as CreateMatchFormModel from '../components/create-match-form/create-match-form.model';
 
-const API_TARGETS_MAP: Record<string, CreateX01MatchFormModel.StaticFormErrorTarget> = {
+const API_TARGETS_MAP: Record<string, CreateMatchFormModel.StaticFormErrorTarget> = {
   'matchSettings.x01': 'x01',
   'matchSettings.bestOf.sets': 'bestOf.sets',
   'matchSettings.bestOf.legs': 'bestOf.legs',
@@ -15,16 +15,16 @@ const API_TARGETS_MAP: Record<string, CreateX01MatchFormModel.StaticFormErrorTar
 const PLAYER_API_TARGET_PATTERN = /^players\[(?<index>\d+)]\.(?<field>.+)$/;
 
 /**
- * Maps an API error response to create-X01-match form submission errors.
+ * Maps an API error response to create-match form submission errors.
  *
  * @param errorResponse - Parsed API error response, or undefined when the failure could not be parsed.
- * @returns Form submission errors to apply to the create-X01-match form.
+ * @returns Form submission errors to apply to the create-match form.
  */
-export function mapToCreateX01MatchSubmitErrors(errorResponse: ApiErrorResponse | undefined): CreateX01MatchFormModel.SubmitError[] {
+export function mapToCreateMatchSubmitErrors(errorResponse: ApiErrorResponse | undefined): CreateMatchFormModel.SubmitError[] {
   return mapToFormSubmitErrors(
     errorResponse,
     mapApiTargetToFormErrorTarget,
-    CreateX01MatchFormModel.DEFAULT_ERROR_TARGET,
+    CreateMatchFormModel.DEFAULT_ERROR_TARGET,
   );
 }
 
@@ -34,7 +34,7 @@ export function mapToCreateX01MatchSubmitErrors(errorResponse: ApiErrorResponse 
  * @param apiTarget - Target path returned by the API.
  * @returns The mapped form error target, or undefined when the target is unsupported.
  */
-function mapApiTargetToFormErrorTarget(apiTarget: string): CreateX01MatchFormModel.FormErrorTarget | undefined {
+function mapApiTargetToFormErrorTarget(apiTarget: string): CreateMatchFormModel.FormErrorTarget | undefined {
   return API_TARGETS_MAP[apiTarget]
     ?? mapApiTargetToPlayerFormErrorTarget(apiTarget);
 }
@@ -45,7 +45,7 @@ function mapApiTargetToFormErrorTarget(apiTarget: string): CreateX01MatchFormMod
  * @param apiTarget - API target in the `players[index].field` format.
  * @returns The mapped player form target, or undefined when the target is unsupported.
  */
-function mapApiTargetToPlayerFormErrorTarget(apiTarget: string): CreateX01MatchFormModel.PlayerFormErrorTarget | undefined {
+function mapApiTargetToPlayerFormErrorTarget(apiTarget: string): CreateMatchFormModel.PlayerFormErrorTarget | undefined {
   const match = PLAYER_API_TARGET_PATTERN.exec(apiTarget);
   if (!match?.groups) return undefined;
 

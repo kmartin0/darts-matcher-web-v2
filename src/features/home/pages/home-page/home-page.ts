@@ -1,19 +1,19 @@
 import {Component, inject} from '@angular/core';
 import {HomePageStore} from './home-page-store';
 import {ThemeToggle} from '../../../../shared/components/theme-toggle/theme-toggle';
-import {CreateX01MatchForm} from '../../components/create-x01-match-form/create-x01-match-form';
-import * as CreateX01MatchFormModel from '../../components/create-x01-match-form/create-x01-match-form.model';
+import {CreateMatchForm} from '../../components/create-match-form/create-match-form';
+import * as CreateMatchFormModel from '../../components/create-match-form/create-match-form.model';
 import * as MatchIdFormModel from '../../components/match-id-form/match-id-form.model';
 import {observeSignalProperty} from '../../../../shared/utils/signal.util';
 import {Router} from '@angular/router';
 import {AppEndpoints} from '../../../../app/app-endpoints';
 import {MatchIdForm} from '../../components/match-id-form/match-id-form';
-import {RecentX01Matches} from '../../components/recent-x01-matches/recent-x01-matches';
+import {RecentMatches} from '../../components/recent-matches/recent-matches';
 
 @Component({
   selector: 'app-home-page',
   providers: [HomePageStore],
-  imports: [ThemeToggle, CreateX01MatchForm, MatchIdForm, RecentX01Matches],
+  imports: [ThemeToggle, CreateMatchForm, MatchIdForm, RecentMatches],
   templateUrl: './home-page.html',
   styleUrl: './home-page.scss'
 })
@@ -24,13 +24,13 @@ export class HomePage {
   protected readonly uiState = this.store.state;
 
   /**
-   * Submits the create-X01-match form through the page store.
+   * Submits the create-match form through the page store.
    *
-   * @param formModel - Submitted create-X01-match form model.
+   * @param formModel - Submitted create-match form model.
    * @returns Submission errors returned by the store.
    */
-  protected readonly onCreateX01MatchSubmit: CreateX01MatchFormModel.SubmitAction = formModel => {
-    return this.store.submitX01Match(formModel);
+  protected readonly onCreateMatchSubmit: CreateMatchFormModel.SubmitAction = formModel => {
+    return this.store.submitCreateMatch(formModel);
   };
 
   /**
@@ -73,7 +73,7 @@ export class HomePage {
    */
   private observeNavigateToMatch(): void {
     observeSignalProperty(
-      () => this.uiState().navigateToX01MatchId,
+      () => this.uiState().navigateToMatchId,
       matchId => this.navigateToMatch(matchId)
     );
   }
@@ -85,6 +85,6 @@ export class HomePage {
    */
   private navigateToMatch(matchId: string | null): void {
     if (matchId == null) return;
-    void this.router.navigateByUrl(AppEndpoints.x01Match(matchId));
+    void this.router.navigateByUrl(AppEndpoints.match(matchId));
   }
 }

@@ -3,13 +3,13 @@ import {X01Match} from '../../../../../data/model/x01/x01-match';
 import {formatCount} from '../../../../../shared/utils/number.util';
 
 @Pipe({
-  name: 'x01ClearByTwoFinalSet',
+  name: 'clearByTwoFinalSet',
   pure: true,
 })
-export class X01ClearByTwoFinalSetPipe implements PipeTransform {
+export class ClearByTwoFinalSetPipe implements PipeTransform {
 
   /**
-   * Formats the final-set clear-by-two configuration for an X01 match.
+   * Formats the final-set clear-by-two configuration for a match.
    *
    * Returns an empty string when clear-by-two legs in the final set is disabled.
    *

@@ -2,7 +2,7 @@ import {PlayerType} from '../model/match/player-type';
 import {X01BestOfType} from '../model/x01/x01-best-of-type';
 import {X01ClearByTwoRule} from '../model/x01/x01-clear-by-two-rule';
 
-export interface CreateX01MatchRequestDto {
+export interface CreateMatchRequestDto {
   matchSettings: {
     x01: number;
     trackDoubles: boolean;

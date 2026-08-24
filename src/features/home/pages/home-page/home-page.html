@@ -9,7 +9,7 @@
       <h3>Create Match</h3>
       <app-theme-toggle/>
     </div>
-    <app-create-x01-match-form [submitAction]="onCreateX01MatchSubmit"/>
+    <app-create-match-form [submitAction]="onCreateMatchSubmit"/>
   </div>
 
   <div class="form-container">
@@ -19,8 +19,8 @@
 
   <div class="form-container">
     <h3>Recent matches</h3>
-    <app-recent-x01-matches
-      [recentMatches]="uiState().recentX01Matches"
+    <app-recent-matches
+      [recentMatches]="uiState().recentMatches"
       (selectMatch)="onSelectMatch($event)"
       (removeMatch)="onRemoveMatch($event)"/>
   </div>
