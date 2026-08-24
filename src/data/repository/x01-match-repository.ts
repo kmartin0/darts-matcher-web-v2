@@ -1,7 +1,7 @@
 import {inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {CreateX01MatchRequestDto} from '../dto/create-x01-match-request.dto';
-import {Observable} from 'rxjs';
+import {delay, dematerialize, materialize, Observable, throwError} from 'rxjs';
 import {X01Match} from '../model/x01/x01-match';
 import {DARTS_MATCHER_API_ENDPOINTS} from '../api/api-endpoints';
 
@@ -15,6 +15,10 @@ export class X01MatchRepository {
 
   getX01Match(matchId: string): Observable<X01Match> {
     return this.http.get<X01Match>(DARTS_MATCHER_API_ENDPOINTS.X01_MATCH(matchId));
+  }
+
+  getMatches(matchIds: string[]): Observable<X01Match[]> {
+    return this.http.get<X01Match[]>(DARTS_MATCHER_API_ENDPOINTS.GET_X01_MATCHES(matchIds));
   }
 
   matchExists(matchId: string): Observable<void> {

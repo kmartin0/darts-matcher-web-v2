@@ -1,0 +1,42 @@
+@use "@angular/material" as mat;
+
+:host {
+  @include mat.expansion-overrides((
+    container-elevation-shadow: var(--mat-sys-level0)
+  ));
+
+  @include mat.list-overrides((
+    list-item-one-line-container-height: max-content
+  ));
+}
+
+mat-list-item {
+  padding: 4px 0;
+}
+
+.action-container {
+  margin-left: auto;
+  display: flex;
+  flex-direction: row;
+}
+
+.mat-expansion-panel {
+  border: 1px solid var(--mat-sys-outline);
+  border-radius: var(--mat-sys-corner-extra-small);
+}
+
+.scoreline {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  align-self: center;
+}
+
+.description-container {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}

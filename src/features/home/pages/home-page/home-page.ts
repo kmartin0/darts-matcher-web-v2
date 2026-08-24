@@ -8,11 +8,12 @@ import {observeSignalProperty} from '../../../../shared/utils/signal.util';
 import {Router} from '@angular/router';
 import {AppEndpoints} from '../../../../app/app-endpoints';
 import {MatchIdForm} from '../../components/match-id-form/match-id-form';
+import {RecentX01Matches} from '../../components/recent-x01-matches/recent-x01-matches';
 
 @Component({
   selector: 'app-home-page',
   providers: [HomePageStore],
-  imports: [ThemeToggle, CreateX01MatchForm, MatchIdForm],
+  imports: [ThemeToggle, CreateX01MatchForm, MatchIdForm, RecentX01Matches],
   templateUrl: './home-page.html',
   styleUrl: './home-page.scss'
 })
@@ -25,21 +26,21 @@ export class HomePage {
   /**
    * Submits the create-X01-match form through the page store.
    *
-   * @param formModel - Current create-X01-match form model.
+   * @param formModel - Submitted create-X01-match form model.
    * @returns Submission errors returned by the store.
    */
   protected readonly onCreateX01MatchSubmit: CreateX01MatchFormModel.SubmitAction = formModel => {
-    return this.store.createX01Match(formModel);
+    return this.store.submitX01Match(formModel);
   };
 
   /**
-   * Submits the match-id form through the page store.
+   * Submits the match ID form through the page store.
    *
-   * @param formModel - Current match-id form model.
+   * @param formModel - Submitted match ID form model.
    * @returns Submission errors returned by the store.
    */
   protected readonly onMatchIdSubmit: MatchIdFormModel.SubmitAction = formModel => {
-    return this.store.goToMatch(formModel)
+    return this.store.submitMatchId(formModel);
   };
 
   /**
@@ -50,11 +51,29 @@ export class HomePage {
   }
 
   /**
+   * Handles selection of a recent match.
+   *
+   * @param matchId - ID of the selected match.
+   */
+  protected onSelectMatch(matchId: string): void {
+    this.navigateToMatch(matchId);
+  }
+
+  /**
+   * Handles removal of a recent match.
+   *
+   * @param matchId - ID of the match to remove.
+   */
+  protected onRemoveMatch(matchId: string): void {
+    this.store.removeRecentMatch(matchId);
+  }
+
+  /**
    * Observes the match ID to navigate to and handles match navigation.
    */
   private observeNavigateToMatch(): void {
     observeSignalProperty(
-      () => this.uiState().navigateToMatchId,
+      () => this.uiState().navigateToX01MatchId,
       matchId => this.navigateToMatch(matchId)
     );
   }
@@ -66,6 +85,6 @@ export class HomePage {
    */
   private navigateToMatch(matchId: string | null): void {
     if (matchId == null) return;
-    void this.router.navigateByUrl(AppEndpoints.match(matchId));
+    void this.router.navigateByUrl(AppEndpoints.x01Match(matchId));
   }
 }

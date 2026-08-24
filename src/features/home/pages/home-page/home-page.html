@@ -7,13 +7,21 @@
   <div class="form-container">
     <div class="container-horizontal create-match-header">
       <h3>Create Match</h3>
-      <app-theme-toggle></app-theme-toggle>
+      <app-theme-toggle/>
     </div>
     <app-create-x01-match-form [submitAction]="onCreateX01MatchSubmit"/>
   </div>
 
   <div class="form-container">
     <h3>Go to match page</h3>
-    <app-match-id-form [submitAction]="onMatchIdSubmit"></app-match-id-form>
+    <app-match-id-form [submitAction]="onMatchIdSubmit"/>
+  </div>
+
+  <div class="form-container">
+    <h3>Recent matches</h3>
+    <app-recent-x01-matches
+      [recentMatches]="uiState().recentX01Matches"
+      (selectMatch)="onSelectMatch($event)"
+      (removeMatch)="onRemoveMatch($event)"/>
   </div>
 </div>

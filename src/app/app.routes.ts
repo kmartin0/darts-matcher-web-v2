@@ -5,6 +5,6 @@ import {PageError} from '../shared/components/page-error/page-error';
 
 export const routes: Routes = [
   {path: '', component: HomePage},
-  {path: 'matches/:matchId', component: X01MatchPage},
+  {path: 'matches/x01/:matchId', component: X01MatchPage},
   {path: '**', component: PageError, data: {message: '404 Page Not Found'}}
 ];

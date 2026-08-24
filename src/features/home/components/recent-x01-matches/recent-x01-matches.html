@@ -1,0 +1,61 @@
+@let state = recentMatches();
+@switch (state.status) {
+  @case ('loading') {
+  }
+  @case ('idle') {
+  }
+  @case ('error') {
+    <app-error-message message="Could not load recent matches"></app-error-message>
+  }
+  @case ('loaded') {
+    <div class="container-vertical">
+      @if (state.data.length === 0) {
+        <span>No matches visited recently</span>
+      } @else {
+        @for (match of state.data; track match.id) {
+          <mat-expansion-panel [hideToggle]="true">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                {{ match.startDate | epochSecondsToDate | date:'MM/dd/yyyy' }}
+              </mat-panel-title>
+
+              <mat-panel-description class="description-container">
+                <span class="scoreline">{{ match | x01Scoreline }}</span>
+
+                <div class="action-container">
+                  <button
+                    mat-icon-button
+                    matTooltip="Remove from recents"
+                    (click)="removeMatch.emit(match.id); $event.stopPropagation()">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+
+                  <button
+                    mat-icon-button
+                    matTooltip="Go to match"
+                    (click)="selectMatch.emit(match.id); $event.stopPropagation()">
+                    <mat-icon>arrow_forward</mat-icon>
+                  </button>
+                </div>
+              </mat-panel-description>
+            </mat-expansion-panel-header>
+
+            <mat-list>
+              @if (match | x01BestOfSets; as bestOfSets) {
+                <mat-list-item>{{ bestOfSets }}</mat-list-item>
+              }
+
+              <mat-list-item>
+                {{ match | x01BestOfLegs }}
+              </mat-list-item>
+
+              @if (match | x01ClearByTwoFinalSet; as clearByTwoFinalSet) {
+                <mat-list-item>{{ clearByTwoFinalSet }}</mat-list-item>
+              }
+            </mat-list>
+          </mat-expansion-panel>
+        }
+      }
+    </div>
+  }
+}

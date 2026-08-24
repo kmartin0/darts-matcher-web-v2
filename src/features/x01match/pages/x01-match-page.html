@@ -1,13 +1,15 @@
-@switch (uiState().x01MatchStatus) {
+@let state = uiState().x01Match;
+
+@switch (state.status) {
+  @case ('idle') {
+  }
   @case ('loading') {
     <mat-spinner/>
   }
-  @case ('notFound') {
+  @case ('error') {
     <app-page-error message="The match could not be found"/>
   }
   @case ('loaded') {
-    @if (uiState().x01Match; as x01Match) {
-      <pre>{{ x01Match | json }}</pre>
-    }
+    <pre>{{ state.data | json }}</pre>
   }
 }
