@@ -1,5 +1,11 @@
 @let state = uiState().match;
 
+<app-match-toolbar
+  [menuVisible]="state.status === 'loaded'"
+  [loading]="toolbarLoading()"
+  (copyMatchId)="onCopyMatchId()"
+  (copyMatchLink)="onCopyMatchLink()"/>
+
 @switch (state.status) {
   @case ('idle') {
   }
@@ -10,6 +16,6 @@
     <app-page-error message="The match could not be found"/>
   }
   @case ('loaded') {
-    <pre>{{ state.data | json }}</pre>
+    <app-match-board [match]="state.data"/>
   }
 }

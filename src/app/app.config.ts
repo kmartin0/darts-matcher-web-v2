@@ -11,8 +11,8 @@ import {routes} from './app.routes';
 import {AppStore} from './app-store';
 import {MAT_ICON_DEFAULT_OPTIONS} from '@angular/material/icon';
 import {provideHttpClient, withInterceptors} from '@angular/common/http';
-import {apiErrorInterceptor} from '../data/api/interceptors/api-error.interceptor';
-import {apiLoggingInterceptor} from '../data/api/interceptors/api-logging.interceptor';
+import {httpErrorInterceptor} from '../data/api/http/http-error.interceptor';
+import {httpLoggingInterceptor} from '../data/api/http/http-logging.interceptor';
 import {GlobalErrorHandler} from './global-error-handler';
 
 export const appConfig: ApplicationConfig = {
@@ -21,8 +21,8 @@ export const appConfig: ApplicationConfig = {
     {provide: ErrorHandler, useClass: GlobalErrorHandler},
     provideHttpClient(
       withInterceptors([
-        apiErrorInterceptor,
-        apiLoggingInterceptor
+        httpErrorInterceptor,
+        httpLoggingInterceptor
       ])
     ),
     provideRouter(

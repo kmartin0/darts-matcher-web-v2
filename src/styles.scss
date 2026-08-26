@@ -1,5 +1,8 @@
-/* You can add global styles to this file, and also import other style files */
 @use '@angular/material' as mat;
+
+// ==============================
+// Root layout
+// ==============================
 
 html, body, app-root {
   margin: 0;
@@ -8,6 +11,11 @@ html, body, app-root {
   display: flex;
   flex-direction: column;
 }
+
+
+// ==============================
+// Global element defaults
+// ==============================
 
 * {
   box-sizing: border-box;
@@ -18,34 +26,41 @@ body {
   background-color: var(--mat-sys-background);
   color: var(--mat-sys-on-background);
 
-// Make all buttons have the same shape.
-@include mat.button-overrides((
-filled-container-shape: var(--mat-sys-corner-extra-small),
-outlined-container-shape: var(--mat-sys-corner-extra-small),
-protected-container-shape: var(--mat-sys-corner-extra-small),
-text-container-shape: var(--mat-sys-corner-extra-small),
-protected-touch-target-display: none,
-filled-touch-target-display: none,
-outlined-touch-target-display: none,
-text-touch-target-display: none,
-));
+  @include mat.button-overrides((
+    filled-container-shape: var(--mat-sys-corner-extra-small),
+    outlined-container-shape: var(--mat-sys-corner-extra-small),
+    protected-container-shape: var(--mat-sys-corner-extra-small),
+    text-container-shape: var(--mat-sys-corner-extra-small),
+    protected-touch-target-display: none,
+    filled-touch-target-display: none,
+    outlined-touch-target-display: none,
+    text-touch-target-display: none,
+  ));
 }
 
-/* Chrome, Safari, Edge, Opera */
+button {
+  touch-action: manipulation;
+}
+
+
+// ==============================
+// Number inputs
+// ==============================
+
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
 
-/* Firefox */
 input[type="number"] {
   -moz-appearance: textfield;
 }
 
-button {
-  touch-action: manipulation;
-}
+
+// ==============================
+// Forms
+// ==============================
 
 .form {
   width: 100%;
@@ -57,7 +72,13 @@ button {
   gap: 12px;
 }
 
-.container-horizontal, .container-vertical {
+
+// ==============================
+// Layout utilities
+// ==============================
+
+.container-horizontal,
+.container-vertical {
   display: flex;
   gap: 12px;
 
@@ -76,4 +97,15 @@ button {
 
 .gap-12 {
   gap: 12px;
+}
+
+
+// ==============================
+// Link utilities
+// ==============================
+
+a.plain {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
 }

@@ -5,7 +5,7 @@ import {environment} from '../../../environments/environment';
 /**
  * Logs requests and responses for the Darts Matcher API.
  */
-export const apiLoggingInterceptor: HttpInterceptorFn = (request, next) => {
+export const httpLoggingInterceptor: HttpInterceptorFn = (request, next) => {
   if (!request.url.startsWith(environment.dartsMatcherApiUrl)) {
     return next(request);
   }

@@ -5,7 +5,7 @@ import {MatchRepository} from '../../../../data/repository/match-repository';
 import {mapToCreateMatchRequest} from '../../mappers/create-match-request.mapper';
 import {catchError, EMPTY, firstValueFrom, map, of, switchMap, tap} from 'rxjs';
 import {takeUntilDestroyed, toObservable} from '@angular/core/rxjs-interop';
-import {getApiErrorResponse} from '../../../../data/api/errors/api-error-response';
+import {isApiErrorResponse} from '../../../../data/api/errors/api-error-response';
 import {mapToCreateMatchSubmitErrors} from '../../mappers/create-match-submit-error.mapper';
 import * as MatchIdFormModel from '../../components/match-id-form/match-id-form.model';
 import {mapToMatchIdSubmitErrors} from '../../mappers/match-id-submit-error.mapper';
@@ -44,7 +44,7 @@ export class HomePageStore {
           }),
           map(() => []),
           catchError((error: unknown) => {
-            const errorResponse = getApiErrorResponse(error);
+            const errorResponse = isApiErrorResponse(error) ? error : undefined;
             return of<CreateMatchFormModel.SubmitError[]>(mapToCreateMatchSubmitErrors(errorResponse));
           }),
           takeUntilDestroyed(this.destroyRef)
@@ -73,7 +73,7 @@ export class HomePageStore {
           }),
           map(() => []),
           catchError((error: unknown) => {
-            const errorResponse = getApiErrorResponse(error);
+            const errorResponse = isApiErrorResponse(error) ? error : undefined;
             return of<MatchIdFormModel.SubmitError[]>(mapToMatchIdSubmitErrors(errorResponse));
           }),
           takeUntilDestroyed(this.destroyRef)

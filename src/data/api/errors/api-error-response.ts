@@ -34,13 +34,3 @@ export function isApiErrorResponse(value: unknown): value is ApiErrorResponse {
     (!('targetErrors' in value) || isApiTargetErrors(value.targetErrors))
   );
 }
-
-export function getApiErrorResponse(error: unknown): ApiErrorResponse | undefined {
-  if (!(error instanceof HttpErrorResponse)) {
-    return undefined;
-  }
-
-  return isApiErrorResponse(error.error)
-    ? error.error
-    : undefined;
-}

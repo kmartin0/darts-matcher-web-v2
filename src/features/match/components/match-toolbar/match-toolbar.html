@@ -1,0 +1,46 @@
+<mat-toolbar>
+  <!-- Title -->
+  <a
+    class="plain navigate-home-btn"
+    [routerLink]="AppEndpoints.home()">
+    Match
+  </a>
+
+  <span class="spacer"></span>
+
+  <!-- Loading spinner -->
+  @if (loading()) {
+    <mat-spinner [diameter]="24"/>
+  }
+
+  <!-- Theme toggle icon -->
+  <app-theme-toggle/>
+
+  <!-- More options icon -->
+  @if (menuVisible()) {
+    <button
+      mat-icon-button
+      aria-label="More options"
+      matTooltip="More options"
+      [matMenuTriggerFor]="menu">
+      <mat-icon>more_vert</mat-icon>
+    </button>
+  }
+</mat-toolbar>
+
+<!-- More options menu -->
+<mat-menu #menu="matMenu">
+  <button
+    mat-menu-item
+    (click)="copyMatchLink.emit()">
+    <mat-icon>link</mat-icon>
+    <span>Copy match link</span>
+  </button>
+
+  <button
+    mat-menu-item
+    (click)="copyMatchId.emit()">
+    <mat-icon>content_copy</mat-icon>
+    <span>Copy match ID</span>
+  </button>
+</mat-menu>

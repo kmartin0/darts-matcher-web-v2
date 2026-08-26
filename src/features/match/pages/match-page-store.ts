@@ -7,8 +7,11 @@ import {ActivatedRoute} from '@angular/router';
 import {isValidObjectId} from '../../../data/api/utils/object-id.util';
 import {X01Match} from '../../../data/model/x01/x01-match';
 import {RecentMatchesRepository} from '../../../data/repository/recent-matches-repository';
-import {getApiErrorResponse} from '../../../data/api/errors/api-error-response';
 import {ApiErrorCode} from '../../../data/api/errors/api-error-code';
+import {isApiErrorResponse} from '../../../data/api/errors/api-error-response';
+import {MatchEventType} from '../../../data/api/ws/match-event-type';
+import {MatchEventUnion} from '../../../data/api/ws/match-event';
+import {StreamEvent} from '../../../data/repository/stream-event.type';
 
 @Injectable()
 export class MatchPageStore {
@@ -28,10 +31,10 @@ export class MatchPageStore {
   }
 
   /**
-   * Observes route parameter changes and loads the corresponding match.
+   * Observes route parameter changes and starts observing the corresponding match.
    *
    * Invalid match IDs are represented as an error state. Using switchMap ensures
-   * any previous match request is canceled when the route parameter changes.
+   * the previous match observation is canceled when the route parameter changes.
    */
   private observeRouteParams(): void {
     this.route.paramMap
@@ -43,7 +46,7 @@ export class MatchPageStore {
             return EMPTY;
           }
 
-          return this.loadMatch(matchId);
+          return this.observeMatch(matchId);
         }),
         takeUntilDestroyed(this.destroyRef),
       )
@@ -51,41 +54,107 @@ export class MatchPageStore {
   }
 
   /**
-   * Loads an match by its ID and updates the page state for the load result.
+   * Observes the match stream and updates the page state from incoming events.
    *
-   * Any load failure is represented as an error state.
-   *
-   * @param matchId - Valid ObjectId of the match to load.
-   * @returns Observable of the loaded match.
+   * @param matchId - ID of the match to observe.
+   * @returns Observable representing the match stream.
    */
-  private loadMatch(matchId: string): Observable<X01Match> {
+  private observeMatch(matchId: string): Observable<StreamEvent<MatchEventUnion>> {
     this.patchState({match: {status: 'loading'}});
 
-    return this.matchRepository
-      .getMatch(matchId)
-      .pipe(
-        tap(match => {
-          this.recentMatchesRepository.addMatch(match.id);
-          this.patchState({match: {status: 'loaded', data: match}});
-        }),
-        catchError((error: unknown) => {
-          this.handleLoadMatchError(matchId, error);
-          return EMPTY;
-        }),
-      );
+    return this.matchRepository.streamMatch(matchId).pipe(
+      tap(streamEvent => this.handleStreamMatchEvent(streamEvent)),
+      catchError((error: unknown) => {
+        this.handleObserveMatchError(matchId, error);
+        return EMPTY;
+      }),
+    );
   }
 
   /**
-   * Handles an match load failure.
+   * Handles an event emitted by the match stream.
    *
-   * Removes the match from recents when it no longer exists and updates the page
-   * to the error state.
-   *
-   * @param matchId - ID of the match that failed to load.
-   * @param error - Error returned while loading the match.
+   * @param event - Stream event to handle.
    */
-  private handleLoadMatchError(matchId: string, error: unknown): void {
-    const errorResponse = getApiErrorResponse(error);
+  private handleStreamMatchEvent(event: StreamEvent<MatchEventUnion>): void {
+    switch (event.type) {
+      case 'data':
+        this.handleMatchEvent(event.data);
+        break;
+
+      case 'connection':
+        this.patchState({streamConnectionState: event.state});
+        break;
+    }
+  }
+
+  /**
+   * Handles an incoming match event.
+   *
+   * @param event - Match event to handle.
+   */
+  private handleMatchEvent(event: MatchEventUnion): void {
+    switch (event.eventType) {
+      case MatchEventType.PROCESS_MATCH:
+      case MatchEventType.ADD_HUMAN_TURN:
+      case MatchEventType.ADD_BOT_TURN:
+      case MatchEventType.EDIT_TURN:
+      case MatchEventType.DELETE_LAST_TURN:
+      case MatchEventType.RESET_MATCH:
+        this.handleMatchUpdate(event.payload);
+        break;
+
+      case MatchEventType.DELETE_MATCH:
+        this.handleDeleteMatchEvent(event.payload);
+        break;
+    }
+  }
+
+  /**
+   * Updates the currently loaded match from an incoming match update.
+   *
+   * Updates with an equal or older broadcast version are ignored. The match is
+   * added to recent matches when it is loaded for the first time.
+   *
+   * @param match - Updated match.
+   */
+  private handleMatchUpdate(match: X01Match): void {
+    const currentMatchState = this._state().match;
+
+    if (currentMatchState.status === 'loaded' && currentMatchState.data.broadcastVersion >= match.broadcastVersion) {
+      return;
+    }
+
+    if (currentMatchState.status !== 'loaded') {
+      this.recentMatchesRepository.addMatch(match.id);
+    }
+
+    this.patchState({match: {status: 'loaded', data: match}});
+  }
+
+  /**
+   * Handles deletion of the currently observed match.
+   *
+   * Removes the match from recent matches and marks the page as deleted.
+   *
+   * @param matchId - ID of the deleted match.
+   */
+  private handleDeleteMatchEvent(matchId: string): void {
+    this.recentMatchesRepository.removeMatch(matchId);
+    this.patchState({match: {status: 'idle'}, matchDeleted: true});
+  }
+
+  /**
+   * Handles a match observation failure.
+   *
+   * Removes the match from recent matches when it no longer exists and updates
+   * the page to the error state.
+   *
+   * @param matchId - ID of the match being observed.
+   * @param error - Error returned by the match stream.
+   */
+  private handleObserveMatchError(matchId: string, error: unknown): void {
+    const errorResponse = isApiErrorResponse(error) ? error : undefined;
 
     if (errorResponse?.error === ApiErrorCode.RESOURCE_NOT_FOUND) {
       this.recentMatchesRepository.removeMatch(matchId);
