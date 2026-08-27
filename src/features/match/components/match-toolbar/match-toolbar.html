@@ -2,7 +2,7 @@
   <!-- Title -->
   <a
     class="plain navigate-home-btn"
-    [routerLink]="AppEndpoints.home()">
+    (click)="navigateHome.emit()">
     Match
   </a>
 
@@ -53,5 +53,19 @@
     (click)="repairMatch.emit()">
     <mat-icon>build</mat-icon>
     <span>Repair Match</span>
+  </button>
+
+  <button
+    mat-menu-item
+    (click)="resetMatch.emit()">
+    <mat-icon>replay</mat-icon>
+    <span>Reset Match</span>
+  </button>
+
+  <button
+    mat-menu-item
+    (click)="deleteMatch.emit()">
+    <mat-icon>delete</mat-icon>
+    <span>Delete Match</span>
   </button>
 </mat-menu>

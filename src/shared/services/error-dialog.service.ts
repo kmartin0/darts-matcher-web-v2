@@ -1,13 +1,13 @@
 import {inject, Injectable} from '@angular/core';
 import {MatDialogRef} from '@angular/material/dialog';
-import {DialogService} from './dialog.service';
+import {DialogManagerService} from './dialog-manager.service';
 import {InternalErrorDialog} from '../components/internal-error-dialog/internal-error-dialog';
 import {TextDialog} from '../components/text-dialog/text-dialog';
 import {TextDialogData} from '../components/text-dialog/text-dialog-data';
 
 @Injectable({providedIn: 'root'})
 export class ErrorDialogService {
-  private readonly dialogService = inject(DialogService);
+  private readonly dialogService = inject(DialogManagerService);
 
   /**
    * Opens the internal error dialog.

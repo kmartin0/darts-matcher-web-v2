@@ -44,6 +44,30 @@ export class MatchPageStore {
   }
 
   /**
+   * Resets the currently loaded match.
+   *
+   * Clears existing command errors before execution and exposes a toolbar error when the reset operation fails.
+   */
+  resetMatch(): void {
+    this.executeMatchCommand(
+      match => this.matchRepository.resetMatch(match.id),
+      error => this.patchState({toolbarError: 'Failed to reset match'})
+    );
+  }
+
+  /**
+   * Deletes the currently loaded match.
+   *
+   * Clears existing command errors before execution and exposes a toolbar error when the delete operation fails.
+   */
+  deleteMatch(): void {
+    this.executeMatchCommand(
+      match => this.matchRepository.deleteMatch(match.id),
+      error => this.patchState({toolbarError: 'Failed to delete match'})
+    );
+  }
+
+  /**
    * Observes route parameter changes and starts observing the corresponding match.
    *
    * Invalid match IDs are represented as an error state. Using switchMap ensures
@@ -148,19 +172,19 @@ export class MatchPageStore {
   /**
    * Handles deletion of the currently observed match.
    *
-   * Removes the match from recent matches and marks the page as deleted.
+   * Deletes the match from recent matches and marks the page as deleted.
    *
    * @param matchId - ID of the deleted match.
    */
   private handleDeleteMatchEvent(matchId: string): void {
-    this.recentMatchesRepository.removeMatch(matchId);
-    this.patchState({match: {status: 'idle'}, matchDeleted: true});
+    this.recentMatchesRepository.deleteMatch(matchId);
+    this.patchState({match: {status: 'deleted'}});
   }
 
   /**
    * Handles a match observation failure.
    *
-   * Removes the match from recent matches when it no longer exists and marks the match state as errored.
+   * Deletes the match from recent matches when it no longer exists and marks the match state as errored.
    *
    * @param matchId - ID of the match being observed.
    * @param error - Error returned by the match stream.
@@ -169,7 +193,7 @@ export class MatchPageStore {
     const errorResponse = isApiErrorResponse(error) ? error : undefined;
 
     if (errorResponse?.error === ApiErrorCode.RESOURCE_NOT_FOUND) {
-      this.recentMatchesRepository.removeMatch(matchId);
+      this.recentMatchesRepository.deleteMatch(matchId);
     }
 
     this.patchState({match: {status: 'error'}});

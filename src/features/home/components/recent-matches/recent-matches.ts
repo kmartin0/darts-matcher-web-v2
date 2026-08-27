@@ -39,7 +39,7 @@ export class RecentMatches {
   readonly recentMatches = input.required<LoadState<X01Match[]>>();
 
   readonly selectMatch = output<string>();
-  readonly removeMatch = output<string>();
+  readonly deleteMatch = output<string>();
 
   protected readonly epochSecondsToDate = epochSecondsToDate;
 }

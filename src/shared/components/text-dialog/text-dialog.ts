@@ -1,6 +1,12 @@
 import {Component, inject} from '@angular/core';
 import {MatButton} from '@angular/material/button';
-import {MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent} from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogActions,
+  MatDialogClose,
+  MatDialogContent,
+  MatDialogTitle
+} from '@angular/material/dialog';
 import {MatIcon} from '@angular/material/icon';
 import {TextDialogData} from './text-dialog-data';
 
@@ -11,7 +17,8 @@ import {TextDialogData} from './text-dialog-data';
     MatDialogContent,
     MatDialogActions,
     MatButton,
-    MatDialogClose
+    MatDialogClose,
+    MatDialogTitle
   ],
   templateUrl: './text-dialog.html',
   styleUrl: './text-dialog.scss'

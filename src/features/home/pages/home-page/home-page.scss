@@ -1,7 +1,7 @@
 @use "mixins/helpers";
 @use "mixins/devices";
 
-.home-page-component-container {
+:host {
   @include helpers.module-page();
   gap: 24px;
 }

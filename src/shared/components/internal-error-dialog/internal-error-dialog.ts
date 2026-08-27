@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {MatDialogActions, MatDialogClose, MatDialogContent} from '@angular/material/dialog';
+import {MatDialogActions, MatDialogClose, MatDialogContent, MatDialogTitle} from '@angular/material/dialog';
 import {MatButton} from '@angular/material/button';
 import {MatIcon} from '@angular/material/icon';
 
@@ -16,7 +16,8 @@ import {MatIcon} from '@angular/material/icon';
     MatDialogActions,
     MatDialogClose,
     MatButton,
-    MatIcon
+    MatIcon,
+    MatDialogTitle
   ],
   templateUrl: './internal-error-dialog.html',
   styleUrl: './internal-error-dialog.scss'

@@ -1,19 +1,22 @@
 import {Component, computed, inject} from '@angular/core';
-import {MatProgressSpinner} from '@angular/material/progress-spinner';
 import {MatchPageStore} from './match-page-store';
 import {PageError} from '../../../shared/components/page-error/page-error';
 import {MatchToolbar} from '../components/match-toolbar/match-toolbar';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {Clipboard} from '@angular/cdk/clipboard';
 import {MatchBoard} from '../components/match-board/match-board';
+import {CommonDialogService} from '../../../shared/services/common-dialog.service';
+import {MatButton} from '@angular/material/button';
+import {Router} from '@angular/router';
+import {AppEndpoints} from '../../../app/app-endpoints';
 
 @Component({
   selector: 'app-match-page',
   imports: [
-    MatProgressSpinner,
     PageError,
     MatchToolbar,
-    MatchBoard
+    MatchBoard,
+    MatButton
   ],
   providers: [MatchPageStore],
   templateUrl: './match-page.html',
@@ -21,8 +24,10 @@ import {MatchBoard} from '../components/match-board/match-board';
 })
 export class MatchPage {
   private readonly store = inject(MatchPageStore);
+  private readonly commonDialogService = inject(CommonDialogService);
   private readonly clipboard = inject(Clipboard);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly router = inject(Router);
 
   /**
    * Current match page state.
@@ -52,7 +57,37 @@ export class MatchPage {
    * Repairs the current match.
    */
   protected onRepairMatch() {
-    this.store.repairMatch()
+    this.store.repairMatch();
+  }
+
+  /**
+   * Handles resetting the current match after user confirmation.
+   *
+   * Opens a confirmation dialog and resets the match when the user confirms the action.
+   */
+  protected onResetMatch() {
+    const dialogRef = this.commonDialogService.openConfirmDialog('Reset Match');
+
+    dialogRef?.afterClosed().subscribe(confirmed => {
+      if (confirmed) {
+        this.store.resetMatch();
+      }
+    });
+  }
+
+  /**
+   * Handles deletion of the current match after user confirmation.
+   *
+   * Opens a confirmation dialog and deletes the match when the user confirms the action.
+   */
+  protected onDeleteMatch() {
+    const dialogRef = this.commonDialogService.openConfirmDialog('Delete Match');
+
+    dialogRef?.afterClosed().subscribe(confirmed => {
+      if (confirmed) {
+        this.store.deleteMatch();
+      }
+    });
   }
 
   /**
@@ -83,6 +118,13 @@ export class MatchPage {
         ? 'Match ID copied'
         : failedMessage
     );
+  }
+
+  /**
+   * Navigates from the match page to the home page.
+   */
+  protected onNavigateHome() {
+    void this.router.navigateByUrl(AppEndpoints.home());
   }
 
   /**

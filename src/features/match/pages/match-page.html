@@ -4,20 +4,30 @@
   [menuVisible]="matchLoadState.status === 'loaded'"
   [error]="uiState().toolbarError"
   [loading]="toolbarLoading()"
+  (navigateHome)="onNavigateHome()"
   (repairMatch)="onRepairMatch()"
+  (resetMatch)="onResetMatch()"
+  (deleteMatch)="onDeleteMatch()"
   (copyMatchId)="onCopyMatchId()"
   (copyMatchLink)="onCopyMatchLink()"/>
 
-@switch (matchLoadState.status) {
-  @case ('idle') {
+<div class="match-page-content">
+  @switch (matchLoadState.status) {
+    @case ('idle') {
+    }
+    @case ('loading') {
+    }
+    @case ('error') {
+      <app-page-error message="The match could not be found"/>
+    }
+    @case ('loaded') {
+      <app-match-board [match]="matchLoadState.data"/>
+    }
+    @case ('deleted') {
+      <div class="match-deleted-container">
+        <p class="match-deleted">The match was deleted</p>
+        <a class="plain" (click)="onNavigateHome()" mat-button> Go to home </a>
+      </div>
+    }
   }
-  @case ('loading') {
-    <mat-spinner/>
-  }
-  @case ('error') {
-    <app-page-error message="The match could not be found"/>
-  }
-  @case ('loaded') {
-    <app-match-board [match]="matchLoadState.data"/>
-  }
-}
+</div>

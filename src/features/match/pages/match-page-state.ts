@@ -3,9 +3,8 @@ import {LoadState} from '../../../shared/types/load-state';
 import {StreamConnectionState} from '../../../data/repository/stream-event.type';
 
 export interface MatchPageState {
-  match: LoadState<X01Match>,
-  streamConnectionState: StreamConnectionState,
-  matchDeleted: boolean
+  match: MatchLoadState;
+  streamConnectionState: StreamConnectionState;
   toolbarError: string | null;
   scoreInputError: string | null;
 }
@@ -13,7 +12,8 @@ export interface MatchPageState {
 export const initialMatchPageState: MatchPageState = {
   match: {status: 'idle'},
   streamConnectionState: 'disconnected',
-  matchDeleted: false,
   toolbarError: null,
   scoreInputError: null
 };
+
+type MatchLoadState = LoadState<X01Match> | { status: 'deleted' };

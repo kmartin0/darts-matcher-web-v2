@@ -1,29 +1,45 @@
-<div class="header-container">
-  @if (matIcon) {
-    <mat-icon>{{ matIcon }}</mat-icon>
+<div class="dialog-container">
+  @if (matIcon || title) {
+    <div
+      class="header"
+      [class.hero]="matIcon">
+
+      @if (matIcon) {
+        <mat-icon class="icon">{{ matIcon }}</mat-icon>
+      }
+
+      @if (title) {
+        <h2 mat-dialog-title class="title">
+          {{ title }}
+        </h2>
+      }
+    </div>
   }
 
-  @if (title) {
-    <h2 class="title">{{ title }}</h2>
+  @if (subtitle || contentText) {
+    <mat-dialog-content class="content">
+      @if (subtitle) {
+        <h3 class="subtitle">{{ subtitle }}</h3>
+      }
+
+      @if (contentText) {
+        <p class="body">{{ contentText }}</p>
+      }
+    </mat-dialog-content>
   }
+
+  <mat-dialog-actions class="actions" align="end">
+    @if (isCancelable) {
+      <button mat-button mat-dialog-close>
+        {{ cancelText }}
+      </button>
+    }
+
+    <button
+      mat-button
+      [mat-dialog-close]="true"
+      cdkFocusInitial>
+      {{ confirmText }}
+    </button>
+  </mat-dialog-actions>
 </div>
-
-<mat-dialog-content>
-  @if (subtitle) {
-    <h3 class="subtitle">{{ subtitle }}</h3>
-  }
-
-  @if (contentText) {
-    <p>{{ contentText }}</p>
-  }
-</mat-dialog-content>
-
-<mat-dialog-actions align="end">
-  @if (isCancelable) {
-    <button mat-button mat-dialog-close>{{ cancelText }}</button>
-  }
-
-  <button mat-button [mat-dialog-close]="true" cdkFocusInitial>
-    {{ confirmText }}
-  </button>
-</mat-dialog-actions>

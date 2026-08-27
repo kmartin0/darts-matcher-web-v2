@@ -1,7 +1,5 @@
 import {Component, input, output} from '@angular/core';
 import {MatToolbar} from '@angular/material/toolbar';
-import {AppEndpoints} from '../../../../app/app-endpoints';
-import {RouterLink} from '@angular/router';
 import {ThemeToggle} from '../../../../shared/components/theme-toggle/theme-toggle';
 import {MatIconButton} from '@angular/material/button';
 import {MatMenu, MatMenuItem, MatMenuTrigger} from '@angular/material/menu';
@@ -16,7 +14,6 @@ import {ErrorMessage} from '../../../../shared/components/error-message/error-me
   styleUrl: './match-toolbar.scss',
   imports: [
     MatToolbar,
-    RouterLink,
     ThemeToggle,
     MatIconButton,
     MatMenuTrigger,
@@ -29,13 +26,14 @@ import {ErrorMessage} from '../../../../shared/components/error-message/error-me
   ]
 })
 export class MatchToolbar {
+  readonly navigateHome = output<void>();
   readonly copyMatchLink = output<void>();
   readonly copyMatchId = output<void>();
   readonly repairMatch = output<void>();
+  readonly resetMatch = output<void>();
+  readonly deleteMatch = output<void>();
 
   readonly menuVisible = input.required<boolean>();
   readonly loading = input.required<boolean>();
-  readonly error = input<string|null>(null);
-
-  protected readonly AppEndpoints = AppEndpoints;
+  readonly error = input<string | null>(null);
 }

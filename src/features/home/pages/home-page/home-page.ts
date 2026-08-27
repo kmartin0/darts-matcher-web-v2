@@ -9,6 +9,7 @@ import {Router} from '@angular/router';
 import {AppEndpoints} from '../../../../app/app-endpoints';
 import {MatchIdForm} from '../../components/match-id-form/match-id-form';
 import {RecentMatches} from '../../components/recent-matches/recent-matches';
+import {CommonDialogService} from '../../../../shared/services/common-dialog.service';
 
 @Component({
   selector: 'app-home-page',
@@ -19,6 +20,7 @@ import {RecentMatches} from '../../components/recent-matches/recent-matches';
 })
 export class HomePage {
   private readonly store = inject(HomePageStore);
+  private readonly commonDialogService = inject(CommonDialogService);
   private readonly router = inject(Router);
 
   protected readonly uiState = this.store.state;
@@ -60,12 +62,20 @@ export class HomePage {
   }
 
   /**
-   * Handles removal of a recent match.
+   * Handles deletion of a recent match from the recent matches.
    *
-   * @param matchId - ID of the match to remove.
+   * @param matchId - ID of the match to delete from recent matches.
    */
-  protected onRemoveMatch(matchId: string): void {
-    this.store.removeRecentMatch(matchId);
+  protected onDeleteFromRecentMatches(matchId: string): void {
+    const dialogRef = this.commonDialogService.openConfirmDialog(
+      'Remove this match from recents'
+    );
+
+    dialogRef?.afterClosed().subscribe(confirmed => {
+      if (confirmed) {
+        this.store.deleteFromRecentMatches(matchId);
+      }
+    });
   }
 
   /**

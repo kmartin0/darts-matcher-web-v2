@@ -51,11 +51,11 @@ export class RecentMatchesRepository {
   }
 
   /**
-   * Removes a match ID from the recently visited matches.
+   * Deletes a match ID from the recently visited matches.
    *
-   * @param matchId - Match ID to remove.
+   * @param matchId - Match ID to delete.
    */
-  removeMatch(matchId: string): void {
+  deleteMatch(matchId: string): void {
     const recentMatchIds = this._recentMatchIds().filter(id => id !== matchId);
 
     this.setRecentMatchIds(recentMatchIds);
@@ -92,7 +92,7 @@ export class RecentMatchesRepository {
   /**
    * Cleans recently visited match IDs.
    *
-   * Non-array values and invalid match IDs are removed, and the number of
+   * Non-array values and invalid match IDs are deleted, and the number of
    * returned IDs is limited to the configured maximum.
    *
    * @param recentMatchIds - Value containing the recent match IDs to clean.

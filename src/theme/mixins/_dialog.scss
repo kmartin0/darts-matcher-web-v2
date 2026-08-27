@@ -1,0 +1,81 @@
+@use "@angular/material" as mat;
+
+@mixin layout {
+  :host {
+    @include mat.dialog-overrides((
+      container-color: var(--mat-sys-surface-container-high),
+      container-shape: 28px,
+      container-min-width: 280px,
+      container-max-width: 560px,
+      container-small-max-width: calc(100vw - 32px),
+
+      headline-padding: 0,
+      content-padding: 0,
+      with-actions-content-padding: 0,
+      actions-padding: 0,
+    ));
+  }
+
+  .dialog-container {
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+  }
+
+  .header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header.hero {
+    align-items: center;
+    gap: 16px;
+  }
+
+  .icon {
+    width: 24px;
+    height: 24px;
+    font-size: 24px;
+  }
+
+  .title,
+  .subtitle,
+  .body {
+    margin: 0;
+    padding: 0;
+  }
+
+  .title {
+    font: var(--mat-sys-title-large);
+
+    &::before {
+      display: none;
+    }
+  }
+
+  .hero .title {
+    text-align: center;
+  }
+
+  .content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 16px;
+  }
+
+  .subtitle {
+    font: var(--mat-sys-title-small);
+  }
+
+  .body {
+    font: var(--mat-sys-body-medium);
+  }
+
+  .actions {
+    min-height: 0;
+    margin-top: 24px;
+    gap: 8px;
+  }
+}

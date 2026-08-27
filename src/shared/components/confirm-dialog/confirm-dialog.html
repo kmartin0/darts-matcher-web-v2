@@ -1,18 +1,21 @@
 <div class="dialog-container">
-  <div class="header hero">
-    <mat-icon class="icon">error</mat-icon>
-
+  <div class="header">
     <h2 mat-dialog-title class="title">
-      Error
+      Are you sure?
     </h2>
   </div>
 
   <mat-dialog-content class="content">
-    <h3 class="subtitle">Something went wrong on our end</h3>
-    <p class="body">Please try again or contact us.</p>
+    <p class="subtitle">{{ action }}</p>
   </mat-dialog-content>
 
   <mat-dialog-actions class="actions" align="end">
+    <button
+      mat-button
+      [mat-dialog-close]="false">
+      Cancel
+    </button>
+
     <button
       mat-button
       [mat-dialog-close]="true"

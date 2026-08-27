@@ -26,7 +26,7 @@
                   <button
                     mat-icon-button
                     matTooltip="Remove from recents"
-                    (click)="removeMatch.emit(match.id); $event.stopPropagation()">
+                    (click)="deleteMatch.emit(match.id); $event.stopPropagation()">
                     <mat-icon>delete</mat-icon>
                   </button>
 

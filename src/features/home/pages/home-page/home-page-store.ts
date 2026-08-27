@@ -83,12 +83,12 @@ export class HomePageStore {
   }
 
   /**
-   * Removes a match from the recently visited matches.
+   * Delete a match from the recently visited matches.
    *
-   * @param matchId - ID of the match to remove.
+   * @param matchId - ID of the match to delete.
    */
-  removeRecentMatch(matchId: string) {
-    this.recentMatchesRepository.removeMatch(matchId);
+  deleteFromRecentMatches(matchId: string) {
+    this.recentMatchesRepository.deleteMatch(matchId);
   }
 
   /**

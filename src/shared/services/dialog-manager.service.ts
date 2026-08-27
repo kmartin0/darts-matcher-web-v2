@@ -3,7 +3,7 @@ import {inject, Injectable} from '@angular/core';
 import {MatDialog, MatDialogConfig, MatDialogRef} from '@angular/material/dialog';
 
 @Injectable({providedIn: 'root'})
-export class DialogService {
+export class DialogManagerService {
   private readonly matDialog = inject(MatDialog);
 
   /**

@@ -1,0 +1,27 @@
+@use "@angular/material" as mat;
+@use "mixins/helpers";
+
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.match-page-content {
+  @include helpers.module-page();
+}
+
+.match-deleted-container {
+  @include mat.button-overrides((
+    text-label-text-size: var(--mat-sys-title-large-size),
+    text-container-height: calc(var(--mat-sys-title-large-size) + 20px),
+  ));
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.match-deleted {
+  font: var(--mat-sys-title-large);
+}
