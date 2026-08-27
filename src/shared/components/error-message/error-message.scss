@@ -1,47 +1,12 @@
-.error-message-container {
-  display: grid;
-}
-
 .error-message {
-  min-height: 0;
-  overflow: hidden;
   max-width: 100%;
   color: var(--mat-sys-error);
   font: var(--mat-sys-body-medium);
 }
 
-.error-enter {
-  animation: error-enter 300ms ease-out;
-}
-
-.error-leave {
-  animation: error-leave 300ms ease-out;
-}
-
-@keyframes error-enter {
-  from {
-    grid-template-rows: 0fr;
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-
-  to {
-    grid-template-rows: 1fr;
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes error-leave {
-  from {
-    grid-template-rows: 1fr;
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  to {
-    grid-template-rows: 0fr;
-    opacity: 0;
-    transform: translateY(-4px);
-  }
+.error-message.contrast {
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--mat-sys-corner-small);
+  color: var(--mat-sys-on-error-container);
+  background: var(--mat-sys-error-container);
 }

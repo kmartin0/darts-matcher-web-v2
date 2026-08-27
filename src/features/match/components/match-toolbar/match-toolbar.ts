@@ -8,6 +8,7 @@ import {MatMenu, MatMenuItem, MatMenuTrigger} from '@angular/material/menu';
 import {MatTooltip} from '@angular/material/tooltip';
 import {MatIcon} from '@angular/material/icon';
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
+import {ErrorMessage} from '../../../../shared/components/error-message/error-message';
 
 @Component({
   selector: 'app-match-toolbar',
@@ -23,14 +24,18 @@ import {MatProgressSpinner} from '@angular/material/progress-spinner';
     MatIcon,
     MatMenu,
     MatMenuItem,
-    MatProgressSpinner
+    MatProgressSpinner,
+    ErrorMessage
   ]
 })
 export class MatchToolbar {
   readonly copyMatchLink = output<void>();
   readonly copyMatchId = output<void>();
+  readonly repairMatch = output<void>();
+
   readonly menuVisible = input.required<boolean>();
   readonly loading = input.required<boolean>();
+  readonly error = input<string|null>(null);
 
   protected readonly AppEndpoints = AppEndpoints;
 }

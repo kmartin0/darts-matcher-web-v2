@@ -31,6 +31,19 @@ export class MatchPageStore {
   }
 
   /**
+   * Repairs the currently loaded match.
+   *
+   * Clears existing command errors before execution and exposes a toolbar error
+   * when the repair operation fails.
+   */
+  repairMatch(): void {
+    this.executeMatchCommand(
+      match => this.matchRepository.reprocessMatch(match.id),
+      error => this.patchState({toolbarError: 'Failed to repair match'})
+    );
+  }
+
+  /**
    * Observes route parameter changes and starts observing the corresponding match.
    *
    * Invalid match IDs are represented as an error state. Using switchMap ensures
@@ -147,8 +160,7 @@ export class MatchPageStore {
   /**
    * Handles a match observation failure.
    *
-   * Removes the match from recent matches when it no longer exists and updates
-   * the page to the error state.
+   * Removes the match from recent matches when it no longer exists and marks the match state as errored.
    *
    * @param matchId - ID of the match being observed.
    * @param error - Error returned by the match stream.
@@ -161,6 +173,34 @@ export class MatchPageStore {
     }
 
     this.patchState({match: {status: 'error'}});
+  }
+
+  /**
+   * Executes a command against the currently loaded match.
+   *
+   * The command is ignored when no match is loaded. Existing toolbar and score
+   * input errors are cleared before execution. Command-specific failures are
+   * delegated to the provided error handler.
+   *
+   * @param command - Command to execute against the currently loaded match.
+   * @param errorHandler - Handler invoked when the command fails.
+   */
+  private executeMatchCommand(
+    command: (match: X01Match) => Observable<unknown>,
+    errorHandler: (error: unknown) => void
+  ): void {
+    const matchState = this._state().match;
+    if (matchState.status !== 'loaded') return;
+
+    this.patchState({toolbarError: null, scoreInputError: null});
+
+    command(matchState.data).pipe(
+      catchError((error: unknown) => {
+        errorHandler(error);
+        return EMPTY;
+      }),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe();
   }
 
   /**

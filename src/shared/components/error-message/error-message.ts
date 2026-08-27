@@ -7,4 +7,5 @@ import {Component, input} from '@angular/core';
 })
 export class ErrorMessage {
   readonly message = input<string | null>(null);
+  readonly contrast = input<boolean>(false);
 }

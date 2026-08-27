@@ -1,7 +1,6 @@
 import {HttpErrorResponse, HttpInterceptorFn} from '@angular/common/http';
 import {catchError, throwError} from 'rxjs';
-import {ApiErrorCode} from '../errors/api-error-code';
-import {ApiErrorResponse, isApiErrorResponse} from '../errors/api-error-response';
+import {isApiErrorResponse} from '../errors/api-error-response';
 import {inject} from '@angular/core';
 import {ErrorDialogService} from '../../../shared/services/error-dialog.service';
 import {ApiErrorHandlerService} from '../errors/api-error-handler.service';

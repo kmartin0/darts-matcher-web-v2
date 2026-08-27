@@ -49,6 +49,13 @@ export class MatchPage {
   });
 
   /**
+   * Repairs the current match.
+   */
+  protected onRepairMatch() {
+    this.store.repairMatch()
+  }
+
+  /**
    * Copies the current match URL to the clipboard.
    */
   protected onCopyMatchLink(): void {

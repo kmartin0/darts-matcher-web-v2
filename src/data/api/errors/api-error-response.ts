@@ -1,6 +1,5 @@
 import {ApiErrorCode} from './api-error-code';
 import {ApiTargetErrors, isApiTargetErrors} from './api-target-errors';
-import {HttpErrorResponse} from '@angular/common/http';
 
 export interface ApiErrorResponse {
   error: ApiErrorCode;

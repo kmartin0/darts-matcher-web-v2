@@ -13,19 +13,23 @@
     <mat-spinner [diameter]="24"/>
   }
 
+  <!-- Error -->
+  @if (error(); as error) {
+    <app-error-message [message]="error" [contrast]="true"/>
+  }
+
   <!-- Theme toggle icon -->
   <app-theme-toggle/>
 
   <!-- More options icon -->
-  @if (menuVisible()) {
-    <button
-      mat-icon-button
-      aria-label="More options"
-      matTooltip="More options"
-      [matMenuTriggerFor]="menu">
-      <mat-icon>more_vert</mat-icon>
-    </button>
-  }
+  <button
+    mat-icon-button
+    aria-label="More options"
+    matTooltip="More options"
+    [matMenuTriggerFor]="menu"
+    [disabled]="!menuVisible()">
+    <mat-icon>more_vert</mat-icon>
+  </button>
 </mat-toolbar>
 
 <!-- More options menu -->
@@ -42,5 +46,12 @@
     (click)="copyMatchId.emit()">
     <mat-icon>content_copy</mat-icon>
     <span>Copy match ID</span>
+  </button>
+
+  <button
+    mat-menu-item
+    (click)="repairMatch.emit()">
+    <mat-icon>build</mat-icon>
+    <span>Repair Match</span>
   </button>
 </mat-menu>

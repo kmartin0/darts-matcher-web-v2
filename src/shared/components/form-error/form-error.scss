@@ -1,0 +1,44 @@
+.form-error-container {
+  display: grid;
+}
+
+.form-error-content {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.error-enter {
+  animation: error-enter 300ms ease-out;
+}
+
+.error-leave {
+  animation: error-leave 300ms ease-out;
+}
+
+@keyframes error-enter {
+  from {
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    grid-template-rows: 1fr;
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes error-leave {
+  from {
+    grid-template-rows: 1fr;
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}

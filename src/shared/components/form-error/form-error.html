@@ -1,1 +1,11 @@
-<app-error-message [message]="errorMessage()"/>
+@if (errorMessage()) {
+  <div
+    class="form-error-container"
+    animate.enter="error-enter"
+    animate.leave="error-leave">
+
+    <div class="form-error-content">
+      <app-error-message [message]="errorMessage()"/>
+    </div>
+  </div>
+}

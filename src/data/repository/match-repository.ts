@@ -1,12 +1,12 @@
 import {inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {CreateMatchRequestDto} from '../dto/create-match-request.dto';
-import {map, merge, Observable} from 'rxjs';
+import {Observable} from 'rxjs';
 import {X01Match} from '../model/x01/x01-match';
 import {DARTS_MATCHER_REST_ENDPOINTS} from '../api/rest-endpoints';
 import {unwrapApiError} from '../api/http/http-error.operator';
 import {WebSocketService} from '../api/ws/websocket.service';
-import {MatchEventUnion} from '../api/ws/match-event';
+import {MatchEventUnion, ProcessMatchEvent} from '../api/ws/match-event';
 import {DARTS_MATCHER_WS_DESTINATIONS, WsDestinationType} from '../api/ws-endpoints';
 import {StreamEvent} from './stream-event.type';
 
@@ -37,5 +37,9 @@ export class MatchRepository {
     const responseOnConnectDestination = DARTS_MATCHER_WS_DESTINATIONS.X01.SUBSCRIBE.MATCH(matchId, WsDestinationType.SINGLE_RESPONSE);
 
     return this.webSocket.watch<MatchEventUnion>(broadcastDestination, responseOnConnectDestination);
+  }
+
+  reprocessMatch(matchId: string): Observable<ProcessMatchEvent> {
+    return this.webSocket.publish<ProcessMatchEvent>(DARTS_MATCHER_WS_DESTINATIONS.X01.PUBLISH.REPROCESS_MATCH(matchId));
   }
 }

@@ -1,12 +1,14 @@
-@let state = uiState().match;
+@let matchLoadState = uiState().match;
 
 <app-match-toolbar
-  [menuVisible]="state.status === 'loaded'"
+  [menuVisible]="matchLoadState.status === 'loaded'"
+  [error]="uiState().toolbarError"
   [loading]="toolbarLoading()"
+  (repairMatch)="onRepairMatch()"
   (copyMatchId)="onCopyMatchId()"
   (copyMatchLink)="onCopyMatchLink()"/>
 
-@switch (state.status) {
+@switch (matchLoadState.status) {
   @case ('idle') {
   }
   @case ('loading') {
@@ -16,6 +18,6 @@
     <app-page-error message="The match could not be found"/>
   }
   @case ('loaded') {
-    <app-match-board [match]="state.data"/>
+    <app-match-board [match]="matchLoadState.data"/>
   }
 }

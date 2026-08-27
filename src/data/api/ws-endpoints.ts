@@ -17,6 +17,7 @@ export const DARTS_MATCHER_WS_DESTINATIONS = {
         type: WsDestinationType.BROADCAST | WsDestinationType.SINGLE_RESPONSE
       ): string => `${type}/x01/matches/${matchId}`,
     },
+
     PUBLISH: {
       ADD_TURN: (matchId: string): string => `${WsDestinationType.PUBLISH}/x01/matches/${matchId}/turn/add`,
       EDIT_TURN: (matchId: string): string => `${WsDestinationType.PUBLISH}/x01/matches/${matchId}/turn/edit`,
@@ -26,5 +27,7 @@ export const DARTS_MATCHER_WS_DESTINATIONS = {
       REPROCESS_MATCH: (matchId: string): string => `${WsDestinationType.PUBLISH}/x01/matches/${matchId}/reprocess`,
     },
   },
+
+  RESPONSE_QUEUE: `${WsDestinationType.USER}/queue/responses`,
   ERROR_QUEUE: `${WsDestinationType.USER}/queue/errors`,
 };

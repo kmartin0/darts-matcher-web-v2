@@ -6,10 +6,14 @@ export interface MatchPageState {
   match: LoadState<X01Match>,
   streamConnectionState: StreamConnectionState,
   matchDeleted: boolean
+  toolbarError: string | null;
+  scoreInputError: string | null;
 }
 
 export const initialMatchPageState: MatchPageState = {
   match: {status: 'idle'},
   streamConnectionState: 'disconnected',
-  matchDeleted: false
+  matchDeleted: false,
+  toolbarError: null,
+  scoreInputError: null
 };

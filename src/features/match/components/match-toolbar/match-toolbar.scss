@@ -11,8 +11,8 @@ mat-toolbar {
   gap: 12px;
   width: 100%;
 
-  button {
-    color: inherit
+  button:not(:disabled) {
+    color: inherit;
   }
 
   .spacer {
@@ -22,6 +22,10 @@ mat-toolbar {
   @include mat.toolbar-overrides((
     container-background-color: var(--mat-sys-primary),
     container-text-color: var(--mat-sys-on-primary)
+  ));
+
+  @include mat.icon-button-overrides((
+    disabled-icon-color: color-mix(in srgb, var(--mat-sys-on-primary) 38%, transparent)
   ));
 
   @include helpers.dark-mode {

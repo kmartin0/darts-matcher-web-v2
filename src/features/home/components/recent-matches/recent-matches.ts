@@ -6,7 +6,7 @@ import {MatIcon} from '@angular/material/icon';
 import {MatList, MatListItem} from '@angular/material/list';
 import {MatTooltip} from '@angular/material/tooltip';
 import {X01Match} from '../../../../data/model/x01/x01-match';
-import {epochSecondsToDate, formatCount} from '../../../../shared/utils/number.util';
+import {epochSecondsToDate} from '../../../../shared/utils/number.util';
 import {LoadState} from '../../../../shared/types/load-state';
 import {ErrorMessage} from '../../../../shared/components/error-message/error-message';
 import {ScorelinePipe} from './pipes/scoreline.pipe';
