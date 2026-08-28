@@ -1,4 +1,4 @@
-export enum MatchEventType {
+export enum MatchMessageType {
   PROCESS_MATCH = 'PROCESS_MATCH',
   ADD_HUMAN_TURN = 'ADD_HUMAN_TURN',
   ADD_BOT_TURN = 'ADD_BOT_TURN',

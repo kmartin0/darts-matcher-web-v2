@@ -9,9 +9,9 @@ import {X01Match} from '../../../data/model/x01/x01-match';
 import {RecentMatchesRepository} from '../../../data/repository/recent-matches-repository';
 import {ApiErrorCode} from '../../../data/api/errors/api-error-code';
 import {isApiErrorResponse} from '../../../data/api/errors/api-error-response';
-import {MatchEventType} from '../../../data/api/ws/match-event-type';
-import {MatchEventUnion} from '../../../data/api/ws/match-event';
+import {MatchMessageType} from '../../../data/api/ws/match-message-type';
 import {StreamEvent} from '../../../data/repository/stream-event.type';
+import {DeleteMatchMessage, MatchMessageUnion, MatchUpdateMessage} from '../../../data/api/ws/match-message';
 
 @Injectable()
 export class MatchPageStore {
@@ -39,7 +39,7 @@ export class MatchPageStore {
   repairMatch(): void {
     this.executeMatchCommand(
       match => this.matchRepository.reprocessMatch(match.id),
-      error => this.patchState({toolbarError: 'Failed to repair match'})
+      () => this.patchState({toolbarError: 'Failed to repair match'})
     );
   }
 
@@ -51,7 +51,7 @@ export class MatchPageStore {
   resetMatch(): void {
     this.executeMatchCommand(
       match => this.matchRepository.resetMatch(match.id),
-      error => this.patchState({toolbarError: 'Failed to reset match'})
+      () => this.patchState({toolbarError: 'Failed to reset match'})
     );
   }
 
@@ -63,7 +63,7 @@ export class MatchPageStore {
   deleteMatch(): void {
     this.executeMatchCommand(
       match => this.matchRepository.deleteMatch(match.id),
-      error => this.patchState({toolbarError: 'Failed to delete match'})
+      () => this.patchState({toolbarError: 'Failed to delete match'})
     );
   }
 
@@ -91,12 +91,12 @@ export class MatchPageStore {
   }
 
   /**
-   * Observes the match stream and updates the page state from incoming events.
+   * Observes the match stream and updates the page state from incoming stream events.
    *
    * @param matchId - ID of the match to observe.
    * @returns Observable representing the match stream.
    */
-  private observeMatch(matchId: string): Observable<StreamEvent<MatchEventUnion>> {
+  private observeMatch(matchId: string): Observable<StreamEvent<MatchMessageUnion>> {
     this.patchState({match: {status: 'loading'}});
 
     return this.matchRepository.streamMatch(matchId).pipe(
@@ -113,10 +113,10 @@ export class MatchPageStore {
    *
    * @param event - Stream event to handle.
    */
-  private handleStreamMatchEvent(event: StreamEvent<MatchEventUnion>): void {
+  private handleStreamMatchEvent(event: StreamEvent<MatchMessageUnion>): void {
     switch (event.type) {
       case 'data':
-        this.handleMatchEvent(event.data);
+        this.handleMatchMessage(event.data);
         break;
 
       case 'connection':
@@ -126,36 +126,37 @@ export class MatchPageStore {
   }
 
   /**
-   * Handles an incoming match event.
+   * Handles an incoming match message.
    *
-   * @param event - Match event to handle.
+   * @param message - Match message to handle.
    */
-  private handleMatchEvent(event: MatchEventUnion): void {
-    switch (event.eventType) {
-      case MatchEventType.PROCESS_MATCH:
-      case MatchEventType.ADD_HUMAN_TURN:
-      case MatchEventType.ADD_BOT_TURN:
-      case MatchEventType.EDIT_TURN:
-      case MatchEventType.DELETE_LAST_TURN:
-      case MatchEventType.RESET_MATCH:
-        this.handleMatchUpdate(event.payload);
+  private handleMatchMessage(message: MatchMessageUnion): void {
+    switch (message.messageType) {
+      case MatchMessageType.PROCESS_MATCH:
+      case MatchMessageType.ADD_HUMAN_TURN:
+      case MatchMessageType.ADD_BOT_TURN:
+      case MatchMessageType.EDIT_TURN:
+      case MatchMessageType.DELETE_LAST_TURN:
+      case MatchMessageType.RESET_MATCH:
+        this.handleMatchUpdate(message);
         break;
 
-      case MatchEventType.DELETE_MATCH:
-        this.handleDeleteMatchEvent(event.payload);
+      case MatchMessageType.DELETE_MATCH:
+        this.handleDeleteMatchMessage(message);
         break;
     }
   }
 
   /**
-   * Updates the currently loaded match from an incoming match update.
+   * Handles a match update message.
    *
    * Updates with an equal or older broadcast version are ignored. The match is
    * added to recent matches when it is loaded for the first time.
    *
-   * @param match - Updated match.
+   * @param message - Match update message to handle.
    */
-  private handleMatchUpdate(match: X01Match): void {
+  private handleMatchUpdate(message: MatchUpdateMessage): void {
+    const match = message.payload;
     const currentMatchState = this._state().match;
 
     if (currentMatchState.status === 'loaded' && currentMatchState.data.broadcastVersion >= match.broadcastVersion) {
@@ -170,13 +171,14 @@ export class MatchPageStore {
   }
 
   /**
-   * Handles deletion of the currently observed match.
+   * Handles a match deletion message.
    *
-   * Deletes the match from recent matches and marks the page as deleted.
+   * Removes the deleted match from recent matches and marks the page as deleted.
    *
-   * @param matchId - ID of the deleted match.
+   * @param message - Delete match message to handle.
    */
-  private handleDeleteMatchEvent(matchId: string): void {
+  private handleDeleteMatchMessage(message: DeleteMatchMessage): void {
+    const matchId = message.payload;
     this.recentMatchesRepository.deleteMatch(matchId);
     this.patchState({match: {status: 'deleted'}});
   }

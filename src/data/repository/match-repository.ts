@@ -6,9 +6,10 @@ import {X01Match} from '../model/x01/x01-match';
 import {DARTS_MATCHER_REST_ENDPOINTS} from '../api/rest-endpoints';
 import {unwrapApiError} from '../api/http/http-error.operator';
 import {WebSocketService} from '../api/ws/websocket.service';
-import {DeleteMatchEvent, MatchEventUnion, ProcessMatchEvent, ResetMatchEvent} from '../api/ws/match-event';
 import {DARTS_MATCHER_WS_DESTINATIONS, WsDestinationType} from '../api/ws-endpoints';
 import {StreamEvent} from './stream-event.type';
+import {DeleteMatchMessage, MatchMessageUnion, ProcessMatchMessage, ResetMatchMessage} from '../api/ws/match-message';
+import {MatchMessageType} from '../api/ws/match-message-type';
 
 
 @Injectable({providedIn: 'root'})
@@ -32,22 +33,22 @@ export class MatchRepository {
     return this.http.get<void>(DARTS_MATCHER_REST_ENDPOINTS.X01.MATCH_EXISTS(matchId)).pipe(unwrapApiError());
   }
 
-  streamMatch(matchId: string): Observable<StreamEvent<MatchEventUnion>> {
+  streamMatch(matchId: string): Observable<StreamEvent<MatchMessageUnion>> {
     const broadcastDestination = DARTS_MATCHER_WS_DESTINATIONS.X01.SUBSCRIBE.MATCH(matchId, WsDestinationType.BROADCAST);
     const responseOnConnectDestination = DARTS_MATCHER_WS_DESTINATIONS.X01.SUBSCRIBE.MATCH(matchId, WsDestinationType.SINGLE_RESPONSE);
 
-    return this.webSocket.watch<MatchEventUnion>(broadcastDestination, responseOnConnectDestination);
+    return this.webSocket.watch<MatchMessageUnion>(broadcastDestination, responseOnConnectDestination);
   }
 
-  reprocessMatch(matchId: string): Observable<ProcessMatchEvent> {
-    return this.webSocket.publish<ProcessMatchEvent>(DARTS_MATCHER_WS_DESTINATIONS.X01.PUBLISH.REPROCESS_MATCH(matchId));
+  reprocessMatch(matchId: string): Observable<ProcessMatchMessage> {
+    return this.webSocket.publish<ProcessMatchMessage>(DARTS_MATCHER_WS_DESTINATIONS.X01.PUBLISH.REPROCESS_MATCH(matchId));
   }
 
-  resetMatch(matchId: string): Observable<ResetMatchEvent> {
-    return this.webSocket.publish<ResetMatchEvent>(DARTS_MATCHER_WS_DESTINATIONS.X01.PUBLISH.RESET_MATCH(matchId));
+  resetMatch(matchId: string): Observable<ResetMatchMessage> {
+    return this.webSocket.publish<ResetMatchMessage>(DARTS_MATCHER_WS_DESTINATIONS.X01.PUBLISH.RESET_MATCH(matchId));
   }
 
-  deleteMatch(matchId: string): Observable<DeleteMatchEvent> {
-    return this.webSocket.publish<DeleteMatchEvent>(DARTS_MATCHER_WS_DESTINATIONS.X01.PUBLISH.DELETE_MATCH(matchId));
+  deleteMatch(matchId: string): Observable<DeleteMatchMessage> {
+    return this.webSocket.publish<DeleteMatchMessage>(DARTS_MATCHER_WS_DESTINATIONS.X01.PUBLISH.DELETE_MATCH(matchId));
   }
 }

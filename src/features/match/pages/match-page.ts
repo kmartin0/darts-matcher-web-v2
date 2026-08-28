@@ -45,12 +45,16 @@ export class MatchPage {
   /**
    * Whether the toolbar should display its loading indicator.
    *
-   * The toolbar is considered loading while the match is loading or
-   * while the WebSocket stream is not connected.
+   * The toolbar is considered loading while the match is loading, or while
+   * a loaded match is waiting for the WebSocket stream to connect.
    */
   protected readonly toolbarLoading = computed(() => {
     const state = this.uiState();
-    return state.match.status === 'loading' || state.streamConnectionState !== 'connected';
+
+    const isMatchLoading = state.match.status === 'loading';
+    const isWaitingForStream = state.match.status === 'loaded' && state.streamConnectionState !== 'connected';
+
+    return isMatchLoading || isWaitingForStream;
   });
 
   /**
