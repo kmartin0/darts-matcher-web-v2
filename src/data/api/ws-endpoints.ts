@@ -1,7 +1,3 @@
-import {environment} from '../../environments/environment';
-
-const DARTS_MATCHER_WEB_SOCKET_BASE_URL = environment.dartsMatcherWebSocketUrl;
-
 export enum WsDestinationType {
   BROADCAST = '/topic',
   SINGLE_RESPONSE = '/app',
@@ -15,16 +11,16 @@ export const DARTS_MATCHER_WS_DESTINATIONS = {
       MATCH: (
         matchId: string,
         type: WsDestinationType.BROADCAST | WsDestinationType.SINGLE_RESPONSE
-      ): string => `${type}/x01/matches/${matchId}`,
+      ): string => `${type}/matches/x01/${matchId}`,
     },
 
     PUBLISH: {
-      ADD_TURN: (matchId: string): string => `${WsDestinationType.PUBLISH}/x01/matches/${matchId}/turn/add`,
-      EDIT_TURN: (matchId: string): string => `${WsDestinationType.PUBLISH}/x01/matches/${matchId}/turn/edit`,
-      DELETE_LAST_TURN: (matchId: string): string => `${WsDestinationType.PUBLISH}/x01/matches/${matchId}/turn/delete-last`,
-      DELETE_MATCH: (matchId: string): string => `${WsDestinationType.PUBLISH}/x01/matches/${matchId}/delete`,
-      RESET_MATCH: (matchId: string): string => `${WsDestinationType.PUBLISH}/x01/matches/${matchId}/reset`,
-      REPROCESS_MATCH: (matchId: string): string => `${WsDestinationType.PUBLISH}/x01/matches/${matchId}/reprocess`,
+      ADD_TURN: (matchId: string): string => `${WsDestinationType.PUBLISH}/matches/x01/${matchId}/turns/add`,
+      EDIT_TURN: (matchId: string): string => `${WsDestinationType.PUBLISH}/matches/x01/${matchId}/turns/edit`,
+      DELETE_LAST_TURN: (matchId: string): string => `${WsDestinationType.PUBLISH}/matches/x01/${matchId}/turns/delete-last`,
+      DELETE_MATCH: (matchId: string): string => `${WsDestinationType.PUBLISH}/matches/x01/${matchId}/delete`,
+      RESET_MATCH: (matchId: string): string => `${WsDestinationType.PUBLISH}/matches/x01/${matchId}/reset`,
+      REPROCESS_MATCH: (matchId: string): string => `${WsDestinationType.PUBLISH}/matches/x01/${matchId}/reprocess`,
     },
   },
 

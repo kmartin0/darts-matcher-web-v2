@@ -21,10 +21,6 @@ export class MatchRepository {
     return this.http.post<X01Match>(DARTS_MATCHER_REST_ENDPOINTS.X01.MATCHES, body).pipe(unwrapApiError());
   }
 
-  getMatch(matchId: string): Observable<X01Match> {
-    return this.http.get<X01Match>(DARTS_MATCHER_REST_ENDPOINTS.X01.MATCH(matchId)).pipe(unwrapApiError());
-  }
-
   getMatches(matchIds: string[]): Observable<X01Match[]> {
     return this.http.get<X01Match[]>(DARTS_MATCHER_REST_ENDPOINTS.X01.MATCHES_BY_IDS(matchIds)).pipe(unwrapApiError());
   }
