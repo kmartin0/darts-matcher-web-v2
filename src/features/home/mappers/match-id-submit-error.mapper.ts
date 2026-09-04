@@ -1,31 +1,36 @@
+import {ApiErrorCode} from '../../../data/api/errors/api-error-code';
 import {ApiErrorResponse} from '../../../data/api/errors/api-error-response';
-import {mapToFormSubmitErrors} from '../../../shared/forms/api-form-error.mapper';
+import {ValidationErrorKey, ValidationErrorMessageUtil} from '../../../shared/utils/error-message.util';
 import * as MatchIdFormModel from '../components/match-id-form/match-id-form.model';
-
-const API_TARGETS_MAP: Record<string, MatchIdFormModel.FormErrorTarget> = {
-  'x01Match': 'matchId',
-};
 
 /**
  * Maps an API error response to match ID form submission errors.
+ *
+ * Resource-not-found errors indicate that no match exists for the submitted ID.
+ * All other failures are mapped to the default unknown submission error.
  *
  * @param errorResponse - Parsed API error response, or undefined when the failure could not be parsed.
  * @returns Form submission errors to apply to the match ID form.
  */
 export function mapToMatchIdSubmitErrors(errorResponse: ApiErrorResponse | undefined): MatchIdFormModel.SubmitError[] {
-  return mapToFormSubmitErrors(
-    errorResponse,
-    mapApiTargetToFormErrorTarget,
-    MatchIdFormModel.DEFAULT_ERROR_TARGET,
-  );
-}
+  let message: string;
 
-/**
- * Maps an API error target to its corresponding form error target.
- *
- * @param apiTarget - Target returned by the API.
- * @returns The mapped form error target, or undefined when the target is unsupported.
- */
-function mapApiTargetToFormErrorTarget(apiTarget: string): MatchIdFormModel.FormErrorTarget | undefined {
-  return API_TARGETS_MAP[apiTarget];
+  switch (errorResponse?.error) {
+    case ApiErrorCode.RESOURCE_NOT_FOUND:
+      message = ValidationErrorMessageUtil.getErrorMessage({
+        key: ValidationErrorKey.RESOURCE_NOT_FOUND,
+        resourceName: 'Match',
+      });
+      break;
+
+    default:
+      message = ValidationErrorMessageUtil.getErrorMessage({
+        key: ValidationErrorKey.UNKNOWN,
+      });
+  }
+
+  return [{
+    target: MatchIdFormModel.DEFAULT_ERROR_TARGET,
+    message,
+  }];
 }

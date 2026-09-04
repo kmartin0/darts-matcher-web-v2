@@ -1,5 +1,5 @@
 export interface X01Turn {
-  doublesMissed: number | null;
   score: number;
+  doublesMissed: number | null;
   remaining: number;
 }

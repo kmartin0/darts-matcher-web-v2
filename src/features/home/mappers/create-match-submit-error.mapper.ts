@@ -1,14 +1,27 @@
+import {ApiErrorCode} from '../../../data/api/errors/api-error-code';
 import {ApiErrorResponse} from '../../../data/api/errors/api-error-response';
 import {mapToFormSubmitErrors} from '../../../shared/forms/api-form-error.mapper';
+import {ValidationErrorKey, ValidationErrorMessageUtil} from '../../../shared/utils/error-message.util';
 import * as CreateMatchFormModel from '../components/create-match-form/create-match-form.model';
 
 const API_TARGETS_MAP: Record<string, CreateMatchFormModel.StaticFormErrorTarget> = {
+  'matchSettings': 'root',
   'matchSettings.x01': 'x01',
+
+  'matchSettings.bestOf': 'root',
+  'matchSettings.bestOf.bestOfType': 'root',
   'matchSettings.bestOf.sets': 'bestOf.sets',
   'matchSettings.bestOf.legs': 'bestOf.legs',
+
+  'matchSettings.bestOf.clearByTwoSetsRule': 'root',
   'matchSettings.bestOf.clearByTwoSetsRule.limit': 'clearByTwo.setLimit',
+
+  'matchSettings.bestOf.clearByTwoLegsRule': 'root',
   'matchSettings.bestOf.clearByTwoLegsRule.limit': 'clearByTwo.legLimit',
+
+  'matchSettings.bestOf.clearByTwoLegsInFinalSetRule': 'root',
   'matchSettings.bestOf.clearByTwoLegsInFinalSetRule.limit': 'clearByTwo.finalSetLegLimit',
+
   'players': 'players',
 };
 
@@ -17,15 +30,29 @@ const PLAYER_API_TARGET_PATTERN = /^players\[(?<index>\d+)]\.(?<field>.+)$/;
 /**
  * Maps an API error response to create-match form submission errors.
  *
+ * Invalid-arguments errors are mapped to their corresponding form targets.
+ * All other failures are mapped to the default unknown submission error.
+ *
  * @param errorResponse - Parsed API error response, or undefined when the failure could not be parsed.
  * @returns Form submission errors to apply to the create-match form.
  */
 export function mapToCreateMatchSubmitErrors(errorResponse: ApiErrorResponse | undefined): CreateMatchFormModel.SubmitError[] {
-  return mapToFormSubmitErrors(
-    errorResponse,
-    mapApiTargetToFormErrorTarget,
-    CreateMatchFormModel.DEFAULT_ERROR_TARGET,
-  );
+  switch (errorResponse?.error) {
+    case ApiErrorCode.INVALID_ARGUMENTS:
+      return mapToFormSubmitErrors(
+        errorResponse,
+        mapApiTargetToFormErrorTarget,
+        CreateMatchFormModel.DEFAULT_ERROR_TARGET,
+      );
+
+    default:
+      return [{
+        target: CreateMatchFormModel.DEFAULT_ERROR_TARGET,
+        message: ValidationErrorMessageUtil.getErrorMessage({
+          key: ValidationErrorKey.UNKNOWN,
+        }),
+      }];
+  }
 }
 
 /**
@@ -58,6 +85,7 @@ function mapApiTargetToPlayerFormErrorTarget(apiTarget: string): CreateMatchForm
     case 'playerType':
       return `players.${Number(index)}.playerType`;
 
+    case 'x01DartBotSettings':
     case 'x01DartBotSettings.threeDartAverage':
       return `players.${Number(index)}.threeDartAverage`;
 

@@ -3,7 +3,7 @@ import {ApiTargetErrors} from '../../data/api/errors/api-target-errors';
 import {ValidationErrorKey, ValidationErrorMessageUtil} from '../utils/error-message.util';
 import {FormSubmitError} from './form-submit';
 
-const API_BODY_ERROR_TARGET = 'body';
+const API_ROOT_ERROR_TARGET = 'root';
 
 /**
  * Maps an API error target to a form error target.
@@ -61,7 +61,7 @@ function mapApiTargetErrorsToFormSubmitErrors<TFormErrorTarget extends string>(
   const errors: FormSubmitError<TFormErrorTarget>[] =
     Object.entries(apiTargetErrors).map(([apiTarget, message]) => {
       return {
-        target: apiTarget === API_BODY_ERROR_TARGET
+        target: apiTarget === API_ROOT_ERROR_TARGET
           ? defaultFormErrorTarget
           : apiErrorTargetMapper(apiTarget) ?? defaultFormErrorTarget,
         message: message,

@@ -9,6 +9,7 @@ export enum ValidationErrorKey {
   MAX_ONE_BOT = 'maxOneBot',
   BOT_REQUIRES_HUMAN = 'botRequiresHuman',
   INVALID_MATCH_ID = 'invalidMatchId',
+  RESOURCE_NOT_FOUND = 'resourceNotFound',
   CUSTOM_ERROR = 'customError',
   UNKNOWN = 'unknown',
 }
@@ -24,6 +25,7 @@ export type ValidationErrorType =
   | { key: ValidationErrorKey.MAX_ONE_BOT }
   | { key: ValidationErrorKey.BOT_REQUIRES_HUMAN }
   | { key: ValidationErrorKey.INVALID_MATCH_ID }
+  | { key: ValidationErrorKey.RESOURCE_NOT_FOUND; resourceName: string; }
   | { key: ValidationErrorKey.CUSTOM_ERROR; message: string }
   | { key: ValidationErrorKey.UNKNOWN };
 
@@ -50,6 +52,8 @@ export class ValidationErrorMessageUtil {
         return this.botRequiresHuman();
       case ValidationErrorKey.INVALID_MATCH_ID:
         return this.invalidMatchId();
+      case ValidationErrorKey.RESOURCE_NOT_FOUND:
+        return this.resourceNotFound(error.resourceName);
       case ValidationErrorKey.CUSTOM_ERROR:
         return this.customError(error.message);
       case ValidationErrorKey.UNKNOWN:
@@ -95,6 +99,10 @@ export class ValidationErrorMessageUtil {
 
   private static invalidMatchId(): string {
     return 'Invalid Match ID';
+  }
+
+  private static resourceNotFound(resourceName: string): string {
+    return `${resourceName} not found.`;
   }
 
   private static customError(message: string): string {
