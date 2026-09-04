@@ -1,4 +1,4 @@
-export interface X01LegRoundScore {
+export interface X01Turn {
   doublesMissed: number | null;
   score: number;
   remaining: number;

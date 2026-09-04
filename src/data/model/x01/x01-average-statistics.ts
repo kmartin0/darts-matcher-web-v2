@@ -1,8 +1,8 @@
 export interface X01AverageStatistics {
   pointsThrown: number;
   dartsThrown: number;
-  average: number;
+  average: number | null;
   pointsThrownFirstNine: number;
   dartsThrownFirstNine: number;
-  averageFirstNine: number;
+  averageFirstNine: number | null;
 }

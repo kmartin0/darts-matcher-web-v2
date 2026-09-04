@@ -14,7 +14,8 @@ import {
   switchMap,
   take,
   tap,
-  throwError, timeout
+  throwError,
+  timeout
 } from 'rxjs';
 import {environment} from '../../../environments/environment';
 import {IMessage, IRxStompPublishParams, RxStomp, RxStompConfig, RxStompState} from '@stomp/rx-stomp';

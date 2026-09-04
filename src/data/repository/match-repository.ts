@@ -9,7 +9,6 @@ import {WebSocketService} from '../api/ws/websocket.service';
 import {DARTS_MATCHER_WS_DESTINATIONS, WsDestinationType} from '../api/ws-endpoints';
 import {StreamEvent} from './stream-event.type';
 import {DeleteMatchMessage, MatchMessageUnion, ProcessMatchMessage, ResetMatchMessage} from '../api/ws/match-message';
-import {MatchMessageType} from '../api/ws/match-message-type';
 
 
 @Injectable({providedIn: 'root'})

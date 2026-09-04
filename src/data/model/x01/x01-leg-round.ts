@@ -1,6 +1,6 @@
-import {X01LegRoundScore} from './x01-leg-round-score';
+import {X01Turn} from './x01-turn';
 import {PlayerMap} from '../../../shared/types/player-map';
 
 export interface X01LegRound {
-  scores: PlayerMap<X01LegRoundScore>
+  turns: PlayerMap<X01Turn>
 }
