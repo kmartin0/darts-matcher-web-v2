@@ -1,5 +1,5 @@
 import {Component, input} from '@angular/core';
-import {MatchHeaderPipe} from './match-header.pipe';
+import {MatchHeaderPipe} from './pipes/match-header.pipe';
 import {X01Match} from '../../../../data/model/x01/x01-match';
 
 @Component({

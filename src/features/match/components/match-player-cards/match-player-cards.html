@@ -1,0 +1,5 @@
+<div class="match-player-cards">
+  @for (playerCard of playerCards(); track playerCard.playerId) {
+    <app-match-player-card [data]="playerCard"/>
+  }
+</div>

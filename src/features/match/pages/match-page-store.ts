@@ -12,11 +12,13 @@ import {isApiErrorResponse} from '../../../data/api/errors/api-error-response';
 import {MatchMessageType} from '../../../data/api/ws/match-message-type';
 import {StreamEvent} from '../../../data/repository/stream-event.type';
 import {DeleteMatchMessage, MatchMessageUnion, MatchUpdateMessage} from '../../../data/api/ws/match-message';
+import {CheckoutRepository} from '../../../data/repository/checkout-repository';
 
 @Injectable()
 export class MatchPageStore {
   private readonly matchRepository = inject(MatchRepository);
   private readonly recentMatchesRepository = inject(RecentMatchesRepository);
+  private readonly checkoutRepository = inject(CheckoutRepository);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -27,6 +29,7 @@ export class MatchPageStore {
    * Initializes the store by observing route parameter changes.
    */
   constructor() {
+    this.loadCheckouts();
     this.observeRouteParams();
   }
 
@@ -65,6 +68,24 @@ export class MatchPageStore {
       match => this.matchRepository.deleteMatch(match.id, [ApiErrorCode.RESOURCE_NOT_FOUND]),
       () => this.patchState({toolbarError: 'Failed to delete match'})
     );
+  }
+
+  /**
+   * Loads the checkout suggestions required by the match page.
+   */
+  private loadCheckouts(): void {
+    this.patchState({checkouts: {status: 'loading'}});
+
+    this.checkoutRepository.getCheckouts().pipe(
+      tap(checkouts =>
+        this.patchState({checkouts: {status: 'loaded', data: checkouts}})
+      ),
+      catchError(() => {
+        this.patchState({checkouts: {status: 'error'}, toolbarError: 'Failed to load checkouts'});
+        return EMPTY;
+      }),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe();
   }
 
   /**

@@ -1,23 +1,22 @@
 import {Pipe, PipeTransform} from '@angular/core';
-import {X01Match} from '../../../../../data/model/x01/x01-match';
+import {X01MatchSettings} from '../../../../../data/model/x01/x01-match-settings';
 import {formatCount} from '../../../../../shared/utils/number.util';
 
 @Pipe({
-  name: 'clearByTwoFinalSet',
-  pure: true,
+  name: 'clearByTwoFinalSetRule'
 })
-export class ClearByTwoFinalSetPipe implements PipeTransform {
+export class ClearByTwoFinalSetRulePipe implements PipeTransform {
 
   /**
-   * Formats the final-set clear-by-two configuration for a match.
+   * Formats the final-set clear-by-two configuration.
    *
    * Returns an empty string when clear-by-two legs in the final set is disabled.
    *
-   * @param match - Match to format the final-set clear-by-two configuration for.
+   * @param bestOf - Best-of configuration containing the final-set rule.
    * @returns Formatted final-set clear-by-two configuration, or an empty string when disabled.
    */
-  transform(match: X01Match): string {
-    const rule = match.matchSettings.bestOf.clearByTwoLegsInFinalSetRule;
+  transform(bestOf: X01MatchSettings['bestOf']): string {
+    const rule = bestOf.clearByTwoLegsInFinalSetRule;
 
     if (!rule.enabled) return '';
 

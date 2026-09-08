@@ -1,0 +1,46 @@
+<div
+  class="match-player-card"
+  [class.current-thrower]="isCurrentThrower()"
+  [class.starts-leg]="isStartsLeg()"
+  [class.win-or-draw]="winOrDraw()">
+
+  <mat-card class="player-info-card">
+    <span class="player-name">{{ data().name }}</span>
+    <span class="player-score">
+      Score: {{ data() | playerScore }}
+    </span>
+  </mat-card>
+
+  <mat-card class="player-stats-card">
+    <span class="remaining">{{ data().remaining }}</span>
+    <span class="checkout-hint">{{ data().suggestedCheckout | suggestedCheckout }}</span>
+
+    <div class="divider-1"></div>
+
+    <div class="stat-container three-dart">
+      <span class="stat-label">3-Dart</span>
+      <span class="stat-value">{{ data().average ?? '-' }}</span>
+    </div>
+
+    <div class="divider-2"></div>
+
+    <div class="stat-container first-nine">
+      <span class="stat-label">First 9</span>
+      <span class="stat-value">{{ data().averageFirstNine ?? '-' }}</span>
+    </div>
+
+    <div class="divider-3"></div>
+
+    <div class="stat-container last-score">
+      <span class="stat-label">Last</span>
+      <span class="stat-value">{{ data().lastScore ?? '-' }}</span>
+    </div>
+
+    <div class="divider-4"></div>
+
+    <div class="stat-container darts-used">
+      <span class="stat-label">Darts</span>
+      <span class="stat-value">{{ data().dartsUsed }}</span>
+    </div>
+  </mat-card>
+</div>

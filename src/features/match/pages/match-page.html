@@ -1,8 +1,10 @@
-@let matchLoadState = uiState().match;
+@let state = uiState();
+@let matchLoadState = state.match;
+@let checkoutsLoadState = state.checkouts;
 
 <app-match-toolbar
   [menuVisible]="matchLoadState.status === 'loaded'"
-  [error]="uiState().toolbarError"
+  [error]="state.toolbarError"
   [loading]="toolbarLoading()"
   (navigateHome)="onNavigateHome()"
   (repairMatch)="onRepairMatch()"
@@ -21,7 +23,11 @@
       <app-page-error message="The match could not be found"/>
     }
     @case ('loaded') {
-      <app-match-board [match]="matchLoadState.data"/>
+      @if (checkoutsLoadState.status === 'loaded') {
+        <app-match-board
+          [match]="matchLoadState.data"
+          [checkouts]="checkoutsLoadState.data"/>
+      }
     }
     @case ('deleted') {
       <div class="match-deleted-container">

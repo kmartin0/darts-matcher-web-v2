@@ -41,15 +41,15 @@
             </mat-expansion-panel-header>
 
             <mat-list>
-              @if (match | bestOfSets; as bestOfSets) {
+              @if (match.matchSettings.bestOf | bestOfSetsRule; as bestOfSets) {
                 <mat-list-item>{{ bestOfSets }}</mat-list-item>
               }
 
               <mat-list-item>
-                {{ match | bestOfLegs }}
+                {{ match.matchSettings.bestOf | bestOfLegsRule }}
               </mat-list-item>
 
-              @if (match | clearByTwoFinalSet; as clearByTwoFinalSet) {
+              @if (match.matchSettings.bestOf | clearByTwoFinalSetRule; as clearByTwoFinalSet) {
                 <mat-list-item>{{ clearByTwoFinalSet }}</mat-list-item>
               }
             </mat-list>

@@ -11,7 +11,7 @@ import {ThemeMode, themeModeFromId} from '../model/settings/theme-mode';
   providedIn: 'root',
 })
 export class SettingsRepository {
-  private readonly themeModeKey = 'theme-mode';
+  private readonly THEME_MODE_LOCAL_STORAGE_KEY = 'darts-matcher:theme-mode';
 
   private readonly _settings = signal<AppSettings>({themeMode: this.readThemeMode()});
 
@@ -24,7 +24,7 @@ export class SettingsRepository {
    * @param themeMode The theme mode to use.
    */
   setThemeMode(themeMode: ThemeMode): void {
-    localStorage.setItem(this.themeModeKey, themeMode.id);
+    localStorage.setItem(this.THEME_MODE_LOCAL_STORAGE_KEY, themeMode.id);
 
     this._settings.update(settings => ({
       ...settings,
@@ -49,6 +49,6 @@ export class SettingsRepository {
    * @returns The persisted theme mode, or the default if none is stored.
    */
   private readThemeMode(): ThemeMode {
-    return themeModeFromId(localStorage.getItem(this.themeModeKey),);
+    return themeModeFromId(localStorage.getItem(this.THEME_MODE_LOCAL_STORAGE_KEY),);
   }
 }

@@ -11,7 +11,7 @@ import {isPlatformBrowser} from '@angular/common';
   providedIn: 'root',
 })
 export class RecentMatchesRepository {
-  private readonly storageKey = 'recent-matches';
+  private readonly RECENT_MATCHES_LOCAL_STORAGE_KEY = 'darts-matcher:recent-matches';
   private readonly maxMatches = 5;
 
   private readonly _recentMatchIds = signal<string[]>([]);
@@ -24,7 +24,7 @@ export class RecentMatchesRepository {
     this.loadRecentMatchIds();
 
     window.addEventListener('storage', event => {
-      if (event.key === this.storageKey || event.key === null) {
+      if (event.key === this.RECENT_MATCHES_LOCAL_STORAGE_KEY || event.key === null) {
         this.loadRecentMatchIds();
       }
     });
@@ -69,7 +69,7 @@ export class RecentMatchesRepository {
    */
   private loadRecentMatchIds(): void {
     try {
-      const storedRecentMatchIds = localStorage.getItem(this.storageKey);
+      const storedRecentMatchIds = localStorage.getItem(this.RECENT_MATCHES_LOCAL_STORAGE_KEY);
 
       if (storedRecentMatchIds === null) {
         this._recentMatchIds.set([]);
@@ -117,7 +117,7 @@ export class RecentMatchesRepository {
     this._recentMatchIds.set(recentMatchIds);
 
     try {
-      localStorage.setItem(this.storageKey, JSON.stringify(recentMatchIds));
+      localStorage.setItem(this.RECENT_MATCHES_LOCAL_STORAGE_KEY, JSON.stringify(recentMatchIds));
     } catch {
       // Recent matches remain available for the current session.
     }

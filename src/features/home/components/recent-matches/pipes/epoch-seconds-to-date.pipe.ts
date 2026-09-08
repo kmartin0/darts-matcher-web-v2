@@ -2,8 +2,7 @@ import {epochSecondsToDate} from '../../../../../shared/utils/number.util';
 import {Pipe, PipeTransform} from '@angular/core';
 
 @Pipe({
-  name: 'epochSecondsToDate',
-  pure: true,
+  name: 'epochSecondsToDate'
 })
 export class EpochSecondsToDatePipe implements PipeTransform {
 

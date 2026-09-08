@@ -1,9 +1,13 @@
 import {Pipe, PipeTransform} from '@angular/core';
-import {X01Match} from '../../../../data/model/x01/x01-match';
-import {X01MatchSettings} from '../../../../data/model/x01/x01-match-settings';
-import {X01BestOfType} from '../../../../data/model/x01/x01-best-of-type';
-import {formatCount} from '../../../../shared/utils/number.util';
+import {X01Match} from '../../../../../data/model/x01/x01-match';
+import {X01MatchSettings} from '../../../../../data/model/x01/x01-match-settings';
+import {X01BestOfType} from '../../../../../data/model/x01/x01-best-of-type';
+import {formatCount} from '../../../../../shared/utils/number.util';
 
+export interface MatchHeaderPipeData {
+  matchSettings: X01MatchSettings;
+  matchType: X01Match['matchType'];
+}
 
 /**
  * Formats match information for display in the match header.
@@ -14,13 +18,13 @@ import {formatCount} from '../../../../shared/utils/number.util';
 export class MatchHeaderPipe implements PipeTransform {
 
   /**
-   * Formats a match as a user-friendly match header.
+   * Formats match information as a user-friendly match header.
    *
-   * @param match - Match to format.
-   * @returns Formatted match header, or null when no match is provided.
+   * @param data - Match header data to format.
+   * @returns Formatted match header.
    */
-  transform(match: X01Match): string {
-    const matchSettings = match.matchSettings;
+  transform(data: MatchHeaderPipeData): string {
+    const matchSettings = data.matchSettings;
     const headerParts = [this.getBestOf(matchSettings)];
 
     // Include clear-by-two when any clear-by-two rule is enabled.
@@ -28,7 +32,7 @@ export class MatchHeaderPipe implements PipeTransform {
       headerParts.push('Clear by two');
     }
 
-    headerParts.push(`${match.matchType} (${matchSettings.x01})`);
+    headerParts.push(`${data.matchType} (${matchSettings.x01})`);
 
     return headerParts.join(' | ');
   }

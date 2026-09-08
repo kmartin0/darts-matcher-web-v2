@@ -6,14 +6,13 @@ import {MatIcon} from '@angular/material/icon';
 import {MatList, MatListItem} from '@angular/material/list';
 import {MatTooltip} from '@angular/material/tooltip';
 import {X01Match} from '../../../../data/model/x01/x01-match';
-import {epochSecondsToDate} from '../../../../shared/utils/number.util';
 import {LoadState} from '../../../../shared/types/load-state';
 import {ErrorMessage} from '../../../../shared/components/error-message/error-message';
 import {ScorelinePipe} from './pipes/scoreline.pipe';
-import {BestOfSetsPipe} from './pipes/best-of-sets.pipe';
-import {BestOfLegsPipe} from './pipes/best-of-legs.pipe';
-import {ClearByTwoFinalSetPipe} from './pipes/clear-by-two-final-set.pipe';
+import {BestOfSetsRulePipe} from './pipes/best-of-sets-rule.pipe';
+import {ClearByTwoFinalSetRulePipe} from './pipes/clear-by-two-final-set-rule.pipe';
 import {EpochSecondsToDatePipe} from './pipes/epoch-seconds-to-date.pipe';
+import {BestOfLegsRulePipe} from './pipes/best-of-legs-rule.pipe';
 
 @Component({
   selector: 'app-recent-matches',
@@ -27,9 +26,9 @@ import {EpochSecondsToDatePipe} from './pipes/epoch-seconds-to-date.pipe';
     MatTooltip,
     ErrorMessage,
     ScorelinePipe,
-    BestOfSetsPipe,
-    BestOfLegsPipe,
-    ClearByTwoFinalSetPipe,
+    BestOfLegsRulePipe,
+    BestOfSetsRulePipe,
+    ClearByTwoFinalSetRulePipe,
     EpochSecondsToDatePipe,
   ],
   templateUrl: './recent-matches.html',
@@ -40,8 +39,6 @@ export class RecentMatches {
 
   readonly selectMatch = output<string>();
   readonly deleteMatch = output<string>();
-
-  protected readonly epochSecondsToDate = epochSecondsToDate;
 }
 
 
