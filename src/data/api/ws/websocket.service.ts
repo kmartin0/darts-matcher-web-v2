@@ -22,9 +22,11 @@ import {IMessage, IRxStompPublishParams, RxStomp, RxStompConfig, RxStompState} f
 import {StreamConnectionState, StreamEvent} from '../../repository/stream-event.type';
 import {DARTS_MATCHER_WS_DESTINATIONS} from '../ws-endpoints';
 import {ApiErrorHandlerService} from '../errors/api-error-handler.service';
-import {WebSocketErrorMessage} from './websocket-error-message';
+import {isWebSocketErrorMessage, WebSocketErrorMessage} from './websocket-error-message';
 import {WebSocketMessage} from './websocket-message';
 import {tryParseJson} from '../../../shared/utils/json.util';
+import {ApiErrorCodes} from '../errors/api-error-code';
+import {ErrorDialogService} from '../../../shared/services/error-dialog.service';
 
 /**
  * Provides shared WebSocket communication through a single RxStomp connection.
@@ -37,6 +39,7 @@ import {tryParseJson} from '../../../shared/utils/json.util';
 })
 export class WebSocketService {
   private readonly apiErrorHandlerService = inject(ApiErrorHandlerService);
+  private readonly errorDialogService = inject(ErrorDialogService);
   private readonly rxStomp = this.createRxStomp();
   private readonly publishIdHeader = 'publish-id';
 
@@ -58,12 +61,17 @@ export class WebSocketService {
    * @typeParam T - Type of WebSocket message received from the destination.
    * @param destination - STOMP destination to observe.
    * @param responseOnConnectDestination - Optional destination used to request data after connecting.
+   * @param handleLocally - API error codes handled locally by the caller.
    * @returns Stream of data and connection state events.
    */
-  watch<T extends WebSocketMessage<unknown, unknown>>(destination: string, responseOnConnectDestination?: string): Observable<StreamEvent<T>> {
+  watch<T extends WebSocketMessage<unknown, unknown>>(
+    destination: string,
+    responseOnConnectDestination?: string,
+    handleLocally: ApiErrorCodes = []
+  ): Observable<StreamEvent<T>> {
     const dataEvent$ = this.createWatchDataEventStream<T>(destination, responseOnConnectDestination);
     const connectionEvent$ = this.createWatchConnectionEventStream<T>();
-    const error$ = this.createWatchErrorStream(destination, responseOnConnectDestination);
+    const error$ = this.createWatchErrorStream(destination, responseOnConnectDestination, handleLocally);
 
     return merge(dataEvent$, connectionEvent$, error$);
   }
@@ -74,22 +82,27 @@ export class WebSocketService {
    * A unique publish ID is attached to the outgoing message and used to match either
    * a response from the shared response queue or an error from the shared error queue.
    * The operation times out when no matching response or error is received within
-   * the configured publish timeout.
+   * the configured publishing timeout.
    *
    * The message is published when the returned observable is subscribed to.
    *
    * @typeParam T - Type of the WebSocket message returned for the publish.
    * @param destination - STOMP destination to publish to.
    * @param body - Optional message body.
+   * @param handleLocally - API error codes handled locally by the caller.
    * @returns Observable that emits the matching WebSocket message or errors when the publish fails or times out.
    */
-  publish<T extends WebSocketMessage<unknown, unknown>>(destination: string, body?: unknown): Observable<T> {
+  publish<T extends WebSocketMessage<unknown, unknown>>(
+    destination: string,
+    body?: unknown,
+    handleLocally: ApiErrorCodes = []
+  ): Observable<T> {
     return new Observable<T>(subscriber => {
       const publishId = this.createPublishId();
 
       const resultSubscription = merge(
         this.createPublishResponseStream<T>(publishId),
-        this.createPublishErrorStream(publishId)
+        this.createPublishErrorStream(publishId, handleLocally)
       )
         .pipe(
           take(1),
@@ -99,7 +112,6 @@ export class WebSocketService {
 
       try {
         console.log('publish:', destination, {publishId, body: typeof body === 'string' ? tryParseJson(body) : body});
-
         this.rxStomp.publish(this.createPublishParams(destination, publishId, body));
       } catch (error) {
         subscriber.error(error);
@@ -155,30 +167,25 @@ export class WebSocketService {
    * Creates an error stream for a watched destination.
    *
    * Errors associated with either watched destination are emitted through the observable error channel.
+   * Matching API errors are forwarded to the global API error handler unless handled locally by the caller.
    * Malformed error frames are logged and ignored so they cannot terminate the shared error queue.
    *
    * @param destination - Primary STOMP destination to match errors against.
    * @param responseOnConnectDestination - Optional response destination to match errors against.
+   * @param handleLocally - API error codes handled locally by the caller.
    * @returns Observable that errors when a matching WebSocket error is received.
    */
-  private createWatchErrorStream(destination: string, responseOnConnectDestination?: string): Observable<never> {
+  private createWatchErrorStream(
+    destination: string,
+    responseOnConnectDestination: string | undefined,
+    handleLocally: ApiErrorCodes
+  ): Observable<never> {
     return this.errorQueue$.pipe(
-      mergeMap(message => {
-        let error: WebSocketErrorMessage;
-
-        try {
-          error = JSON.parse(message.body) as WebSocketErrorMessage;
-        } catch (parseError) {
-          console.error('Invalid WebSocket error message:', parseError, message);
-          return EMPTY;
-        }
-
-        if (error.destination !== destination && error.destination !== responseOnConnectDestination) {
-          return EMPTY;
-        }
-
-        return throwError(() => error);
-      })
+      map(message => this.parseWebSocketErrorMessage(message)),
+      filter((error): error is WebSocketErrorMessage => error !== undefined),
+      filter(error => error.destination === destination || error.destination === responseOnConnectDestination),
+      tap(error => this.apiErrorHandlerService.handle(error, handleLocally)),
+      mergeMap(error => throwError(() => error))
     );
   }
 
@@ -195,7 +202,7 @@ export class WebSocketService {
   private createPublishResponseStream<T extends WebSocketMessage<unknown, unknown>>(publishId: string): Observable<T> {
     return this.responseQueue$.pipe(
       filter(message => message.headers[this.publishIdHeader] === publishId),
-      map(message => JSON.parse(message.body) as T)
+      map(message => this.parseWebSocketMessage(message))
     );
   }
 
@@ -206,15 +213,16 @@ export class WebSocketService {
    * A malformed error therefore only affects the publish operation it belongs to.
    *
    * @param publishId - ID of the publish operation to match.
-   * @returns Observable that errors when the matching publish error is received.
+   * @param handleLocally - API error codes handled locally by the caller.
+   * @returns Observable that errors when the matching publishing error is received.
    */
-  private createPublishErrorStream(publishId: string): Observable<never> {
+  private createPublishErrorStream(publishId: string, handleLocally: ApiErrorCodes): Observable<never> {
     return this.errorQueue$.pipe(
       filter(message => message.headers[this.publishIdHeader] === publishId),
-      mergeMap(message => {
-        const error = JSON.parse(message.body) as WebSocketErrorMessage;
-        return throwError(() => error);
-      })
+      map(message => this.parseWebSocketErrorMessage(message)),
+      filter((error): error is WebSocketErrorMessage => error !== undefined),
+      tap(error => this.apiErrorHandlerService.handle(error, handleLocally)),
+      mergeMap(error => throwError(() => error))
     );
   }
 
@@ -228,7 +236,7 @@ export class WebSocketService {
   private watchDestination<T extends WebSocketMessage<unknown, unknown>>(destination: string): Observable<T> {
     return this.watchStompDestination(destination).pipe(
       tap(message => console.log('incoming stream:', destination, tryParseJson(message.body))),
-      map(message => JSON.parse(message.body) as T)
+      map(message => this.parseWebSocketMessage(message))
     );
   }
 
@@ -252,7 +260,7 @@ export class WebSocketService {
    * Creates the shared WebSocket response queue.
    *
    * The queue exposes raw STOMP messages so publish correlation can occur before
-   * deserialization. Responses without a publish ID are logged and cannot match
+   * deserialization. Responses without a publishing ID are logged and cannot match
    * an active publish operation.
    *
    * @returns Shared observable of raw response queue messages.
@@ -276,8 +284,7 @@ export class WebSocketService {
    * Creates the shared WebSocket error queue.
    *
    * The queue exposes raw STOMP messages so consumers can correlate messages before
-   * deserialization. Valid API error messages are also forwarded to the global API
-   * error handler.
+   * deserialization.
    *
    * @returns Shared observable of raw error queue messages.
    */
@@ -288,23 +295,49 @@ export class WebSocketService {
           publishId: message.headers[this.publishIdHeader],
           body: tryParseJson(message.body)
         });
-        this.handleApiError(message);
       }),
       share()
     );
   }
 
   /**
-   * Handles a WebSocket API error without allowing a malformed frame to terminate the shared error queue.
+   * Parses the body of a WebSocket message.
+   *
+   * Opens the internal error dialog and rethrows when the message body contains invalid JSON.
+   *
+   * @typeParam T - Type of the parsed message body.
+   * @param message - Raw STOMP message to parse.
+   * @returns the parsed message body.
+   * @throws SyntaxError when the message body contains invalid JSON.
+   */
+  private parseWebSocketMessage<T>(message: IMessage): T {
+    try {
+      return JSON.parse(message.body) as T;
+    } catch (parseError) {
+      this.errorDialogService.openInternalErrorDialog();
+      throw parseError;
+    }
+  }
+
+  /**
+   * Parses and validates a WebSocket API error message without allowing an invalid frame to terminate the shared error queue.
    *
    * @param message - Raw STOMP error message.
+   * @returns the parsed WebSocket error, or undefined when the message is invalid.
    */
-  private handleApiError(message: IMessage): void {
+  private parseWebSocketErrorMessage(message: IMessage): WebSocketErrorMessage | undefined {
     try {
-      const error = JSON.parse(message.body) as WebSocketErrorMessage;
-      this.apiErrorHandlerService.handle(error);
+      const errorResponse: unknown = JSON.parse(message.body);
+
+      if (!isWebSocketErrorMessage(errorResponse)) {
+        this.errorDialogService.openInternalErrorDialog();
+        return undefined;
+      }
+
+      return errorResponse;
     } catch (parseError) {
-      console.error('Invalid WebSocket error message:', parseError, message);
+      this.errorDialogService.openInternalErrorDialog();
+      return undefined;
     }
   }
 

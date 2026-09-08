@@ -11,6 +11,7 @@ import * as MatchIdFormModel from '../../components/match-id-form/match-id-form.
 import {mapToMatchIdSubmitErrors} from '../../mappers/match-id-submit-error.mapper';
 import {RecentMatchesRepository} from '../../../../data/repository/recent-matches-repository';
 import {X01Match} from '../../../../data/model/x01/x01-match';
+import {ApiErrorCode} from '../../../../data/api/errors/api-error-code';
 
 @Injectable()
 export class HomePageStore {
@@ -37,7 +38,7 @@ export class HomePageStore {
   submitCreateMatch(formModel: CreateMatchFormModel.FormModel): Promise<CreateMatchFormModel.SubmitError[]> {
     return firstValueFrom(
       this.matchRepository
-        .createMatch(mapToCreateMatchRequest(formModel))
+        .createMatch(mapToCreateMatchRequest(formModel), [ApiErrorCode.INVALID_ARGUMENTS])
         .pipe(
           tap(match => {
             this.patchState({navigateToMatchId: match.id});
@@ -66,7 +67,7 @@ export class HomePageStore {
   submitMatchId(formModel: MatchIdFormModel.FormModel): Promise<MatchIdFormModel.SubmitError[]> {
     return firstValueFrom(
       this.matchRepository
-        .matchExists(formModel.matchId)
+        .matchExists(formModel.matchId, [ApiErrorCode.RESOURCE_NOT_FOUND])
         .pipe(
           tap(() => {
             this.patchState({navigateToMatchId: formModel.matchId});

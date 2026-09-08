@@ -9,3 +9,5 @@ export enum ApiErrorCode {
   INTERNAL = 'INTERNAL', // 500
   UNAVAILABLE = 'UNAVAILABLE' // 503
 }
+
+export type ApiErrorCodes = readonly ApiErrorCode[];

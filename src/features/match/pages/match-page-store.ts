@@ -38,7 +38,7 @@ export class MatchPageStore {
    */
   repairMatch(): void {
     this.executeMatchCommand(
-      match => this.matchRepository.reprocessMatch(match.id),
+      match => this.matchRepository.reprocessMatch(match.id, [ApiErrorCode.RESOURCE_NOT_FOUND, ApiErrorCode.CONFLICT]),
       () => this.patchState({toolbarError: 'Failed to repair match'})
     );
   }
@@ -50,7 +50,7 @@ export class MatchPageStore {
    */
   resetMatch(): void {
     this.executeMatchCommand(
-      match => this.matchRepository.resetMatch(match.id),
+      match => this.matchRepository.resetMatch(match.id, [ApiErrorCode.RESOURCE_NOT_FOUND, ApiErrorCode.CONFLICT]),
       () => this.patchState({toolbarError: 'Failed to reset match'})
     );
   }
@@ -62,7 +62,7 @@ export class MatchPageStore {
    */
   deleteMatch(): void {
     this.executeMatchCommand(
-      match => this.matchRepository.deleteMatch(match.id),
+      match => this.matchRepository.deleteMatch(match.id, [ApiErrorCode.RESOURCE_NOT_FOUND]),
       () => this.patchState({toolbarError: 'Failed to delete match'})
     );
   }
@@ -99,7 +99,7 @@ export class MatchPageStore {
   private observeMatch(matchId: string): Observable<StreamEvent<MatchMessageUnion>> {
     this.patchState({match: {status: 'loading'}});
 
-    return this.matchRepository.streamMatch(matchId).pipe(
+    return this.matchRepository.streamMatch(matchId, [ApiErrorCode.RESOURCE_NOT_FOUND]).pipe(
       tap(streamEvent => this.handleStreamMatchEvent(streamEvent)),
       catchError((error: unknown) => {
         this.handleObserveMatchError(matchId, error);

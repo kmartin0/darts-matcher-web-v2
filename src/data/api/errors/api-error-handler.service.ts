@@ -1,5 +1,5 @@
 import {inject, Injectable} from '@angular/core';
-import {ApiErrorCode} from './api-error-code';
+import {ApiErrorCode, ApiErrorCodes} from './api-error-code';
 import {ApiErrorResponse} from './api-error-response';
 import {ErrorDialogService} from '../../../shared/services/error-dialog.service';
 
@@ -10,18 +10,27 @@ export class ApiErrorHandlerService {
   private readonly errorDialogService = inject(ErrorDialogService);
 
   /**
-   * Handles API errors that require application-wide handling.
+   * Handles an API error using the appropriate global error dialog.
    *
-   * Errors intended for local handling are ignored.
+   * API errors handled locally by the caller are ignored by this handler.
    *
-   * @param error - API error response to handle.
+   * @param errorResponse - API error response to handle.
+   * @param handleLocally - API error codes handled locally by the caller.
    */
-  handle(error: ApiErrorResponse): void {
-    switch (error.error) {
+  handle(errorResponse: ApiErrorResponse, handleLocally: ApiErrorCodes = []): void {
+    // Skip global handling when the caller handles the API error locally.
+    if (handleLocally.includes(errorResponse.error)) {
+      return;
+    }
+
+    switch (errorResponse.error) {
       case ApiErrorCode.INTERNAL:
       case ApiErrorCode.MESSAGE_NOT_READABLE:
       case ApiErrorCode.METHOD_NOT_ALLOWED:
       case ApiErrorCode.UNSUPPORTED_MEDIA_TYPE:
+      case ApiErrorCode.INVALID_ARGUMENTS:
+      case ApiErrorCode.RESOURCE_NOT_FOUND:
+      case ApiErrorCode.CONFLICT:
         this.errorDialogService.openInternalErrorDialog();
         break;
 
@@ -31,11 +40,6 @@ export class ApiErrorHandlerService {
 
       case ApiErrorCode.UNAVAILABLE:
         this.errorDialogService.openServiceUnavailableErrorDialog();
-        break;
-
-      case ApiErrorCode.INVALID_ARGUMENTS:
-      case ApiErrorCode.RESOURCE_NOT_FOUND:
-      case ApiErrorCode.CONFLICT:
         break;
     }
   }
