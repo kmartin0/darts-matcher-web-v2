@@ -15,7 +15,7 @@ import * as MatchIdFormModel from '../components/match-id-form/match-id-form.mod
 export function mapToMatchIdSubmitErrors(errorResponse: ApiErrorResponse | undefined): MatchIdFormModel.SubmitError[] {
   let message: string;
 
-  switch (errorResponse?.error) {
+  switch (errorResponse?.type) {
     case ApiErrorCode.RESOURCE_NOT_FOUND:
       message = ValidationErrorMessageUtil.getErrorMessage({
         key: ValidationErrorKey.RESOURCE_NOT_FOUND,

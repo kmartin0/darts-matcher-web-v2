@@ -10,7 +10,10 @@ import {ApiErrorResponse, isApiErrorResponse} from '../errors/api-error-response
 export function mapHttpErrorToApiErrorResponse(error: unknown): ApiErrorResponse | undefined {
   if (!(error instanceof HttpErrorResponse)) return undefined;
 
-  return isApiErrorResponse(error.error)
-    ? error.error
+  // Error is now an HTTP error.
+  const httpError = error;
+
+  return isApiErrorResponse(httpError.error)
+    ? httpError.error
     : undefined;
 }

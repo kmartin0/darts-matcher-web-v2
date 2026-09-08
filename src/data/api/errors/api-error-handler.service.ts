@@ -19,11 +19,11 @@ export class ApiErrorHandlerService {
    */
   handle(errorResponse: ApiErrorResponse, handleLocally: ApiErrorCodes = []): void {
     // Skip global handling when the caller handles the API error locally.
-    if (handleLocally.includes(errorResponse.error)) {
+    if (handleLocally.includes(errorResponse.type)) {
       return;
     }
 
-    switch (errorResponse.error) {
+    switch (errorResponse.type) {
       case ApiErrorCode.INTERNAL:
       case ApiErrorCode.MESSAGE_NOT_READABLE:
       case ApiErrorCode.METHOD_NOT_ALLOWED:

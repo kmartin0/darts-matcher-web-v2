@@ -37,7 +37,7 @@ const PLAYER_API_TARGET_PATTERN = /^players\[(?<index>\d+)]\.(?<field>.+)$/;
  * @returns Form submission errors to apply to the create-match form.
  */
 export function mapToCreateMatchSubmitErrors(errorResponse: ApiErrorResponse | undefined): CreateMatchFormModel.SubmitError[] {
-  switch (errorResponse?.error) {
+  switch (errorResponse?.type) {
     case ApiErrorCode.INVALID_ARGUMENTS:
       return mapToFormSubmitErrors(
         errorResponse,

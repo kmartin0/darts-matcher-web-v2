@@ -1,31 +1,22 @@
-import {ApiErrorCode} from '../errors/api-error-code';
-import {ApiTargetErrors, isApiTargetErrors} from '../errors/api-target-errors';
+import {ApiErrorResponse, isApiErrorResponse} from '../errors/api-error-response';
 
-export interface WebSocketErrorMessage {
+export interface WebSocketErrorMessage extends ApiErrorResponse {
   destination: string;
-  error: ApiErrorCode;
-  description: string;
-  code: number;
-  targetErrors?: ApiTargetErrors;
 }
 
+/**
+ * Checks whether a value matches the WebSocket error message contract.
+ *
+ * @param value - Value to check.
+ * @returns Whether the value is a valid WebSocket error message.
+ */
 export function isWebSocketErrorMessage(value: unknown): value is WebSocketErrorMessage {
-  if (
-    typeof value !== 'object' ||
-    value === null ||
-    !('destination' in value) ||
-    !('error' in value) ||
-    !('description' in value) ||
-    !('code' in value)
-  ) {
+  if (!isApiErrorResponse(value)) {
     return false;
   }
 
   return (
-    typeof value.destination === 'string' &&
-    Object.values(ApiErrorCode).includes(value.error as ApiErrorCode) &&
-    typeof value.description === 'string' &&
-    typeof value.code === 'number' &&
-    (!('targetErrors' in value) || isApiTargetErrors(value.targetErrors))
+    'destination' in value &&
+    typeof value.destination === 'string'
   );
 }

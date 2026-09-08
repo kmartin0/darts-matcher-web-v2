@@ -2,9 +2,9 @@ import {ApiErrorCode} from './api-error-code';
 import {ApiTargetErrors, isApiTargetErrors} from './api-target-errors';
 
 export interface ApiErrorResponse {
-  error: ApiErrorCode;
+  type: ApiErrorCode;
   description: string;
-  code: number;
+  status: number;
   targetErrors?: ApiTargetErrors;
 }
 
@@ -18,17 +18,17 @@ export function isApiErrorResponse(value: unknown): value is ApiErrorResponse {
   if (
     typeof value !== 'object' ||
     value === null ||
-    !('error' in value) ||
+    !('type' in value) ||
     !('description' in value) ||
-    !('code' in value)
+    !('status' in value)
   ) {
     return false;
   }
 
   return (
-    Object.values(ApiErrorCode).includes(value.error as ApiErrorCode) &&
+    Object.values(ApiErrorCode).includes(value.type as ApiErrorCode) &&
     typeof value.description === 'string' &&
-    typeof value.code === 'number' &&
+    typeof value.status === 'number' &&
     (!('targetErrors' in value) || isApiTargetErrors(value.targetErrors))
   );
 }

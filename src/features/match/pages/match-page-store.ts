@@ -194,7 +194,7 @@ export class MatchPageStore {
   private handleObserveMatchError(matchId: string, error: unknown): void {
     const errorResponse = isApiErrorResponse(error) ? error : undefined;
 
-    if (errorResponse?.error === ApiErrorCode.RESOURCE_NOT_FOUND) {
+    if (errorResponse?.type === ApiErrorCode.RESOURCE_NOT_FOUND) {
       this.recentMatchesRepository.deleteMatch(matchId);
     }
 

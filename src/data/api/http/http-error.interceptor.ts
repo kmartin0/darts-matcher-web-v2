@@ -41,7 +41,7 @@ function handleGlobalHttpError(
     return;
   }
 
-  // error is now an http error.
+  // Error is now an HTTP error.
   const httpError = error;
 
   // Open the service unavailable dialog when the backend cannot be reached.
