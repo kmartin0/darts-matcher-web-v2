@@ -1,0 +1,29 @@
+@use "mixins/devices";
+
+:host {
+  display: block;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+
+.match-board {
+  height: 100%;
+  width: 100%;
+  display: grid;
+  grid-template-rows: 1fr;
+  min-height: 0;
+}
+
+.match-board-content {
+  width: 100%;
+  display: grid;
+  grid-template-rows: max-content;
+  gap: 20px;
+  min-height: 0;
+  overflow-y: auto;
+
+  @include devices.device(phone, phablet) {
+    gap: 12px;
+  }
+}
