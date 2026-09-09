@@ -7,7 +7,7 @@ import {ActivatedRoute} from '@angular/router';
 import {isValidObjectId} from '../../../data/api/utils/object-id.util';
 import {X01Match} from '../../../data/model/x01/x01-match';
 import {RecentMatchesRepository} from '../../../data/repository/recent-matches-repository';
-import {ApiErrorCode} from '../../../data/api/errors/api-error-code';
+import {ALL_API_ERROR_CODES, ApiErrorCode} from '../../../data/api/errors/api-error-code';
 import {isApiErrorResponse} from '../../../data/api/errors/api-error-response';
 import {MatchMessageType} from '../../../data/api/ws/match-message-type';
 import {StreamEvent} from '../../../data/repository/stream-event.type';
@@ -41,7 +41,7 @@ export class MatchPageStore {
    */
   repairMatch(): void {
     this.executeMatchCommand(
-      match => this.matchRepository.reprocessMatch(match.id, [ApiErrorCode.RESOURCE_NOT_FOUND, ApiErrorCode.CONFLICT]),
+      match => this.matchRepository.reprocessMatch(match.id, ALL_API_ERROR_CODES),
       () => this.patchState({toolbarError: 'Failed to repair match'})
     );
   }
@@ -53,7 +53,7 @@ export class MatchPageStore {
    */
   resetMatch(): void {
     this.executeMatchCommand(
-      match => this.matchRepository.resetMatch(match.id, [ApiErrorCode.RESOURCE_NOT_FOUND, ApiErrorCode.CONFLICT]),
+      match => this.matchRepository.resetMatch(match.id, ALL_API_ERROR_CODES),
       () => this.patchState({toolbarError: 'Failed to reset match'})
     );
   }
@@ -65,7 +65,7 @@ export class MatchPageStore {
    */
   deleteMatch(): void {
     this.executeMatchCommand(
-      match => this.matchRepository.deleteMatch(match.id, [ApiErrorCode.RESOURCE_NOT_FOUND]),
+      match => this.matchRepository.deleteMatch(match.id, ALL_API_ERROR_CODES),
       () => this.patchState({toolbarError: 'Failed to delete match'})
     );
   }
@@ -120,7 +120,7 @@ export class MatchPageStore {
   private observeMatch(matchId: string): Observable<StreamEvent<MatchMessageUnion>> {
     this.patchState({match: {status: 'loading'}});
 
-    return this.matchRepository.streamMatch(matchId, [ApiErrorCode.RESOURCE_NOT_FOUND]).pipe(
+    return this.matchRepository.streamMatch(matchId, ALL_API_ERROR_CODES).pipe(
       tap(streamEvent => this.handleStreamMatchEvent(streamEvent)),
       catchError((error: unknown) => {
         this.handleObserveMatchError(matchId, error);

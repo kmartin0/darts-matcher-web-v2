@@ -11,3 +11,5 @@ export enum ApiErrorCode {
 }
 
 export type ApiErrorCodes = readonly ApiErrorCode[];
+
+export const ALL_API_ERROR_CODES: ApiErrorCodes = Object.values(ApiErrorCode);
