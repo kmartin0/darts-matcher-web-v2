@@ -12,7 +12,9 @@ import * as MatchIdFormModel from '../components/match-id-form/match-id-form.mod
  * @param errorResponse - Parsed API error response, or undefined when the failure could not be parsed.
  * @returns Form submission errors to apply to the match ID form.
  */
-export function mapToMatchIdSubmitErrors(errorResponse: ApiErrorResponse | undefined): MatchIdFormModel.SubmitError[] {
+export function mapToMatchIdSubmitErrors(
+  errorResponse: ApiErrorResponse | undefined
+): MatchIdFormModel.SubmitError[] {
   let message: string;
 
   switch (errorResponse?.type) {
@@ -31,6 +33,6 @@ export function mapToMatchIdSubmitErrors(errorResponse: ApiErrorResponse | undef
 
   return [{
     target: MatchIdFormModel.DEFAULT_ERROR_TARGET,
-    message,
+    message: message,
   }];
 }

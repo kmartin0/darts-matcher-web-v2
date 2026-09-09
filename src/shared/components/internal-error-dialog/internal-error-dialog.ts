@@ -6,8 +6,8 @@ import {MatIcon} from '@angular/material/icon';
 /**
  * Displays a static dialog for unexpected internal application or API errors.
  *
- * The dialog intentionally uses fixed content and minimal dependencies so it can
- * also be used by the global application error handler.
+ * Unlike the generic error dialog, this component uses fixed content and can
+ * be safely opened by the global application error handler.
  */
 @Component({
   selector: 'app-internal-error-dialog',

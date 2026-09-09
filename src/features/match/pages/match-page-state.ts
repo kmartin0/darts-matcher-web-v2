@@ -1,7 +1,9 @@
-import {X01Match} from '../../../data/model/x01/x01-match';
+import {StreamConnectionState} from '../../../data/api/ws/stream-event-type';
+import {X01CheckoutsMap} from '../../../data/model/x01/checkout/x01-checkout';
+import {X01Match} from '../../../data/model/x01/match/x01-match';
 import {LoadState} from '../../../shared/types/load-state';
-import {StreamConnectionState} from '../../../data/repository/stream-event.type';
-import {X01CheckoutsMap} from '../../../data/model/x01/x01-checkout';
+
+type MatchLoadState = LoadState<X01Match> | { status: 'deleted' };
 
 export interface MatchPageState {
   match: MatchLoadState;
@@ -11,12 +13,10 @@ export interface MatchPageState {
   scoreInputError: string | null;
 }
 
-export const initialMatchPageState: MatchPageState = {
+export const INITIAL_MATCH_PAGE_STATE: MatchPageState = {
   match: {status: 'idle'},
   checkouts: {status: 'idle'},
   streamConnectionState: 'disconnected',
   toolbarError: null,
   scoreInputError: null
 };
-
-type MatchLoadState = LoadState<X01Match> | { status: 'deleted' };

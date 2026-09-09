@@ -1,4 +1,4 @@
-import {X01BestOf} from './x01-best-of';
+import {X01BestOf} from '../rules/x01-best-of';
 
 export interface X01MatchSettings {
   x01: number;

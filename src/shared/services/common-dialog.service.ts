@@ -1,8 +1,8 @@
 import {inject, Injectable} from '@angular/core';
-import {DialogManagerService} from './dialog-manager.service';
 import {MatDialogRef} from '@angular/material/dialog';
 import {ConfirmDialog} from '../components/confirm-dialog/confirm-dialog';
 import {ConfirmDialogData} from '../components/confirm-dialog/confirm-dialog-data';
+import {DialogManagerService} from './dialog-manager.service';
 
 @Injectable({providedIn: 'root'})
 export class CommonDialogService {
@@ -17,12 +17,12 @@ export class CommonDialogService {
    */
   openConfirmDialog(action: string, stackable: boolean = false): MatDialogRef<ConfirmDialog, boolean> | null {
     const data: ConfirmDialogData = {
-      action
+      action: action
     };
 
     return this.dialogManagerService.open(
       ConfirmDialog,
-      {data},
+      {data: data},
       stackable
     );
   }

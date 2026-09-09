@@ -18,7 +18,6 @@ export class ApiErrorHandlerService {
    * @param handleLocally - API error codes handled locally by the caller.
    */
   handle(errorResponse: ApiErrorResponse, handleLocally: ApiErrorCodes = []): void {
-    // Skip global handling when the caller handles the API error locally.
     if (handleLocally.includes(errorResponse.type)) {
       return;
     }

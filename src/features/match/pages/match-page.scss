@@ -8,7 +8,7 @@
 }
 
 .match-page-content {
-  @include helpers.module-page();
+  @include helpers.module-page;
 }
 
 .match-deleted-container {

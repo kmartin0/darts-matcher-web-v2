@@ -1,4 +1,4 @@
-import {X01Match} from '../../model/x01/x01-match';
+import {X01Match} from '../../model/x01/match/x01-match';
 import {MatchMessageType} from './match-message-type';
 import {WebSocketMessage} from './websocket-message';
 

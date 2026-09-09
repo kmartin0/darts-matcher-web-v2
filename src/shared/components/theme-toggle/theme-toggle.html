@@ -1,5 +1,7 @@
-<div class="theme-toggle-component-container">
-  <button appLoseFocusAfterClick mat-icon-button (click)="toggleThemeMode()" matTooltip="Toggle Theme">
-    <mat-icon>{{ icon() }}</mat-icon>
-  </button>
-</div>
+<button
+  appLoseFocusAfterClick
+  mat-icon-button
+  matTooltip="Toggle theme"
+  (click)="toggleThemeMode()">
+  <mat-icon>{{ icon() }}</mat-icon>
+</button>

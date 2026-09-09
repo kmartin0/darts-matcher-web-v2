@@ -1,8 +1,8 @@
 <mat-toolbar>
   <!-- Title -->
   <a
-    class="plain navigate-home-btn"
-    (click)="navigateHome.emit()">
+    class="plain"
+    [routerLink]="AppEndpoints.home()">
     Match
   </a>
 
@@ -24,10 +24,11 @@
   <!-- More options icon -->
   <button
     mat-icon-button
+    type="button"
     aria-label="More options"
     matTooltip="More options"
     [matMenuTriggerFor]="menu"
-    [disabled]="!menuVisible()">
+    [disabled]="!menuEnabled()">
     <mat-icon>more_vert</mat-icon>
   </button>
 </mat-toolbar>
@@ -36,6 +37,7 @@
 <mat-menu #menu="matMenu">
   <button
     mat-menu-item
+    type="button"
     (click)="copyMatchLink.emit()">
     <mat-icon>link</mat-icon>
     <span>Copy match link</span>
@@ -43,6 +45,7 @@
 
   <button
     mat-menu-item
+    type="button"
     (click)="copyMatchId.emit()">
     <mat-icon>content_copy</mat-icon>
     <span>Copy match ID</span>
@@ -50,22 +53,25 @@
 
   <button
     mat-menu-item
+    type="button"
     (click)="repairMatch.emit()">
     <mat-icon>build</mat-icon>
-    <span>Repair Match</span>
+    <span>Repair match</span>
   </button>
 
   <button
     mat-menu-item
+    type="button"
     (click)="resetMatch.emit()">
     <mat-icon>replay</mat-icon>
-    <span>Reset Match</span>
+    <span>Reset match</span>
   </button>
 
   <button
     mat-menu-item
+    type="button"
     (click)="deleteMatch.emit()">
     <mat-icon>delete</mat-icon>
-    <span>Delete Match</span>
+    <span>Delete match</span>
   </button>
 </mat-menu>

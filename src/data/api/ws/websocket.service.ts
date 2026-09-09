@@ -19,7 +19,7 @@ import {
 } from 'rxjs';
 import {environment} from '../../../environments/environment';
 import {IMessage, IRxStompPublishParams, RxStomp, RxStompConfig, RxStompState} from '@stomp/rx-stomp';
-import {StreamConnectionState, StreamEvent} from '../../repository/stream-event.type';
+import {StreamConnectionState, StreamEventType} from './stream-event-type';
 import {DARTS_MATCHER_WS_DESTINATIONS} from '../ws-endpoints';
 import {ApiErrorHandlerService} from '../errors/api-error-handler.service';
 import {isWebSocketErrorMessage, WebSocketErrorMessage} from './websocket-error-message';
@@ -40,27 +40,27 @@ import {ErrorDialogService} from '../../../shared/services/error-dialog.service'
 export class WebSocketService {
   private readonly apiErrorHandlerService = inject(ApiErrorHandlerService);
   private readonly errorDialogService = inject(ErrorDialogService);
-  private readonly rxStomp = this.createRxStomp();
-  private readonly publishIdHeader = 'publish-id';
 
+  private readonly publishIdHeader = 'publish-id';
+  private readonly publishTimeoutMs = 60_000;
+
+  private readonly rxStomp = this.createRxStomp();
   private readonly connected$ = this.rxStomp.connected$;
   private readonly connectionState$ = this.createConnectionState(this.rxStomp);
 
   private readonly responseQueue$ = this.createResponseQueue();
   private readonly errorQueue$ = this.createErrorQueue();
 
-  private readonly publishTimeoutMs = 60_000;
-
   private activeConsumers = 0;
 
   /**
    * Watches a STOMP destination and exposes its data, connection state, and matching WebSocket errors as a single stream.
    *
-   * Optionally requests the latest data from a separate destination whenever the WebSocket connection is established.
+   * Optionally consumes one message from a separate destination whenever the WebSocket connection is established.
    *
    * @typeParam T - Type of WebSocket message received from the destination.
    * @param destination - STOMP destination to observe.
-   * @param responseOnConnectDestination - Optional destination used to request data after connecting.
+   * @param responseOnConnectDestination - Optional destination observed once after connecting.
    * @param handleLocally - API error codes handled locally by the caller.
    * @returns Stream of data and connection state events.
    */
@@ -68,7 +68,7 @@ export class WebSocketService {
     destination: string,
     responseOnConnectDestination?: string,
     handleLocally: ApiErrorCodes = []
-  ): Observable<StreamEvent<T>> {
+  ): Observable<StreamEventType<T>> {
     const dataEvent$ = this.createWatchDataEventStream<T>(destination, responseOnConnectDestination);
     const connectionEvent$ = this.createWatchConnectionEventStream<T>();
     const error$ = this.createWatchErrorStream(destination, responseOnConnectDestination, handleLocally);
@@ -135,7 +135,7 @@ export class WebSocketService {
   private createWatchDataEventStream<T extends WebSocketMessage<unknown, unknown>>(
     destination: string,
     responseOnConnectDestination?: string
-  ): Observable<StreamEvent<T>> {
+  ): Observable<StreamEventType<T>> {
     let responseOnConnect$: Observable<T> = EMPTY;
 
     if (responseOnConnectDestination) {
@@ -147,7 +147,7 @@ export class WebSocketService {
     // Keep responseOnConnect$ first so it subscribes to connected$ before
     // watchDestination() acquires and potentially activates the shared connection.
     return merge(responseOnConnect$, this.watchDestination<T>(destination)).pipe(
-      map((data): StreamEvent<T> => ({type: 'data', data}))
+      map((data): StreamEventType<T> => ({type: 'data', data}))
     );
   }
 
@@ -157,9 +157,9 @@ export class WebSocketService {
    * @typeParam T - Data type of the stream the connection events belong to.
    * @returns Stream of connection state events.
    */
-  private createWatchConnectionEventStream<T>(): Observable<StreamEvent<T>> {
+  private createWatchConnectionEventStream<T>(): Observable<StreamEventType<T>> {
     return this.connectionState$.pipe(
-      map((connectionState): StreamEvent<T> => ({type: 'connection', state: connectionState}))
+      map((connectionState): StreamEventType<T> => ({type: 'connection', state: connectionState}))
     );
   }
 
@@ -307,7 +307,7 @@ export class WebSocketService {
    *
    * @typeParam T - Type of the parsed message body.
    * @param message - Raw STOMP message to parse.
-   * @returns the parsed message body.
+   * @returns Parsed message body.
    * @throws SyntaxError when the message body contains invalid JSON.
    */
   private parseWebSocketMessage<T>(message: IMessage): T {
@@ -335,7 +335,7 @@ export class WebSocketService {
       }
 
       return errorResponse;
-    } catch (parseError) {
+    } catch {
       this.errorDialogService.openInternalErrorDialog();
       return undefined;
     }
@@ -391,7 +391,7 @@ export class WebSocketService {
   /**
    * Maps RxStomp connection states to application stream connection states.
    *
-   * @param rxStomp - RxStomp instance whose connection state is observed.
+   * @param rxStomp - Initialized RxStomp instance whose connection state is observed.
    * @returns Observable of application stream connection states.
    */
   private createConnectionState(rxStomp: RxStomp): Observable<StreamConnectionState> {

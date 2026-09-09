@@ -1,10 +1,11 @@
 /**
- * Converts an epoch timestamp in seconds to a Date object. Returns null if input is invalid.
+ * Converts an epoch timestamp in seconds to a Date object.
  *
- * @param epochSeconds - Unix timestamp in seconds
+ * @param epochSeconds - Unix timestamp in seconds.
+ * @returns Converted Date object, or null when the input is invalid.
  */
 export function epochSecondsToDate(epochSeconds: number | null): Date | null {
-  if (!epochSeconds || Number.isNaN(epochSeconds)) {
+  if (epochSeconds === null || Number.isNaN(epochSeconds)) {
     return null;
   }
 
@@ -19,9 +20,9 @@ export function epochSecondsToDate(epochSeconds: number | null): Date | null {
  * Formats a count with its matching singular or plural label.
  *
  * @param count - Count to format.
- * @param singular - Label used when count is 1.
+ * @param singular - Label used when the count is 1.
  * @param plural - Label used for any other count.
- * @returns The count followed by the matching label.
+ * @returns Count followed by the matching label.
  */
 export function formatCount(count: number, singular: string, plural: string): string {
   return `${count} ${count === 1 ? singular : plural}`;

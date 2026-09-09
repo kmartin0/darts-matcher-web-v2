@@ -1,4 +1,4 @@
-export interface WebSocketMessage<M, P> {
-  messageType: M;
-  payload: P;
+export interface WebSocketMessage<TMessageType, TPayload> {
+  messageType: TMessageType;
+  payload: TPayload;
 }

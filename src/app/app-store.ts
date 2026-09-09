@@ -12,13 +12,16 @@ export class AppStore {
   private readonly settingsRepository = inject(SettingsRepository);
   private readonly document = inject(DOCUMENT);
 
-  // The currently selected application theme mode.
   readonly themeMode = this.settingsRepository.themeMode;
 
-  /**
-   * Sets up a reactive effect that applies the current theme mode whenever `themeMode` changes.
-   */
   constructor() {
+    this.registerThemeModeEffect();
+  }
+
+  /**
+   * Registers the effect that applies the current theme mode whenever it changes.
+   */
+  private registerThemeModeEffect(): void {
     effect(() => {
       this.applyThemeMode(this.themeMode());
     });
@@ -33,9 +36,11 @@ export class AppStore {
 
   /**
    * Applies the given theme mode to the document body.
-   * Removes any previously applied theme-mode class before adding the class associated with the new mode.
    *
-   * @param themeMode The theme mode to apply.
+   * Removes any previously applied theme-mode class before adding the class
+   * associated with the new mode.
+   *
+   * @param themeMode - Theme mode to apply.
    */
   private applyThemeMode(themeMode: ThemeMode): void {
     const bodyClasses = this.document.body.classList;

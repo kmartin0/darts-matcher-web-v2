@@ -1,8 +1,8 @@
 import {Component, computed, input, output} from '@angular/core';
 import {MatIconButton} from '@angular/material/button';
-import {MatTooltip} from '@angular/material/tooltip';
 import {MatIcon} from '@angular/material/icon';
-import {X01Match} from '../../../../data/model/x01/x01-match';
+import {MatTooltip} from '@angular/material/tooltip';
+import {X01Match} from '../../../../data/model/x01/match/x01-match';
 import {LegSelection} from '../match-board/leg-selection';
 import {MatchLegSelectionForm} from '../match-leg-selection-form/match-leg-selection-form';
 
@@ -25,9 +25,25 @@ export class MatchEditControls {
   readonly deleteLastTurn = output<void>();
   readonly toggleEditMode = output<void>();
 
-  readonly canUndoScore = computed(() => {
-    return this.matchContainsAnyTurn(this.match()) && this.isLastLegSelected(this.match(), this.legSelection());
-  });
+  protected readonly canUndoScore = computed<boolean>(() =>
+    this.isLastLegSelected(this.match(), this.legSelection()) &&
+    this.matchContainsAnyTurn(this.match())
+  );
+
+  /**
+   * Checks whether the currently selected leg is the last leg in the match.
+   *
+   * @param match - Match containing the sets and legs.
+   * @param legSelection - Currently selected leg.
+   * @returns Whether the selected leg is the last leg.
+   */
+  private isLastLegSelected(match: X01Match, legSelection: LegSelection): boolean {
+    const lastSetEntry = match.sets.at(-1);
+    const lastLegEntry = lastSetEntry?.set.legs.at(-1);
+
+    return legSelection.setEntry.setNumber === lastSetEntry?.setNumber &&
+      legSelection.legEntry.legNumber === lastLegEntry?.legNumber;
+  }
 
   /**
    * Checks whether the match contains at least one turn.
@@ -43,20 +59,5 @@ export class MatchEditControls {
         )
       )
     );
-  }
-
-  /**
-   * Checks whether the currently selected leg is the last leg in the match.
-   *
-   * @param match - Match containing the sets and legs.
-   * @param legSelection - Currently selected leg.
-   * @returns Whether the selected leg is the last leg.
-   */
-  private isLastLegSelected(match: X01Match, legSelection: LegSelection): boolean {
-    const lastSetEntry = match.sets.at(-1);
-    const lastLegEntry = lastSetEntry?.set.legs.at(-1);
-
-    return legSelection.setEntry.setNumber === lastSetEntry?.setNumber &&
-      legSelection.legEntry.legNumber === lastLegEntry?.legNumber;
   }
 }

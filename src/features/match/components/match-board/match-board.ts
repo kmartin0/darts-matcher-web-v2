@@ -1,10 +1,10 @@
 import {Component, input, linkedSignal, output, signal} from '@angular/core';
-import {X01Match} from '../../../../data/model/x01/x01-match';
+import {X01CheckoutsMap} from '../../../../data/model/x01/checkout/x01-checkout';
+import {X01Match} from '../../../../data/model/x01/match/x01-match';
+import {MatchEditControls} from '../match-edit-controls/match-edit-controls';
 import {MatchHeader} from '../match-header/match-header';
 import {MatchPlayerCards} from '../match-player-cards/match-player-cards';
 import {LegSelection} from './leg-selection';
-import {X01CheckoutsMap} from '../../../../data/model/x01/x01-checkout';
-import {MatchEditControls} from '../match-edit-controls/match-edit-controls';
 
 @Component({
   selector: 'app-match-board',
@@ -20,27 +20,27 @@ export class MatchBoard {
   readonly match = input.required<X01Match>();
   readonly checkouts = input.required<X01CheckoutsMap>();
 
-  readonly legSelection = linkedSignal<LegSelection>(() =>
+  readonly deleteLastTurn = output<void>();
+
+  protected readonly legSelection = linkedSignal<LegSelection>(() =>
     this.createLastLegSelection(this.match())
   );
 
-  readonly deleteLastTurn = output<void>();
-
-  readonly isEditMode = signal(false);
+  protected readonly isEditMode = signal<boolean>(false);
 
   /**
    * Updates the currently selected leg.
    *
    * @param legSelection - Leg selection to display.
    */
-  onLegSelectionChange(legSelection: LegSelection): void {
+  protected onLegSelectionChange(legSelection: LegSelection): void {
     this.legSelection.set(legSelection);
   }
 
   /**
    * Toggles score editing mode.
    */
-  onToggleEditMode(): void {
+  protected onToggleEditMode(): void {
     this.isEditMode.update(isEditMode => !isEditMode);
   }
 
@@ -55,8 +55,8 @@ export class MatchBoard {
     const legEntry = setEntry.set.legs.at(-1)!;
 
     return {
-      setEntry,
-      legEntry
+      setEntry: setEntry,
+      legEntry: legEntry
     };
   }
 }

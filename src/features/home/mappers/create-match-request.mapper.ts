@@ -1,14 +1,16 @@
-import * as CreateMatchFormModel from '../components/create-match-form/create-match-form.model';
 import {CreateMatchRequestDto} from '../../../data/dto/create-match-request.dto';
-import {PlayerType} from '../../../data/model/match/player-type';
+import {PlayerType} from '../../../data/model/base-match/player-type';
+import * as CreateMatchFormModel from '../components/create-match-form/create-match-form.model';
 
 /**
- * Maps the create match formModel model to the API request DTO.
+ * Maps the create match form model to the API request DTO.
  *
- * @param formModel - Create match formModel model to map.
+ * @param formModel - Create match form model to map.
  * @returns Create match request DTO.
  */
 export function mapToCreateMatchRequest(formModel: CreateMatchFormModel.FormModel): CreateMatchRequestDto {
+  const selectedTypes = formModel.clearByTwo.selectedTypes;
+
   return {
     matchSettings: {
       x01: formModel.x01,
@@ -18,17 +20,15 @@ export function mapToCreateMatchRequest(formModel: CreateMatchFormModel.FormMode
         legs: formModel.bestOf.legs,
         bestOfType: formModel.bestOf.bestOfType,
         clearByTwoSetsRule: {
-          enabled: formModel.clearByTwo.selectedTypes.includes(CreateMatchFormModel.ClearByTwoType.SETS),
+          enabled: selectedTypes.includes(CreateMatchFormModel.ClearByTwoType.SETS),
           limit: formModel.clearByTwo.setLimit,
         },
         clearByTwoLegsRule: {
-          enabled: formModel.clearByTwo.selectedTypes.includes(CreateMatchFormModel.ClearByTwoType.LEGS),
+          enabled: selectedTypes.includes(CreateMatchFormModel.ClearByTwoType.LEGS),
           limit: formModel.clearByTwo.legLimit,
         },
         clearByTwoLegsInFinalSetRule: {
-          enabled: formModel.clearByTwo.selectedTypes.includes(
-            CreateMatchFormModel.ClearByTwoType.LEGS_FINAL_SET,
-          ),
+          enabled: selectedTypes.includes(CreateMatchFormModel.ClearByTwoType.LEGS_FINAL_SET),
           limit: formModel.clearByTwo.finalSetLegLimit,
         },
       },

@@ -30,6 +30,8 @@ export class DialogManagerService {
   }
 
   /**
+   * Checks whether a dialog is currently open.
+   *
    * @returns Whether a dialog is currently open.
    */
   private isDialogOpen(): boolean {

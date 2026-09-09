@@ -6,7 +6,7 @@ import * as CreateMatchFormModel from './create-match-form.model';
  *
  * @param formErrorTarget - Form error target to resolve.
  * @param fieldTree - Root field tree of the create match form.
- * @returns The matching field tree, or undefined for root-level errors or invalid targets.
+ * @returns The matching field tree, or undefined for root-level errors or an invalid player index.
  */
 export function resolveTargetFieldTree(
   formErrorTarget: CreateMatchFormModel.FormErrorTarget,
@@ -61,14 +61,14 @@ function resolvePlayerTargetFieldTree(
   formErrorTarget: CreateMatchFormModel.PlayerFormErrorTarget,
   fieldTree: FieldTree<CreateMatchFormModel.FormModel>
 ): ReadonlyFieldTree<unknown> | undefined {
-  const segments = formErrorTarget.split('.');
-  const player = fieldTree.players[Number(segments[1])];
+  const [, playerIndex, playerField] = formErrorTarget.split('.');
+  const player = fieldTree.players[Number(playerIndex)];
 
   if (!player) {
     return undefined;
   }
 
-  switch (segments[2]) {
+  switch (playerField) {
     case 'playerType':
       return player.playerType;
     case 'playerName':

@@ -1,6 +1,8 @@
-import {AppSettings} from '../model/settings/app-settings';
 import {computed, Injectable, signal} from '@angular/core';
+import {AppSettings} from '../model/settings/app-settings';
 import {ThemeMode, themeModeFromId} from '../model/settings/theme-mode';
+
+const THEME_MODE_LOCAL_STORAGE_KEY = 'darts-matcher:theme-mode';
 
 /**
  * Repository responsible for application settings.
@@ -11,20 +13,17 @@ import {ThemeMode, themeModeFromId} from '../model/settings/theme-mode';
   providedIn: 'root',
 })
 export class SettingsRepository {
-  private readonly THEME_MODE_LOCAL_STORAGE_KEY = 'darts-matcher:theme-mode';
-
   private readonly _settings = signal<AppSettings>({themeMode: this.readThemeMode()});
 
-  // The currently persisted theme mode.
-  readonly themeMode = computed(() => this._settings().themeMode);
+  readonly themeMode = computed<ThemeMode>(() => this._settings().themeMode);
 
   /**
    * Updates the current theme mode and persists the selection.
    *
-   * @param themeMode The theme mode to use.
+   * @param themeMode - Theme mode to use.
    */
   setThemeMode(themeMode: ThemeMode): void {
-    localStorage.setItem(this.THEME_MODE_LOCAL_STORAGE_KEY, themeMode.id);
+    localStorage.setItem(THEME_MODE_LOCAL_STORAGE_KEY, themeMode.id);
 
     this._settings.update(settings => ({
       ...settings,
@@ -46,9 +45,9 @@ export class SettingsRepository {
   /**
    * Reads the persisted theme mode from local storage, falling back to the default.
    *
-   * @returns The persisted theme mode, or the default if none is stored.
+   * @returns Persisted theme mode, or the default when none is stored.
    */
   private readThemeMode(): ThemeMode {
-    return themeModeFromId(localStorage.getItem(this.THEME_MODE_LOCAL_STORAGE_KEY),);
+    return themeModeFromId(localStorage.getItem(THEME_MODE_LOCAL_STORAGE_KEY));
   }
 }

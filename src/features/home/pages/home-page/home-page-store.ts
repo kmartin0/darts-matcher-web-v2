@@ -1,29 +1,29 @@
 import {DestroyRef, inject, Injectable, signal} from '@angular/core';
-import {HomePageState, initialHomeState} from './home-page-state';
-import * as CreateMatchFormModel from '../../components/create-match-form/create-match-form.model';
-import {MatchRepository} from '../../../../data/repository/match-repository';
-import {mapToCreateMatchRequest} from '../../mappers/create-match-request.mapper';
-import {catchError, EMPTY, firstValueFrom, map, of, switchMap, tap} from 'rxjs';
 import {takeUntilDestroyed, toObservable} from '@angular/core/rxjs-interop';
+import {catchError, EMPTY, firstValueFrom, map, of, switchMap, tap} from 'rxjs';
+import {ALL_API_ERROR_CODES} from '../../../../data/api/errors/api-error-code';
 import {isApiErrorResponse} from '../../../../data/api/errors/api-error-response';
-import {mapToCreateMatchSubmitErrors} from '../../mappers/create-match-submit-error.mapper';
-import * as MatchIdFormModel from '../../components/match-id-form/match-id-form.model';
-import {mapToMatchIdSubmitErrors} from '../../mappers/match-id-submit-error.mapper';
+import {X01Match} from '../../../../data/model/x01/match/x01-match';
+import {MatchRepository} from '../../../../data/repository/match-repository';
 import {RecentMatchesRepository} from '../../../../data/repository/recent-matches-repository';
-import {X01Match} from '../../../../data/model/x01/x01-match';
-import {ALL_API_ERROR_CODES, ApiErrorCode} from '../../../../data/api/errors/api-error-code';
+import * as CreateMatchFormModel from '../../components/create-match-form/create-match-form.model';
+import * as MatchIdFormModel from '../../components/match-id-form/match-id-form.model';
+import {mapToCreateMatchRequest} from '../../mappers/create-match-request.mapper';
+import {mapToCreateMatchSubmitErrors} from '../../mappers/create-match-submit-error.mapper';
+import {mapToMatchIdSubmitErrors} from '../../mappers/match-id-submit-error.mapper';
+import {HomePageState, INITIAL_HOME_STATE} from './home-page-state';
 
 @Injectable()
 export class HomePageStore {
   private readonly matchRepository = inject(MatchRepository);
   private readonly recentMatchesRepository = inject(RecentMatchesRepository);
-  private readonly _state = signal<HomePageState>(initialHomeState);
   private readonly destroyRef = inject(DestroyRef);
 
+  private readonly _state = signal<HomePageState>(INITIAL_HOME_STATE);
   readonly state = this._state.asReadonly();
 
   constructor() {
-    this.observeRecentMatchIds();
+    this.registerRecentMatchIdsObserver();
   }
 
   /**
@@ -84,21 +84,22 @@ export class HomePageStore {
   }
 
   /**
-   * Delete a match from the recently visited matches.
+   * Deletes a match from the recently visited matches.
    *
    * @param matchId - ID of the match to delete.
    */
-  deleteFromRecentMatches(matchId: string) {
+  deleteFromRecentMatches(matchId: string): void {
     this.recentMatchesRepository.deleteMatch(matchId);
   }
 
   /**
-   * Observes recently visited match IDs and loads their corresponding matches.
+   * Registers the observer that loads matches for the recently visited match IDs.
    *
    * Updates the recent matches load state when loading succeeds or fails.
    */
-  private observeRecentMatchIds(): void {
+  private registerRecentMatchIdsObserver(): void {
     this.patchState({recentMatches: {status: 'loading'}});
+
     toObservable(this.recentMatchesRepository.recentMatchIds)
       .pipe(
         switchMap(recentMatchIds => {

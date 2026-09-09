@@ -1,14 +1,15 @@
-import {Component, computed, inject, linkedSignal} from '@angular/core';
-import {MatchPageStore} from './match-page-store';
-import {PageError} from '../../../shared/components/page-error/page-error';
-import {MatchToolbar} from '../components/match-toolbar/match-toolbar';
-import {MatSnackBar} from '@angular/material/snack-bar';
+import {Component, computed, inject} from '@angular/core';
 import {Clipboard} from '@angular/cdk/clipboard';
-import {MatchBoard} from '../components/match-board/match-board';
-import {CommonDialogService} from '../../../shared/services/common-dialog.service';
 import {MatButton} from '@angular/material/button';
-import {Router} from '@angular/router';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {RouterLink} from '@angular/router';
 import {AppEndpoints} from '../../../app/app-endpoints';
+import {X01Match} from '../../../data/model/x01/match/x01-match';
+import {PageError} from '../../../shared/components/page-error/page-error';
+import {CommonDialogService} from '../../../shared/services/common-dialog.service';
+import {MatchBoard} from '../components/match-board/match-board';
+import {MatchToolbar} from '../components/match-toolbar/match-toolbar';
+import {MatchPageStore} from './match-page-store';
 
 @Component({
   selector: 'app-match-page',
@@ -16,7 +17,8 @@ import {AppEndpoints} from '../../../app/app-endpoints';
     PageError,
     MatchToolbar,
     MatchBoard,
-    MatButton
+    MatButton,
+    RouterLink
   ],
   providers: [MatchPageStore],
   templateUrl: './match-page.html',
@@ -27,17 +29,11 @@ export class MatchPage {
   private readonly commonDialogService = inject(CommonDialogService);
   private readonly clipboard = inject(Clipboard);
   private readonly snackBar = inject(MatSnackBar);
-  private readonly router = inject(Router);
 
-  /**
-   * Current match page state.
-   */
   protected readonly uiState = this.store.state;
+  protected readonly AppEndpoints = AppEndpoints;
 
-  /**
-   * Currently loaded match, or null when no match is loaded.
-   */
-  protected readonly match = computed(() => {
+  private readonly match = computed<X01Match | null>(() => {
     const matchLoadState = this.uiState().match;
     return matchLoadState.status === 'loaded' ? matchLoadState.data : null;
   });
@@ -48,7 +44,7 @@ export class MatchPage {
    * The toolbar is considered loading while the match is loading, or while
    * a loaded match is waiting for the WebSocket stream to connect.
    */
-  protected readonly toolbarLoading = computed(() => {
+  protected readonly toolbarLoading = computed<boolean>(() => {
     const state = this.uiState();
 
     const isMatchLoading = state.match.status === 'loading';
@@ -70,7 +66,7 @@ export class MatchPage {
    * Opens a confirmation dialog and resets the match when the user confirms the action.
    */
   protected onResetMatch(): void {
-    const dialogRef = this.commonDialogService.openConfirmDialog('Reset Match');
+    const dialogRef = this.commonDialogService.openConfirmDialog('Reset match');
 
     dialogRef?.afterClosed().subscribe(confirmed => {
       if (confirmed) {
@@ -85,7 +81,7 @@ export class MatchPage {
    * Opens a confirmation dialog and deletes the match when the user confirms the action.
    */
   protected onDeleteMatch(): void {
-    const dialogRef = this.commonDialogService.openConfirmDialog('Delete Match');
+    const dialogRef = this.commonDialogService.openConfirmDialog('Delete match');
 
     dialogRef?.afterClosed().subscribe(confirmed => {
       if (confirmed) {
@@ -129,13 +125,6 @@ export class MatchPage {
         ? 'Match ID copied'
         : failedMessage
     );
-  }
-
-  /**
-   * Navigates from the match page to the home page.
-   */
-  protected onNavigateHome(): void {
-    void this.router.navigateByUrl(AppEndpoints.home());
   }
 
   /**

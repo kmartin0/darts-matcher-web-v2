@@ -1,18 +1,18 @@
 import {DestroyRef, inject, Injectable, signal} from '@angular/core';
-import {MatchRepository} from '../../../data/repository/match-repository';
-import {initialMatchPageState, MatchPageState} from './match-page-state';
-import {catchError, EMPTY, map, Observable, switchMap, tap} from 'rxjs';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute} from '@angular/router';
-import {isValidObjectId} from '../../../data/api/utils/object-id.util';
-import {X01Match} from '../../../data/model/x01/x01-match';
-import {RecentMatchesRepository} from '../../../data/repository/recent-matches-repository';
+import {catchError, EMPTY, map, Observable, switchMap, tap} from 'rxjs';
 import {ALL_API_ERROR_CODES, ApiErrorCode} from '../../../data/api/errors/api-error-code';
 import {isApiErrorResponse} from '../../../data/api/errors/api-error-response';
-import {MatchMessageType} from '../../../data/api/ws/match-message-type';
-import {StreamEvent} from '../../../data/repository/stream-event.type';
+import {isValidObjectId} from '../../../data/api/utils/object-id.util';
 import {DeleteMatchMessage, MatchMessageUnion, MatchUpdateMessage} from '../../../data/api/ws/match-message';
+import {MatchMessageType} from '../../../data/api/ws/match-message-type';
+import {StreamEventType} from '../../../data/api/ws/stream-event-type';
+import {X01Match} from '../../../data/model/x01/match/x01-match';
 import {CheckoutRepository} from '../../../data/repository/checkout-repository';
+import {MatchRepository} from '../../../data/repository/match-repository';
+import {RecentMatchesRepository} from '../../../data/repository/recent-matches-repository';
+import {INITIAL_MATCH_PAGE_STATE, MatchPageState} from './match-page-state';
 
 @Injectable()
 export class MatchPageStore {
@@ -22,15 +22,12 @@ export class MatchPageStore {
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
 
-  private readonly _state = signal<MatchPageState>(initialMatchPageState);
+  private readonly _state = signal<MatchPageState>(INITIAL_MATCH_PAGE_STATE);
   readonly state = this._state.asReadonly();
 
-  /**
-   * Initializes the store by observing route parameter changes.
-   */
   constructor() {
     this.loadCheckouts();
-    this.observeRouteParams();
+    this.registerRouteParamsObserver();
   }
 
   /**
@@ -49,7 +46,8 @@ export class MatchPageStore {
   /**
    * Resets the currently loaded match.
    *
-   * Clears existing command errors before execution and exposes a toolbar error when the reset operation fails.
+   * Clears existing command errors before execution and exposes a toolbar error
+   * when the reset operation fails.
    */
   resetMatch(): void {
     this.executeMatchCommand(
@@ -61,7 +59,8 @@ export class MatchPageStore {
   /**
    * Deletes the currently loaded match.
    *
-   * Clears existing command errors before execution and exposes a toolbar error when the delete operation fails.
+   * Clears existing command errors before execution and exposes a toolbar error
+   * when the delete operation fails.
    */
   deleteMatch(): void {
     this.executeMatchCommand(
@@ -93,7 +92,11 @@ export class MatchPageStore {
         this.patchState({checkouts: {status: 'loaded', data: checkouts}})
       ),
       catchError(() => {
-        this.patchState({checkouts: {status: 'error'}, toolbarError: 'Failed to load checkouts'});
+        this.patchState({
+          checkouts: {status: 'error'},
+          toolbarError: 'Failed to load checkouts'
+        });
+
         return EMPTY;
       }),
       takeUntilDestroyed(this.destroyRef),
@@ -101,12 +104,12 @@ export class MatchPageStore {
   }
 
   /**
-   * Observes route parameter changes and starts observing the corresponding match.
+   * Registers the observer that handles route parameter changes.
    *
    * Invalid match IDs are represented as an error state. Using switchMap ensures
    * the previous match observation is canceled when the route parameter changes.
    */
-  private observeRouteParams(): void {
+  private registerRouteParamsObserver(): void {
     this.route.paramMap
       .pipe(
         map(params => params.get('matchId')),
@@ -129,7 +132,7 @@ export class MatchPageStore {
    * @param matchId - ID of the match to observe.
    * @returns Observable representing the match stream.
    */
-  private observeMatch(matchId: string): Observable<StreamEvent<MatchMessageUnion>> {
+  private observeMatch(matchId: string): Observable<StreamEventType<MatchMessageUnion>> {
     this.patchState({match: {status: 'loading'}});
 
     return this.matchRepository.streamMatch(matchId, ALL_API_ERROR_CODES).pipe(
@@ -146,7 +149,7 @@ export class MatchPageStore {
    *
    * @param event - Stream event to handle.
    */
-  private handleStreamMatchEvent(event: StreamEvent<MatchMessageUnion>): void {
+  private handleStreamMatchEvent(event: StreamEventType<MatchMessageUnion>): void {
     switch (event.type) {
       case 'data':
         this.handleMatchMessage(event.data);
@@ -192,7 +195,10 @@ export class MatchPageStore {
     const match = message.payload;
     const currentMatchState = this._state().match;
 
-    if (currentMatchState.status === 'loaded' && currentMatchState.data.broadcastVersion >= match.broadcastVersion) {
+    if (
+      currentMatchState.status === 'loaded' &&
+      currentMatchState.data.broadcastVersion >= match.broadcastVersion
+    ) {
       return;
     }
 
@@ -212,6 +218,7 @@ export class MatchPageStore {
    */
   private handleDeleteMatchMessage(message: DeleteMatchMessage): void {
     const matchId = message.payload;
+
     this.recentMatchesRepository.deleteMatch(matchId);
     this.patchState({match: {status: 'deleted'}});
   }
@@ -219,7 +226,8 @@ export class MatchPageStore {
   /**
    * Handles a match observation failure.
    *
-   * Deletes the match from recent matches when it no longer exists and marks the match state as errored.
+   * Deletes the match from recent matches when it no longer exists and marks
+   * the match state as errored.
    *
    * @param matchId - ID of the match being observed.
    * @param error - Error returned by the match stream.
@@ -249,7 +257,10 @@ export class MatchPageStore {
     errorHandler: (error: unknown) => void
   ): void {
     const matchState = this._state().match;
-    if (matchState.status !== 'loaded') return;
+
+    if (matchState.status !== 'loaded') {
+      return;
+    }
 
     this.patchState({toolbarError: null, scoreInputError: null});
 

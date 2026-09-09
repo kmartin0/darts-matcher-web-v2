@@ -1,10 +1,10 @@
-@use '@angular/material' as mat;
+@use "@angular/material" as mat;
 
-// ==============================
-// Root layout
-// ==============================
+// ---------- Root layout ---------------------------
 
-html, body, app-root {
+html,
+body,
+app-root {
   margin: 0;
   padding: 0;
   height: 100%;
@@ -12,17 +12,14 @@ html, body, app-root {
   flex-direction: column;
 }
 
-
-// ==============================
-// Global element defaults
-// ==============================
+// ---------- Global element defaults ---------------
 
 * {
   box-sizing: border-box;
 }
 
 body {
-  font-family: var(--mat-sys-body-medium-font), serif;
+  font-family: var(--mat-sys-body-medium-font), sans-serif;
   background-color: var(--mat-sys-background);
   color: var(--mat-sys-on-background);
 
@@ -42,10 +39,7 @@ button {
   touch-action: manipulation;
 }
 
-
-// ==============================
-// Number inputs
-// ==============================
+// ---------- Number inputs -------------------------
 
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
@@ -57,10 +51,7 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
-
-// ==============================
-// Forms
-// ==============================
+// ---------- Forms ---------------------------------
 
 .form {
   width: 100%;
@@ -72,10 +63,7 @@ input[type="number"] {
   gap: 12px;
 }
 
-
-// ==============================
-// Layout utilities
-// ==============================
+// ---------- Layout utilities ----------------------
 
 .container-horizontal,
 .container-vertical {
@@ -99,10 +87,7 @@ input[type="number"] {
   gap: 12px;
 }
 
-
-// ==============================
-// Link utilities
-// ==============================
+// ---------- Link utilities ------------------------
 
 a.plain {
   color: inherit;

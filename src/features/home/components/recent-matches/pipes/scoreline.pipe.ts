@@ -1,6 +1,6 @@
 import {Pipe, PipeTransform} from '@angular/core';
-import {X01Match} from '../../../../../data/model/x01/x01-match';
-import {X01BestOfType} from '../../../../../data/model/x01/x01-best-of-type';
+import {X01Match} from '../../../../../data/model/x01/match/x01-match';
+import {X01BestOfType} from '../../../../../data/model/x01/rules/x01-best-of-type';
 
 export interface ScorelinePipeData {
   players: X01Match['players'];

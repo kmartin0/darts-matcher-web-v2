@@ -14,12 +14,12 @@
 <body>
 <!--
   Apply the persisted theme before Angular boots to prevent a light-theme flash.
-  Keep the 'theme-mode' storage key and theme values in sync with SettingsRepository.
+  Keep the storage key and theme values in sync with SettingsRepository.
 -->
 <script>
   (function () {
     try {
-      const mode = localStorage.getItem('theme-mode');
+      const mode = localStorage.getItem('darts-matcher:theme-mode');
       document.body.classList.add(mode === 'dark' ? 'theme-mode-dark' : 'theme-mode-light');
     } catch {
       document.body.classList.add('theme-mode-light');

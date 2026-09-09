@@ -1,5 +1,5 @@
 import {Pipe, PipeTransform} from '@angular/core';
-import {X01MatchSettings} from '../../../../../data/model/x01/x01-match-settings';
+import {X01MatchSettings} from '../../../../../data/model/x01/match/x01-match-settings';
 import {formatCount} from '../../../../../shared/utils/number.util';
 
 @Pipe({
@@ -16,18 +16,14 @@ export class BestOfLegsRulePipe implements PipeTransform {
    * @returns Formatted best-of-legs configuration.
    */
   transform(bestOf: X01MatchSettings['bestOf']): string {
-    const formattedBestOf =
-      `Best of ${formatCount(bestOf.legs, 'leg', 'legs')}`;
+    const formattedBestOf = `Best of ${formatCount(bestOf.legs, 'leg', 'legs')}`;
 
-    const formattedClearByTwo =
-      `Clear by two, max ${formatCount(
-        bestOf.clearByTwoLegsRule.limit,
-        'extra leg',
-        'extra legs'
-      )}`;
+    if (!bestOf.clearByTwoLegsRule.enabled) {
+      return formattedBestOf;
+    }
 
-    return bestOf.clearByTwoLegsRule.enabled
-      ? `${formattedBestOf} - ${formattedClearByTwo}`
-      : formattedBestOf;
+    const formattedClearByTwo = `Clear by two, max ${formatCount(bestOf.clearByTwoLegsRule.limit, 'extra leg', 'extra legs')}`;
+
+    return `${formattedBestOf} - ${formattedClearByTwo}`;
   }
 }

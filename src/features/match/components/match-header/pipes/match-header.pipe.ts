@@ -1,7 +1,7 @@
 import {Pipe, PipeTransform} from '@angular/core';
-import {X01Match} from '../../../../../data/model/x01/x01-match';
-import {X01MatchSettings} from '../../../../../data/model/x01/x01-match-settings';
-import {X01BestOfType} from '../../../../../data/model/x01/x01-best-of-type';
+import {X01Match} from '../../../../../data/model/x01/match/x01-match';
+import {X01BestOfType} from '../../../../../data/model/x01/rules/x01-best-of-type';
+import {X01MatchSettings} from '../../../../../data/model/x01/match/x01-match-settings';
 import {formatCount} from '../../../../../shared/utils/number.util';
 
 export interface MatchHeaderPipeData {
@@ -27,7 +27,6 @@ export class MatchHeaderPipe implements PipeTransform {
     const matchSettings = data.matchSettings;
     const headerParts = [this.getBestOf(matchSettings)];
 
-    // Include clear-by-two when any clear-by-two rule is enabled.
     if (this.hasClearByTwo(matchSettings)) {
       headerParts.push('Clear by two');
     }
@@ -45,8 +44,11 @@ export class MatchHeaderPipe implements PipeTransform {
    */
   private getBestOf(matchSettings: X01MatchSettings): string {
     switch (matchSettings.bestOf.bestOfType) {
-      case X01BestOfType.SETS:
-        return `Best of ${formatCount(matchSettings.bestOf.sets, 'set', 'sets')} (BO${matchSettings.bestOf.legs})`;
+      case X01BestOfType.SETS: {
+        const formattedSets = formatCount(matchSettings.bestOf.sets, 'set', 'sets');
+
+        return `Best of ${formattedSets} (BO${matchSettings.bestOf.legs})`;
+      }
 
       case X01BestOfType.LEGS:
         return `Best of ${formatCount(matchSettings.bestOf.legs, 'leg', 'legs')}`;

@@ -1,5 +1,5 @@
-import {PlayerType} from '../../../../data/model/match/player-type';
-import {X01BestOfType} from '../../../../data/model/x01/x01-best-of-type';
+import {PlayerType} from '../../../../data/model/base-match/player-type';
+import {X01BestOfType} from '../../../../data/model/x01/rules/x01-best-of-type';
 import {FormSubmitAction, FormSubmitError} from '../../../../shared/forms/form-submit';
 
 export enum ClearByTwoType {
@@ -33,6 +33,11 @@ export interface FormModel {
   players: PlayerFormModel[];
 }
 
+/**
+ * Creates an empty player form model.
+ *
+ * @returns Empty player form model with the default player type.
+ */
 export function createEmptyPlayer(): PlayerFormModel {
   return {
     playerName: '',
@@ -41,6 +46,11 @@ export function createEmptyPlayer(): PlayerFormModel {
   };
 }
 
+/**
+ * Creates the initial match form model.
+ *
+ * @returns Initial match form model.
+ */
 export function createInitialFormModel(): FormModel {
   return {
     x01: 501,

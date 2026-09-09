@@ -15,6 +15,8 @@ export interface FormSubmitError<TFormErrorTarget extends string> {
  *
  * @typeParam TFormModel - Type of the submitted form model.
  * @typeParam TFormErrorTarget - Type describing the valid form error targets.
+ * @param value - Form model to submit.
+ * @returns Form submission errors.
  */
 export type FormSubmitAction<TFormModel, TFormErrorTarget extends string> =
   (value: TFormModel) => Promise<FormSubmitError<TFormErrorTarget>[]>;
@@ -24,6 +26,9 @@ export type FormSubmitAction<TFormModel, TFormErrorTarget extends string> =
  *
  * @typeParam TFormModel - Type of the form model.
  * @typeParam TFormErrorTarget - Type describing the valid form error targets.
+ * @param formErrorTarget - Form error target to resolve.
+ * @param fieldTree - Root field tree of the form.
+ * @returns Corresponding field tree, or undefined when no specific field can be resolved.
  */
 export type FormErrorTargetResolver<TFormModel, TFormErrorTarget extends string> =
   (formErrorTarget: TFormErrorTarget, fieldTree: FieldTree<TFormModel>) => ReadonlyFieldTree<unknown> | undefined;

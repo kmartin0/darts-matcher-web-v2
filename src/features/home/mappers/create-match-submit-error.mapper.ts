@@ -4,7 +4,7 @@ import {mapToFormSubmitErrors} from '../../../shared/forms/api-form-error.mapper
 import {ValidationErrorKey, ValidationErrorMessageUtil} from '../../../shared/utils/error-message.util';
 import * as CreateMatchFormModel from '../components/create-match-form/create-match-form.model';
 
-const API_TARGETS_MAP: Record<string, CreateMatchFormModel.StaticFormErrorTarget> = {
+const API_TARGETS_MAP: Readonly<Partial<Record<string, CreateMatchFormModel.StaticFormErrorTarget>>> = {
   'matchSettings': 'root',
   'matchSettings.x01': 'x01',
 
@@ -36,7 +36,9 @@ const PLAYER_API_TARGET_PATTERN = /^players\[(?<index>\d+)]\.(?<field>.+)$/;
  * @param errorResponse - Parsed API error response, or undefined when the failure could not be parsed.
  * @returns Form submission errors to apply to the create-match form.
  */
-export function mapToCreateMatchSubmitErrors(errorResponse: ApiErrorResponse | undefined): CreateMatchFormModel.SubmitError[] {
+export function mapToCreateMatchSubmitErrors(
+  errorResponse: ApiErrorResponse | undefined
+): CreateMatchFormModel.SubmitError[] {
   switch (errorResponse?.type) {
     case ApiErrorCode.INVALID_ARGUMENTS:
       return mapToFormSubmitErrors(
@@ -61,7 +63,9 @@ export function mapToCreateMatchSubmitErrors(errorResponse: ApiErrorResponse | u
  * @param apiTarget - Target path returned by the API.
  * @returns The mapped form error target, or undefined when the target is unsupported.
  */
-function mapApiTargetToFormErrorTarget(apiTarget: string): CreateMatchFormModel.FormErrorTarget | undefined {
+function mapApiTargetToFormErrorTarget(
+  apiTarget: string
+): CreateMatchFormModel.FormErrorTarget | undefined {
   return API_TARGETS_MAP[apiTarget]
     ?? mapApiTargetToPlayerFormErrorTarget(apiTarget);
 }
@@ -72,22 +76,28 @@ function mapApiTargetToFormErrorTarget(apiTarget: string): CreateMatchFormModel.
  * @param apiTarget - API target in the `players[index].field` format.
  * @returns The mapped player form target, or undefined when the target is unsupported.
  */
-function mapApiTargetToPlayerFormErrorTarget(apiTarget: string): CreateMatchFormModel.PlayerFormErrorTarget | undefined {
+function mapApiTargetToPlayerFormErrorTarget(
+  apiTarget: string
+): CreateMatchFormModel.PlayerFormErrorTarget | undefined {
   const match = PLAYER_API_TARGET_PATTERN.exec(apiTarget);
-  if (!match?.groups) return undefined;
+
+  if (!match?.groups) {
+    return undefined;
+  }
 
   const {index, field} = match.groups;
+  const playerIndex = Number(index);
 
   switch (field) {
     case 'playerName':
-      return `players.${Number(index)}.playerName`;
+      return `players.${playerIndex}.playerName`;
 
     case 'playerType':
-      return `players.${Number(index)}.playerType`;
+      return `players.${playerIndex}.playerType`;
 
     case 'x01DartBotSettings':
     case 'x01DartBotSettings.threeDartAverage':
-      return `players.${Number(index)}.threeDartAverage`;
+      return `players.${playerIndex}.threeDartAverage`;
 
     default:
       return undefined;

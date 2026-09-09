@@ -1,21 +1,21 @@
-import {Component, input} from '@angular/core';
-import {PlayerType} from '../../../../data/model/match/player-type';
-import {X01BestOfType} from '../../../../data/model/x01/x01-best-of-type';
-import {MatRadioButton, MatRadioGroup} from '@angular/material/radio';
-import {FormError} from '../../../../shared/components/form-error/form-error';
-import {MatFormField, MatInput, MatLabel, MatPrefix} from '@angular/material/input';
-import {MatButtonToggle, MatButtonToggleGroup} from '@angular/material/button-toggle';
-import {MatCheckbox} from '@angular/material/checkbox';
+import {Component, computed, input} from '@angular/core';
 import {CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList, moveItemInArray} from '@angular/cdk/drag-drop';
-import {MatIcon} from '@angular/material/icon';
-import {MatButton, MatIconButton} from '@angular/material/button';
-import {MatCard, MatCardContent} from '@angular/material/card';
-import {MatTooltip} from '@angular/material/tooltip';
-import * as CreateMatchFormModel from './create-match-form.model';
-import * as CreateMatchFormErrorResolver from './create-match-form-error.resolver';
-import {createMatchFormSchema, MAX_PLAYERS, MIN_PLAYERS} from './create-match-form.schema';
 import {FormField, FormRoot} from '@angular/forms/signals';
+import {MatButton, MatIconButton} from '@angular/material/button';
+import {MatButtonToggle, MatButtonToggleGroup} from '@angular/material/button-toggle';
+import {MatCard, MatCardContent} from '@angular/material/card';
+import {MatCheckbox} from '@angular/material/checkbox';
+import {MatFormField, MatInput, MatLabel, MatPrefix} from '@angular/material/input';
+import {MatIcon} from '@angular/material/icon';
+import {MatRadioButton, MatRadioGroup} from '@angular/material/radio';
+import {MatTooltip} from '@angular/material/tooltip';
+import {PlayerType} from '../../../../data/model/base-match/player-type';
+import {X01BestOfType} from '../../../../data/model/x01/rules/x01-best-of-type';
+import {FormError} from '../../../../shared/components/form-error/form-error';
 import {createSubmittingForm} from '../../../../shared/forms/submitting-form.factory';
+import * as CreateMatchFormErrorResolver from './create-match-form-error.resolver';
+import * as CreateMatchFormModel from './create-match-form.model';
+import {CREATE_MATCH_FORM_SCHEMA, MAX_PLAYERS, MIN_PLAYERS} from './create-match-form.schema';
 
 @Component({
   selector: 'app-create-match-form',
@@ -50,18 +50,30 @@ export class CreateMatchForm {
 
   private readonly submittingForm = createSubmittingForm({
     createInitialModel: CreateMatchFormModel.createInitialFormModel,
-    schema: createMatchFormSchema,
+    schema: CREATE_MATCH_FORM_SCHEMA,
     submitAction: this.submitAction,
     formErrorTargetResolver: CreateMatchFormErrorResolver.resolveTargetFieldTree,
   });
 
-  readonly matchForm = this.submittingForm.form;
+  protected readonly matchForm = this.submittingForm.form;
   private readonly formModel = this.submittingForm.formModel;
 
   protected readonly x01Options = CreateMatchFormModel.X01_OPTIONS;
   protected readonly BestOfType = X01BestOfType;
   protected readonly ClearByTwoType = CreateMatchFormModel.ClearByTwoType;
   protected readonly PlayerType = PlayerType;
+
+  protected readonly isMaxPlayersReached = computed<boolean>(() =>
+    this.formModel().players.length >= MAX_PLAYERS
+  );
+
+  protected readonly isMinPlayersReached = computed<boolean>(() =>
+    this.formModel().players.length <= MIN_PLAYERS
+  );
+
+  protected readonly hasBotPlayer = computed<boolean>(() =>
+    this.formModel().players.some(player => player.playerType === PlayerType.DART_BOT)
+  );
 
   /**
    * Adds a new player when the maximum player count has not been reached.
@@ -108,7 +120,7 @@ export class CreateMatchForm {
 
       moveItemInArray(players, event.previousIndex, event.currentIndex);
 
-      return {...model, players};
+      return {...model, players: players};
     });
   }
 
@@ -132,11 +144,8 @@ export class CreateMatchForm {
         break;
     }
 
-    /*
-     * Bug workaround: https://github.com/angular/angular/issues/69677
-     * Due to a Signal Forms bug, the radio group can lose its visual checked state after drag and drop.
-     * Workaround: Bind the radio group with [value] instead of [formField], so the field value must be updated manually.
-     */
+    // Workaround for https://github.com/angular/angular/issues/69677:
+    // binding the radio group with [value] requires updating the field manually after drag and drop.
     const player = this.matchForm.players[index];
     player.playerType().value.set(playerType);
     player.playerType().markAsDirty();
@@ -156,7 +165,9 @@ export class CreateMatchForm {
         this.matchForm.bestOf.sets().value.set(1);
 
         this.matchForm.clearByTwo.selectedTypes().value.update(
-          selectedTypes => selectedTypes.filter(type => type === this.ClearByTwoType.LEGS),
+          selectedTypes => selectedTypes.filter(
+            type => type === CreateMatchFormModel.ClearByTwoType.LEGS
+          ),
         );
 
         this.matchForm.clearByTwo.setLimit().value.set(0);
@@ -173,43 +184,23 @@ export class CreateMatchForm {
    */
   protected onClearByTwoTypeChange(type: CreateMatchFormModel.ClearByTwoType, enabled: boolean): void {
     switch (type) {
-      case this.ClearByTwoType.SETS:
+      case CreateMatchFormModel.ClearByTwoType.SETS:
         this.matchForm.clearByTwo.setLimit().value.set(enabled ? 1 : 0);
         break;
 
-      case this.ClearByTwoType.LEGS:
+      case CreateMatchFormModel.ClearByTwoType.LEGS:
         this.matchForm.clearByTwo.legLimit().value.set(enabled ? 1 : 0);
         break;
 
-      case this.ClearByTwoType.LEGS_FINAL_SET:
+      case CreateMatchFormModel.ClearByTwoType.LEGS_FINAL_SET:
         this.matchForm.clearByTwo.finalSetLegLimit().value.set(enabled ? 1 : 0);
         break;
     }
   }
 
   /**
-   * @returns Whether the maximum player count has been reached.
-   */
-  protected isMaxPlayersReached(): boolean {
-    return this.formModel().players.length >= MAX_PLAYERS;
-  }
-
-  /**
-   * @returns Whether the minimum player count has been reached.
-   */
-  protected isMinPlayersReached(): boolean {
-    return this.formModel().players.length <= MIN_PLAYERS;
-  }
-
-  /**
-   * @returns Whether a dart bot player is present.
-   */
-  protected hasBotPlayer(): boolean {
-    return this.formModel().players
-      .some(player => player.playerType === PlayerType.DART_BOT);
-  }
-
-  /**
+   * Gets the Material icon for a player type.
+   *
    * @param playerType - Player type to get the icon for.
    * @returns Material icon name for the player type.
    */
@@ -224,6 +215,8 @@ export class CreateMatchForm {
   }
 
   /**
+   * Gets the tooltip for a player type.
+   *
    * @param playerType - Player type to get the tooltip for.
    * @returns Tooltip text for the player type.
    */

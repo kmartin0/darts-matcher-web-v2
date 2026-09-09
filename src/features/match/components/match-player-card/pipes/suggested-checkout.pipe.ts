@@ -1,8 +1,7 @@
 import {Pipe, PipeTransform} from '@angular/core';
-import {X01Checkout} from '../../../../../data/model/x01/x01-checkout';
-import {getAreaPrefix} from '../../../../../data/model/x01/dartboard-section-area';
-import {DartboardSectionToNumber} from '../../../../../data/model/x01/dartboard-section';
-
+import {X01Checkout} from '../../../../../data/model/x01/checkout/x01-checkout';
+import {getAreaPrefix} from '../../../../../data/model/dartboard/dartboard-section-area';
+import {DARTBOARD_SECTION_TO_NUMBER} from '../../../../../data/model/dartboard/dartboard-section';
 
 /**
  * Formats an X01 checkout suggestion for display.
@@ -19,12 +18,12 @@ export class SuggestedCheckoutPipe implements PipeTransform {
    * @returns Formatted checkout suggestion, or an empty string when none is available.
    */
   transform(checkout: X01Checkout | null): string {
-    if (!checkout) {
+    if (checkout === null) {
       return '';
     }
 
     return checkout.suggested
-      .map(dart => `${getAreaPrefix(dart.area)}${DartboardSectionToNumber[dart.section]}`)
+      .map(dart => `${getAreaPrefix(dart.area)}${DARTBOARD_SECTION_TO_NUMBER[dart.section]}`)
       .join(', ');
   }
 }

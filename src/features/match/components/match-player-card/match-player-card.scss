@@ -238,10 +238,7 @@
 }
 
 // Dividers used within the player stats card.
-.divider-1,
-.divider-2,
-.divider-3,
-.divider-4 {
+.divider {
   background-color: var(--mat-sys-outline);
   border-radius: 24px;
   width: 1px;

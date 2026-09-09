@@ -1,15 +1,15 @@
 import {Component, inject} from '@angular/core';
-import {HomePageStore} from './home-page-store';
-import {ThemeToggle} from '../../../../shared/components/theme-toggle/theme-toggle';
-import {CreateMatchForm} from '../../components/create-match-form/create-match-form';
-import * as CreateMatchFormModel from '../../components/create-match-form/create-match-form.model';
-import * as MatchIdFormModel from '../../components/match-id-form/match-id-form.model';
-import {observeSignalProperty} from '../../../../shared/utils/signal.util';
 import {Router} from '@angular/router';
 import {AppEndpoints} from '../../../../app/app-endpoints';
-import {MatchIdForm} from '../../components/match-id-form/match-id-form';
-import {RecentMatches} from '../../components/recent-matches/recent-matches';
+import {ThemeToggle} from '../../../../shared/components/theme-toggle/theme-toggle';
 import {CommonDialogService} from '../../../../shared/services/common-dialog.service';
+import {observeSignalProperty} from '../../../../shared/utils/signal.util';
+import {CreateMatchForm} from '../../components/create-match-form/create-match-form';
+import * as CreateMatchFormModel from '../../components/create-match-form/create-match-form.model';
+import {MatchIdForm} from '../../components/match-id-form/match-id-form';
+import * as MatchIdFormModel from '../../components/match-id-form/match-id-form.model';
+import {RecentMatches} from '../../components/recent-matches/recent-matches';
+import {HomePageStore} from './home-page-store';
 
 @Component({
   selector: 'app-home-page',
@@ -45,11 +45,8 @@ export class HomePage {
     return this.store.submitMatchId(formModel);
   };
 
-  /**
-   * Initializes page-level state observers.
-   */
   constructor() {
-    this.observeNavigateToMatch();
+    this.registerMatchNavigationObserver();
   }
 
   /**
@@ -62,9 +59,9 @@ export class HomePage {
   }
 
   /**
-   * Handles deletion of a recent match from the recent matches.
+   * Handles removal of a match from recent matches.
    *
-   * @param matchId - ID of the match to delete from recent matches.
+   * @param matchId - ID of the match to remove.
    */
   protected onDeleteFromRecentMatches(matchId: string): void {
     const dialogRef = this.commonDialogService.openConfirmDialog(
@@ -79,9 +76,9 @@ export class HomePage {
   }
 
   /**
-   * Observes the match ID to navigate to and handles match navigation.
+   * Registers the observer that handles pending match navigation.
    */
-  private observeNavigateToMatch(): void {
+  private registerMatchNavigationObserver(): void {
     observeSignalProperty(
       () => this.uiState().navigateToMatchId,
       matchId => this.navigateToMatch(matchId)
@@ -94,7 +91,10 @@ export class HomePage {
    * @param matchId - ID of the match to navigate to, or null when no navigation is pending.
    */
   private navigateToMatch(matchId: string | null): void {
-    if (matchId == null) return;
+    if (matchId === null) {
+      return;
+    }
+
     void this.router.navigateByUrl(AppEndpoints.match(matchId));
   }
 }

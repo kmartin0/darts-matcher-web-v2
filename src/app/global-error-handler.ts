@@ -10,7 +10,7 @@ export class GlobalErrorHandler implements ErrorHandler {
    *
    * @param error - Uncaught error to handle.
    */
-  handleError(error: any): void {
+  handleError(error: unknown): void {
     console.error('Global Error Handler:', error);
     this.errorDialogService.openInternalErrorDialog();
   }

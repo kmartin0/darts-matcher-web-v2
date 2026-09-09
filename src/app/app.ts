@@ -17,9 +17,12 @@ export class App {
     this.registerIcons();
   }
 
+  /**
+   * Registers the custom application icons.
+   */
   private registerIcons(): void {
-    // Register the icon by name and URL
-    this.matIconRegistry.addSvgIcon('darts', this.domSanitizer.bypassSecurityTrustResourceUrl('darts.svg')
+    this.matIconRegistry.addSvgIcon(
+      'darts', this.domSanitizer.bypassSecurityTrustResourceUrl('darts.svg')
     );
   }
 }

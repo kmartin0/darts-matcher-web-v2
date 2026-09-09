@@ -2,7 +2,7 @@
   <!-- Section - X01 -->
   <div class="container-vertical no-gap">
     <!-- Field - X01 -->
-    <label>Select x01</label>
+    <label>Select X01</label>
     <mat-radio-group [formField]="matchForm.x01">
       @for (x01 of x01Options; track x01) {
         <mat-radio-button [value]="x01">{{ x01 }}</mat-radio-button>
@@ -75,7 +75,7 @@
         [value]="ClearByTwoType.LEGS_FINAL_SET"
         [disabled]="!isBestOfTypeSets"
         (change)="onClearByTwoTypeChange(ClearByTwoType.LEGS_FINAL_SET, $event.source.checked)">
-        Legs Final Set
+        Legs final set
       </mat-button-toggle>
     </mat-button-toggle-group>
 
@@ -114,8 +114,7 @@
 
   <!-- Section - Players -->
   <div
-    class="container-vertical"
-    style="margin-top: 8px"
+    class="container-vertical players-section"
     cdkDropList
     (cdkDropListDropped)="onDropPlayerCard($event)">
 
@@ -152,16 +151,16 @@
                     mat-icon-button
                     cdkDragHandle
                     type="button"
-                    aria-label="Rearrange Player"
+                    aria-label="Rearrange player"
                     [disabled]="isMinPlayersReached()">
                     <mat-icon>drag_indicator</mat-icon>
                   </button>
 
                   <button
                     mat-icon-button
-                    matTooltip="Remove Player"
+                    matTooltip="Remove player"
                     type="button"
-                    aria-label="Remove Player"
+                    aria-label="Remove player"
                     (click)="removePlayer(i)"
                     [disabled]="isMinPlayersReached()">
                     <mat-icon>cancel</mat-icon>

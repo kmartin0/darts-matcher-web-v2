@@ -1,5 +1,5 @@
-@use "mixins/helpers";
 @use "@angular/material" as mat;
+@use "mixins/helpers";
 
 :host {
   display: block;
@@ -38,6 +38,7 @@ mat-toolbar {
 
 mat-spinner {
   margin: 16px;
+
   @include mat.progress-spinner-overrides((
     active-indicator-color: var(--mat-sys-on-primary),
   ));

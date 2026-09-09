@@ -1,5 +1,5 @@
 import {Signal, signal, WritableSignal} from '@angular/core';
-import {FieldTree, form, FormOptions, Schema, TreeValidationResult,} from '@angular/forms/signals';
+import {FieldTree, form, FormOptions, Schema, TreeValidationResult} from '@angular/forms/signals';
 import {FormErrorTargetResolver, FormSubmitAction, mapToTreeValidationResult} from './form-submit';
 
 /**
@@ -38,7 +38,7 @@ export interface SubmittingForm<TFormModel> {
 export function createSubmittingForm<TFormModel, TFormErrorTarget extends string>(
   options: SubmittingFormOptions<TFormModel, TFormErrorTarget>
 ): SubmittingForm<TFormModel> {
-  const formModel = signal(options.createInitialModel());
+  const formModel = signal<TFormModel>(options.createInitialModel());
   const formFieldTree = form(formModel, options.schema, createFormOptions(options));
 
   return {

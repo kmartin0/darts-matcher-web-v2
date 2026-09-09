@@ -19,7 +19,7 @@ export const httpLoggingInterceptor: HttpInterceptorFn = (request, next) => {
           console.info(event);
         }
       },
-      error: error => {
+      error: (error: unknown) => {
         console.error(error);
       }
     })

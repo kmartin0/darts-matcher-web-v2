@@ -1,12 +1,8 @@
-$phone: "(max-width: 399px)";
-$phablet: "(min-width: 400px) and (max-width: 599px)";
-$tablet: "(min-width: 600px) and (max-width: 959px)";
-$desktop: "(min-width: 960px) and (max-width: 1439px)";
-$desktop-xl: "(min-width: 1440px)";
+@use "sass:map";
 
 $breakpoints: (
   phone: "(max-width: 399px)",
-  phablet :"(min-width: 400px) and (max-width: 599px)",
+  phablet: "(min-width: 400px) and (max-width: 599px)",
   tablet: "(min-width: 600px) and (max-width: 959px)",
   desktop: "(min-width: 960px) and (max-width: 1439px)",
   desktop-xl: "(min-width: 1440px)"
@@ -14,38 +10,8 @@ $breakpoints: (
 
 @mixin device($keys...) {
   @each $key in $keys {
-    @media #{map-get($breakpoints, $key)} {
-      @content
+    @media #{map.get($breakpoints, $key)} {
+      @content;
     }
-  }
-}
-
-@mixin phone {
-  @media #{$phone} {
-    @content;
-  }
-}
-
-@mixin phablet {
-  @media #{$phablet} {
-    @content;
-  }
-}
-
-@mixin tablet {
-  @media #{$tablet} {
-    @content;
-  }
-}
-
-@mixin desktop {
-  @media #{$desktop} {
-    @content;
-  }
-}
-
-@mixin desktop-xl {
-  @media #{$desktop-xl} {
-    @content;
   }
 }

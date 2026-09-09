@@ -1,4 +1,4 @@
-import {X01Match} from '../../../../data/model/x01/x01-match';
+import {X01Match} from '../../../../data/model/x01/match/x01-match';
 import {LoadState} from '../../../../shared/types/load-state';
 
 export interface HomePageState {
@@ -6,7 +6,7 @@ export interface HomePageState {
   recentMatches: LoadState<X01Match[]>;
 }
 
-export const initialHomeState: HomePageState = {
+export const INITIAL_HOME_STATE: HomePageState = {
   navigateToMatchId: null,
   recentMatches: {status: 'idle'}
 };

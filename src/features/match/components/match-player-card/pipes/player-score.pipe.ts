@@ -1,5 +1,5 @@
 import {Pipe, PipeTransform} from '@angular/core';
-import {X01BestOfType} from '../../../../../data/model/x01/x01-best-of-type';
+import {X01BestOfType} from '../../../../../data/model/x01/rules/x01-best-of-type';
 
 export interface PlayerScorePipeData {
   bestOfType: X01BestOfType;

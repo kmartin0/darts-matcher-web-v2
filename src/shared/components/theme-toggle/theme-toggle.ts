@@ -1,10 +1,10 @@
 import {ChangeDetectionStrategy, Component, computed, inject} from '@angular/core';
-import {ThemeMode} from '../../../data/model/settings/theme-mode';
-import {AppStore} from '../../../app/app-store';
-import {LoseFocusAfterClickDirective} from '../../directives/lose-focus-after-click';
 import {MatIconButton} from '@angular/material/button';
-import {MatTooltip} from '@angular/material/tooltip';
 import {MatIcon} from '@angular/material/icon';
+import {MatTooltip} from '@angular/material/tooltip';
+import {AppStore} from '../../../app/app-store';
+import {DEFAULT_THEME_MODE, ThemeMode} from '../../../data/model/settings/theme-mode';
+import {LoseFocusAfterClickDirective} from '../../directives/lose-focus-after-click';
 
 @Component({
   selector: 'app-theme-toggle',
@@ -14,20 +14,32 @@ import {MatIcon} from '@angular/material/icon';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ThemeToggle {
-  protected readonly appStore = inject(AppStore);
+  private readonly appStore = inject(AppStore);
 
-  protected readonly icon = computed(() => {
-    switch (this.appStore.themeMode()) {
-      case ThemeMode.LIGHT:
-        return 'dark_mode';
-      case ThemeMode.DARK:
-        return 'light_mode';
-      default:
-        return 'dark_mode';
-    }
-  });
+  protected readonly icon = computed<string>(() =>
+    this.getThemeModeIcon(this.appStore.themeMode())
+  );
 
-  toggleThemeMode(): void {
+  /**
+   * Toggles between the available application theme modes.
+   */
+  protected toggleThemeMode(): void {
     this.appStore.toggleThemeMode();
+  }
+
+  /**
+   * Gets the icon for switching from the given theme mode.
+   *
+   * @param themeMode - Current application theme mode.
+   * @returns Icon representing the alternative theme mode.
+   */
+  private getThemeModeIcon(themeMode: ThemeMode): string {
+    switch (themeMode.id) {
+      case ThemeMode.LIGHT.id:
+        return 'dark_mode';
+
+      case ThemeMode.DARK.id:
+        return 'light_mode';
+    }
   }
 }

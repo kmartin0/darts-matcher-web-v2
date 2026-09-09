@@ -3,11 +3,16 @@ import {ValidationErrorKey, ValidationErrorMessageUtil} from '../../../../shared
 import * as MatchIdFormModel from './match-id-form.model';
 import * as MatchIdFormValidators from './match-id-form.validators';
 
-export const matchIdFormSchema =
+export const MATCH_ID_FORM_SCHEMA =
   schema<MatchIdFormModel.FormModel>(path => {
     registerMatchIdRules(path);
   });
 
+/**
+ * Registers validation rules for the match ID field.
+ *
+ * @param path - Schema path tree for the match ID form.
+ */
 function registerMatchIdRules(path: SchemaPathTree<MatchIdFormModel.FormModel>): void {
   required(path.matchId, {
     message: ValidationErrorMessageUtil.getErrorMessage({

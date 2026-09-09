@@ -5,7 +5,7 @@
   @case ('idle') {
   }
   @case ('error') {
-    <app-error-message message="Could not load recent matches"></app-error-message>
+    <app-error-message message="Could not load recent matches"/>
   }
   @case ('loaded') {
     <div class="container-vertical">
@@ -25,15 +25,19 @@
                 <div class="action-container">
                   <button
                     mat-icon-button
+                    type="button"
+                    aria-label="Remove from recents"
                     matTooltip="Remove from recents"
-                    (click)="deleteMatch.emit(match.id); $event.stopPropagation()">
+                    (click)="onDeleteMatch($event, match.id)">
                     <mat-icon>delete</mat-icon>
                   </button>
 
                   <button
                     mat-icon-button
+                    type="button"
+                    aria-label="Go to match"
                     matTooltip="Go to match"
-                    (click)="selectMatch.emit(match.id); $event.stopPropagation()">
+                    (click)="onSelectMatch($event, match.id)">
                     <mat-icon>arrow_forward</mat-icon>
                   </button>
                 </div>

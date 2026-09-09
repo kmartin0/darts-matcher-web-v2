@@ -1,6 +1,8 @@
-import {Inject, Injectable, PLATFORM_ID, signal} from '@angular/core';
+import {Injectable, signal} from '@angular/core';
 import {isValidObjectId} from '../api/utils/object-id.util';
-import {isPlatformBrowser} from '@angular/common';
+
+const RECENT_MATCHES_LOCAL_STORAGE_KEY = 'darts-matcher:recent-matches';
+const MAX_RECENT_MATCHES = 5;
 
 /**
  * Repository responsible for recently visited matches.
@@ -11,23 +13,13 @@ import {isPlatformBrowser} from '@angular/common';
   providedIn: 'root',
 })
 export class RecentMatchesRepository {
-  private readonly RECENT_MATCHES_LOCAL_STORAGE_KEY = 'darts-matcher:recent-matches';
-  private readonly maxMatches = 5;
-
   private readonly _recentMatchIds = signal<string[]>([]);
 
   readonly recentMatchIds = this._recentMatchIds.asReadonly();
 
-  constructor(@Inject(PLATFORM_ID) platformId: object) {
-    if (!isPlatformBrowser(platformId)) return;
-
+  constructor() {
     this.loadRecentMatchIds();
-
-    window.addEventListener('storage', event => {
-      if (event.key === this.RECENT_MATCHES_LOCAL_STORAGE_KEY || event.key === null) {
-        this.loadRecentMatchIds();
-      }
-    });
+    this.registerStorageEventListener();
   }
 
   /**
@@ -47,7 +39,7 @@ export class RecentMatchesRepository {
 
     recentMatchIds.unshift(matchId);
 
-    this.setRecentMatchIds(recentMatchIds.slice(0, this.maxMatches));
+    this.setRecentMatchIds(recentMatchIds.slice(0, MAX_RECENT_MATCHES));
   }
 
   /**
@@ -62,6 +54,17 @@ export class RecentMatchesRepository {
   }
 
   /**
+   * Registers the listener that synchronizes recent matches with local storage changes.
+   */
+  private registerStorageEventListener(): void {
+    window.addEventListener('storage', event => {
+      if (event.key === RECENT_MATCHES_LOCAL_STORAGE_KEY || event.key === null) {
+        this.loadRecentMatchIds();
+      }
+    });
+  }
+
+  /**
    * Loads recently visited match IDs from local storage.
    *
    * Stored values are cleaned before being applied to the repository state.
@@ -69,7 +72,7 @@ export class RecentMatchesRepository {
    */
   private loadRecentMatchIds(): void {
     try {
-      const storedRecentMatchIds = localStorage.getItem(this.RECENT_MATCHES_LOCAL_STORAGE_KEY);
+      const storedRecentMatchIds = localStorage.getItem(RECENT_MATCHES_LOCAL_STORAGE_KEY);
 
       if (storedRecentMatchIds === null) {
         this._recentMatchIds.set([]);
@@ -92,20 +95,21 @@ export class RecentMatchesRepository {
   /**
    * Cleans recently visited match IDs.
    *
-   * Non-array values and invalid match IDs are deleted, and the number of
-   * returned IDs is limited to the configured maximum.
+   * Non-array values, invalid match IDs, and duplicate match IDs are deleted,
+   * and the number of returned IDs is limited to the configured maximum.
    *
    * @param recentMatchIds - Value containing the recent match IDs to clean.
-   * @returns Valid recent match IDs limited to the configured maximum.
+   * @returns Valid unique recent match IDs limited to the configured maximum.
    */
   private cleanRecentMatchIds(recentMatchIds: unknown): string[] {
     if (!Array.isArray(recentMatchIds)) return [];
 
-    return recentMatchIds
-      .filter((matchId): matchId is string =>
-        typeof matchId === 'string' && isValidObjectId(matchId)
-      )
-      .slice(0, this.maxMatches);
+    const validMatchIds = recentMatchIds.filter((matchId): matchId is string =>
+      typeof matchId === 'string' && isValidObjectId(matchId)
+    );
+
+    return [...new Set(validMatchIds)]
+      .slice(0, MAX_RECENT_MATCHES);
   }
 
   /**
@@ -117,7 +121,7 @@ export class RecentMatchesRepository {
     this._recentMatchIds.set(recentMatchIds);
 
     try {
-      localStorage.setItem(this.RECENT_MATCHES_LOCAL_STORAGE_KEY, JSON.stringify(recentMatchIds));
+      localStorage.setItem(RECENT_MATCHES_LOCAL_STORAGE_KEY, JSON.stringify(recentMatchIds));
     } catch {
       // Recent matches remain available for the current session.
     }

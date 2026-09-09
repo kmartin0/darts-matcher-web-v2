@@ -1,13 +1,17 @@
 import {LegSelection} from '../match-board/leg-selection';
 
-export namespace MatchLegSelectionFormModel {
-  export interface FormModel {
-    legSelection: LegSelection | null;
-  }
+export interface FormModel {
+  legSelection: LegSelection | null;
+}
 
-  export function createInitialFormModel(legSelection: LegSelection | null = null): FormModel {
-    return {
-      legSelection: legSelection
-    };
-  }
+/**
+ * Creates the initial leg selection form model.
+ *
+ * @param legSelection - Initial leg selection.
+ * @returns Initial leg selection form model.
+ */
+export function createInitialFormModel(legSelection: LegSelection | null = null): FormModel {
+  return {
+    legSelection: legSelection
+  };
 }

@@ -1,5 +1,5 @@
-import {X01Match} from '../../../../data/model/x01/x01-match';
-import {X01Checkout} from '../../../../data/model/x01/x01-checkout';
+import {X01Checkout} from '../../../../data/model/x01/checkout/x01-checkout';
+import {X01Match} from '../../../../data/model/x01/match/x01-match';
 
 export interface MatchPlayerCardData {
   playerId: string;

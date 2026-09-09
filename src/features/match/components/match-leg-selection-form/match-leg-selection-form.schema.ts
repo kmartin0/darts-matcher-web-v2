@@ -1,5 +1,6 @@
 import {schema} from '@angular/forms/signals';
-import {MatchLegSelectionFormModel} from './match-leg-selection-form.model';
+import * as MatchLegSelectionFormModel from './match-leg-selection-form.model';
 
-export const matchLegSelectionFormSchema = schema<MatchLegSelectionFormModel.FormModel>(() => {
-});
+export const MATCH_LEG_SELECTION_FORM_SCHEMA =
+  schema<MatchLegSelectionFormModel.FormModel>(() => {
+  });

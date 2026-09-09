@@ -1,7 +1,7 @@
 import {Component, computed, input} from '@angular/core';
-import {MatchPlayerCardData} from './match-player-card-data';
-import {ResultType} from '../../../../data/model/match/result-type';
 import {MatCard} from '@angular/material/card';
+import {ResultType} from '../../../../data/model/base-match/result-type';
+import {MatchPlayerCardData} from './match-player-card-data';
 import {PlayerScorePipe} from './pipes/player-score.pipe';
 import {SuggestedCheckoutPipe} from './pipes/suggested-checkout.pipe';
 
@@ -18,16 +18,16 @@ import {SuggestedCheckoutPipe} from './pipes/suggested-checkout.pipe';
 export class MatchPlayerCard {
   readonly data = input.required<MatchPlayerCardData>();
 
-  readonly winOrDraw = computed(() =>
+  protected readonly isWinOrDraw = computed<boolean>(() =>
     this.data().playerResult === ResultType.WIN ||
     this.data().playerResult === ResultType.DRAW
   );
 
-  readonly isCurrentThrower = computed(() =>
+  protected readonly isCurrentThrower = computed<boolean>(() =>
     this.data().playerId === this.data().currentThrowerId
   );
 
-  readonly isStartsLeg = computed(() =>
+  protected readonly isLegStarter = computed<boolean>(() =>
     this.data().startsLegPlayerId === this.data().playerId
   );
 }

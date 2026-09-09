@@ -1,13 +1,13 @@
 import {inject, Injectable} from '@angular/core';
 import {MatDialogRef} from '@angular/material/dialog';
-import {DialogManagerService} from './dialog-manager.service';
 import {InternalErrorDialog} from '../components/internal-error-dialog/internal-error-dialog';
 import {TextDialog} from '../components/text-dialog/text-dialog';
 import {TextDialogData} from '../components/text-dialog/text-dialog-data';
+import {DialogManagerService} from './dialog-manager.service';
 
 @Injectable({providedIn: 'root'})
 export class ErrorDialogService {
-  private readonly dialogService = inject(DialogManagerService);
+  private readonly dialogManagerService = inject(DialogManagerService);
 
   /**
    * Opens the internal error dialog.
@@ -16,7 +16,7 @@ export class ErrorDialogService {
    * @returns Reference to the opened dialog, or null when prevented by stacking rules.
    */
   openInternalErrorDialog(stackable: boolean = false): MatDialogRef<InternalErrorDialog> | null {
-    return this.dialogService.open(
+    return this.dialogManagerService.open(
       InternalErrorDialog,
       undefined,
       stackable
@@ -37,7 +37,7 @@ export class ErrorDialogService {
       matIcon: 'error'
     };
 
-    return this.dialogService.open(TextDialog, {data}, stackable);
+    return this.dialogManagerService.open(TextDialog, {data: data}, stackable);
   }
 
   /**
@@ -53,6 +53,6 @@ export class ErrorDialogService {
       matIcon: 'error'
     };
 
-    return this.dialogService.open(TextDialog, {data}, stackable);
+    return this.dialogManagerService.open(TextDialog, {data: data}, stackable);
   }
 }

@@ -12,7 +12,9 @@ import {ValidationErrorKey, ValidationErrorMessageUtil} from '../../../../shared
  */
 export function registerMatchIdValidator(path: SchemaPath<string>): void {
   validate(path, ({value}) => {
-    if (value() === '' || isValidObjectId(value())) {
+    const matchId = value();
+
+    if (matchId === '' || isValidObjectId(matchId)) {
       return null;
     }
 

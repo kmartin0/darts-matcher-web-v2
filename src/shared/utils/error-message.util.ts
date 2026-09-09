@@ -25,11 +25,18 @@ export type ValidationErrorType =
   | { key: ValidationErrorKey.MAX_ONE_BOT }
   | { key: ValidationErrorKey.BOT_REQUIRES_HUMAN }
   | { key: ValidationErrorKey.INVALID_MATCH_ID }
-  | { key: ValidationErrorKey.RESOURCE_NOT_FOUND; resourceName: string; }
+  | { key: ValidationErrorKey.RESOURCE_NOT_FOUND; resourceName: string }
   | { key: ValidationErrorKey.CUSTOM_ERROR; message: string }
   | { key: ValidationErrorKey.UNKNOWN };
 
 export class ValidationErrorMessageUtil {
+
+  /**
+   * Gets the validation error message for the given validation error.
+   *
+   * @param error - Validation error to resolve.
+   * @returns Validation error message.
+   */
   static getErrorMessage(error: ValidationErrorType): string {
     switch (error.key) {
       case ValidationErrorKey.REQUIRED:
@@ -98,7 +105,7 @@ export class ValidationErrorMessageUtil {
   }
 
   private static invalidMatchId(): string {
-    return 'Invalid Match ID';
+    return 'Invalid Match ID.';
   }
 
   private static resourceNotFound(resourceName: string): string {

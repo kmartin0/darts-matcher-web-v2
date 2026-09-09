@@ -4,6 +4,8 @@
       <button
         class="undo-score-btn"
         mat-icon-button
+        type="button"
+        aria-label="Undo last score"
         matTooltip="Undo last score"
         (click)="deleteLastTurn.emit()">
         <mat-icon>undo</mat-icon>
@@ -20,6 +22,8 @@
     <button
       class="toggle-edit-mode-btn"
       mat-icon-button
+      type="button"
+      aria-label="Edit score"
       matTooltip="Edit score"
       (click)="toggleEditMode.emit()">
       <mat-icon>content_cut</mat-icon>

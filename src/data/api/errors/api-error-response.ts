@@ -1,4 +1,4 @@
-import {ApiErrorCode} from './api-error-code';
+import {ALL_API_ERROR_CODES, ApiErrorCode} from './api-error-code';
 import {ApiTargetErrors, isApiTargetErrors} from './api-target-errors';
 
 export interface ApiErrorResponse {
@@ -26,7 +26,7 @@ export function isApiErrorResponse(value: unknown): value is ApiErrorResponse {
   }
 
   return (
-    Object.values(ApiErrorCode).includes(value.type as ApiErrorCode) &&
+    ALL_API_ERROR_CODES.includes(value.type as ApiErrorCode) &&
     typeof value.description === 'string' &&
     typeof value.status === 'number' &&
     (!('targetErrors' in value) || isApiTargetErrors(value.targetErrors))

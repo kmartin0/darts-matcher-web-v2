@@ -1,7 +1,7 @@
-@use "mixins/dimens";
+@use "dimensions";
 
 @mixin module-page {
-  padding: dimens.$default-page-padding;
+  padding: dimensions.$default-page-padding;
   width: 100%;
   max-width: 1600px;
   flex: 1;
@@ -23,13 +23,13 @@
   }
 }
 
-@mixin light-mode-top-level {
+@mixin light-mode-host {
   :host-context(.theme-mode-light) {
     @content;
   }
 }
 
-@mixin dark-mode-top-level {
+@mixin dark-mode-host {
   :host-context(.theme-mode-dark) {
     @content;
   }

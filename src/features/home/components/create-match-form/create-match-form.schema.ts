@@ -9,11 +9,11 @@ import {
   schema,
   SchemaPathTree
 } from '@angular/forms/signals';
-import {PlayerType} from '../../../../data/model/match/player-type';
-import {X01BestOfType} from '../../../../data/model/x01/x01-best-of-type';
+import {PlayerType} from '../../../../data/model/base-match/player-type';
+import {X01BestOfType} from '../../../../data/model/x01/rules/x01-best-of-type';
+import {ValidationErrorKey, ValidationErrorMessageUtil} from '../../../../shared/utils/error-message.util';
 import * as CreateMatchFormModel from './create-match-form.model';
 import * as CreateMatchFormValidators from './create-match-form.validators';
-import {ValidationErrorKey, ValidationErrorMessageUtil,} from '../../../../shared/utils/error-message.util';
 
 const MIN_X01 = 101;
 const MAX_X01 = 1001;
@@ -31,7 +31,7 @@ const MAX_CLEAR_BY_TWO_LIMIT = 20;
 export const MIN_PLAYERS = 1;
 export const MAX_PLAYERS = 4;
 
-export const createMatchFormSchema =
+export const CREATE_MATCH_FORM_SCHEMA =
   schema<CreateMatchFormModel.FormModel>(path => {
     registerX01Rules(path);
     registerBestOfRules(path);
@@ -39,9 +39,12 @@ export const createMatchFormSchema =
     registerPlayersRules(path);
   });
 
-function registerX01Rules(
-  path: SchemaPathTree<CreateMatchFormModel.FormModel>
-): void {
+/**
+ * Registers validation rules for the X01 field.
+ *
+ * @param path - Schema path tree for the create match form.
+ */
+function registerX01Rules(path: SchemaPathTree<CreateMatchFormModel.FormModel>): void {
   required(path.x01, {
     message: ValidationErrorMessageUtil.getErrorMessage({
       key: ValidationErrorKey.REQUIRED,
@@ -63,9 +66,12 @@ function registerX01Rules(
   });
 }
 
-function registerBestOfRules(
-  path: SchemaPathTree<CreateMatchFormModel.FormModel>
-): void {
+/**
+ * Registers validation and state rules for the best-of fields.
+ *
+ * @param path - Schema path tree for the create match form.
+ */
+function registerBestOfRules(path: SchemaPathTree<CreateMatchFormModel.FormModel>): void {
   required(path.bestOf.bestOfType, {
     message: ValidationErrorMessageUtil.getErrorMessage({
       key: ValidationErrorKey.REQUIRED,
@@ -118,9 +124,12 @@ function registerBestOfRules(
   });
 }
 
-function registerClearByTwoRules(
-  path: SchemaPathTree<CreateMatchFormModel.FormModel>
-): void {
+/**
+ * Registers validation and state rules for the clear-by-two fields.
+ *
+ * @param path - Schema path tree for the create match form.
+ */
+function registerClearByTwoRules(path: SchemaPathTree<CreateMatchFormModel.FormModel>): void {
   required(path.clearByTwo.setLimit, {
     message: ValidationErrorMessageUtil.getErrorMessage({
       key: ValidationErrorKey.REQUIRED,
@@ -203,9 +212,12 @@ function registerClearByTwoRules(
   });
 }
 
-function registerPlayersRules(
-  path: SchemaPathTree<CreateMatchFormModel.FormModel>
-): void {
+/**
+ * Registers validation rules for the players collection.
+ *
+ * @param path - Schema path tree for the create match form.
+ */
+function registerPlayersRules(path: SchemaPathTree<CreateMatchFormModel.FormModel>): void {
   minLength(path.players, MIN_PLAYERS, {
     message: ValidationErrorMessageUtil.getErrorMessage({
       key: ValidationErrorKey.MIN_LENGTH_ARRAY,
@@ -228,9 +240,12 @@ function registerPlayersRules(
   applyEach(path.players, registerPlayerRules);
 }
 
-function registerPlayerRules(
-  path: SchemaPathTree<CreateMatchFormModel.PlayerFormModel>
-): void {
+/**
+ * Registers validation and state rules for a player.
+ *
+ * @param path - Schema path tree for the player form model.
+ */
+function registerPlayerRules(path: SchemaPathTree<CreateMatchFormModel.PlayerFormModel>): void {
   required(path.playerName, {
     message: ValidationErrorMessageUtil.getErrorMessage({
       key: ValidationErrorKey.REQUIRED,

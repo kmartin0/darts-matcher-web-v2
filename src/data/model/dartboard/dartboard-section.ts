@@ -23,7 +23,7 @@ export enum DartboardSection {
   MISS = 'MISS'
 }
 
-export const DartboardSectionToNumber: Record<DartboardSection, number> = {
+export const DARTBOARD_SECTION_TO_NUMBER: Record<DartboardSection, number> = {
   [DartboardSection.ONE]: 1,
   [DartboardSection.TWO]: 2,
   [DartboardSection.THREE]: 3,

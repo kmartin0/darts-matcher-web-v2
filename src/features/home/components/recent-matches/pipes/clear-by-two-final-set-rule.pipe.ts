@@ -1,5 +1,5 @@
 import {Pipe, PipeTransform} from '@angular/core';
-import {X01MatchSettings} from '../../../../../data/model/x01/x01-match-settings';
+import {X01MatchSettings} from '../../../../../data/model/x01/match/x01-match-settings';
 import {formatCount} from '../../../../../shared/utils/number.util';
 
 @Pipe({
@@ -18,12 +18,10 @@ export class ClearByTwoFinalSetRulePipe implements PipeTransform {
   transform(bestOf: X01MatchSettings['bestOf']): string {
     const rule = bestOf.clearByTwoLegsInFinalSetRule;
 
-    if (!rule.enabled) return '';
+    if (!rule.enabled) {
+      return '';
+    }
 
-    return `Clear by two in final set, max ${formatCount(
-      rule.limit,
-      'extra leg',
-      'extra legs'
-    )}`;
+    return `Clear by two in final set, max ${formatCount(rule.limit, 'extra leg', 'extra legs')}`;
   }
 }

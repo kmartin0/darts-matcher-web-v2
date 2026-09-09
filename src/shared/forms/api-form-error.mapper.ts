@@ -6,11 +6,11 @@ import {FormSubmitError} from './form-submit';
 const API_ROOT_ERROR_TARGET = 'root';
 
 /**
- * Maps an API error target to a form error target.
+ * Function that maps an API error target to a form error target.
  *
  * @typeParam TFormErrorTarget - Type describing the valid form error targets.
  * @param apiTarget - Target returned by the API.
- * @returns The mapped form error target, or undefined when the API target is unsupported.
+ * @returns Mapped form error target, or undefined when the API target is unsupported.
  */
 export type ApiErrorTargetMapper<TFormErrorTarget extends string> =
   (apiTarget: string) => TFormErrorTarget | undefined;
@@ -32,7 +32,9 @@ export function mapToFormSubmitErrors<TFormErrorTarget extends string>(
   apiErrorTargetMapper: ApiErrorTargetMapper<TFormErrorTarget>,
   defaultFormErrorTarget: TFormErrorTarget,
 ): FormSubmitError<TFormErrorTarget>[] {
-  if (errorResponse?.targetErrors === undefined) return [createDefaultError(defaultFormErrorTarget)];
+  if (errorResponse?.targetErrors === undefined) {
+    return [createDefaultFormSubmitError(defaultFormErrorTarget)];
+  }
 
   return mapApiTargetErrorsToFormSubmitErrors(
     errorResponse.targetErrors,
@@ -70,7 +72,7 @@ function mapApiTargetErrorsToFormSubmitErrors<TFormErrorTarget extends string>(
 
   return errors.length > 0
     ? errors
-    : [createDefaultError(defaultFormErrorTarget)];
+    : [createDefaultFormSubmitError(defaultFormErrorTarget)];
 }
 
 /**
@@ -78,9 +80,9 @@ function mapApiTargetErrorsToFormSubmitErrors<TFormErrorTarget extends string>(
  *
  * @typeParam TFormErrorTarget - Type describing the valid form error targets.
  * @param defaultFormErrorTarget - Form error target used for the default error.
- * @returns A default form submission error.
+ * @returns Default form submission error.
  */
-function createDefaultError<TFormErrorTarget extends string>(
+function createDefaultFormSubmitError<TFormErrorTarget extends string>(
   defaultFormErrorTarget: TFormErrorTarget
 ): FormSubmitError<TFormErrorTarget> {
   return {

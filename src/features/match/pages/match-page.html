@@ -3,10 +3,9 @@
 @let checkoutsLoadState = state.checkouts;
 
 <app-match-toolbar
-  [menuVisible]="matchLoadState.status === 'loaded'"
+  [menuEnabled]="matchLoadState.status === 'loaded'"
   [error]="state.toolbarError"
   [loading]="toolbarLoading()"
-  (navigateHome)="onNavigateHome()"
   (repairMatch)="onRepairMatch()"
   (resetMatch)="onResetMatch()"
   (deleteMatch)="onDeleteMatch()"
@@ -33,7 +32,11 @@
     @case ('deleted') {
       <div class="match-deleted-container">
         <p class="match-deleted">The match was deleted</p>
-        <a class="plain" (click)="onNavigateHome()" mat-button> Go to home </a>
+        <a
+          mat-button
+          [routerLink]="AppEndpoints.home()">
+          Go to home
+        </a>
       </div>
     }
   }

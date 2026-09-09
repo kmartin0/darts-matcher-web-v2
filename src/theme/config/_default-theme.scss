@@ -1,4 +1,4 @@
-@use '@angular/material' as mat;
+@use "@angular/material" as mat;
 @use "config/typography" as custom-typography;
 @use "config/default-theme-colors" as default-theme-colors;
 
@@ -12,13 +12,14 @@
     density: (scale: 0),
   ));
 
-  /* Angular Material Variable Token Overrides */
-  /* Title large change from ~22px  to ~20px */
+  // Angular Material variable token overrides.
+
+  // Change title large from ~22px to ~20px.
   --mat-sys-title-large-size: 1.25rem;
   --mat-sys-title-large-line-height: 1.75rem;
   --mat-sys-title-large: 400 1.25rem / 1.75rem Roboto;
 
-  /* Mat selected option change color from secondary container to container contrast */
+  // Change selected option color from secondary container to container contrast.
   --mat-select-panel-background-color: var(--mat-sys-surface-container);
   --mat-optgroup-label-text-color: var(--mat-sys-on-surface);
   --mat-option-selected-state-layer-color: color-mix(in srgb, var(--mat-sys-on-surface) 12%, transparent);

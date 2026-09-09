@@ -2,12 +2,12 @@ import {inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {CreateMatchRequestDto} from '../dto/create-match-request.dto';
 import {Observable} from 'rxjs';
-import {X01Match} from '../model/x01/x01-match';
+import {X01Match} from '../model/x01/match/x01-match';
 import {DARTS_MATCHER_REST_ENDPOINTS} from '../api/rest-endpoints';
 import {unwrapApiError} from '../api/http/http-error.operator';
 import {WebSocketService} from '../api/ws/websocket.service';
 import {DARTS_MATCHER_WS_DESTINATIONS, WsDestinationType} from '../api/ws-endpoints';
-import {StreamEvent} from './stream-event.type';
+import {StreamEventType} from '../api/ws/stream-event-type';
 import {
   DeleteLastTurnMessage,
   DeleteMatchMessage,
@@ -66,7 +66,7 @@ export class MatchRepository {
    * @param handleLocally - API error codes handled locally by the caller.
    * @returns Observable containing match messages and connection state events.
    */
-  streamMatch(matchId: string, handleLocally: ApiErrorCodes = []): Observable<StreamEvent<MatchMessageUnion>> {
+  streamMatch(matchId: string, handleLocally: ApiErrorCodes = []): Observable<StreamEventType<MatchMessageUnion>> {
     const broadcastDestination = DARTS_MATCHER_WS_DESTINATIONS.X01.SUBSCRIBE.MATCH(matchId, WsDestinationType.BROADCAST);
     const responseOnConnectDestination = DARTS_MATCHER_WS_DESTINATIONS.X01.SUBSCRIBE.MATCH(matchId, WsDestinationType.SINGLE_RESPONSE);
 
@@ -110,11 +110,11 @@ export class MatchRepository {
   }
 
   /**
-   * Deletes the last turn from a match.
+   * Deletes the last turn from an X01 match.
    *
    * @param matchId - ID of the match whose last turn should be deleted.
    * @param handleLocally - API error codes handled locally by the caller.
-   * @returns Observable containing the delete-last-turn WebSocket message.
+   * @returns Observable containing the delete last turn message.
    */
   deleteLastTurn(matchId: string, handleLocally: ApiErrorCodes = []): Observable<DeleteLastTurnMessage> {
     const destination = DARTS_MATCHER_WS_DESTINATIONS.X01.PUBLISH.DELETE_LAST_TURN(matchId);
