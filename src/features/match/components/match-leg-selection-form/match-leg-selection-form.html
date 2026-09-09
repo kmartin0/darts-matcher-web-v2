@@ -1,0 +1,22 @@
+<form>
+  <mat-form-field subscriptSizing="dynamic" appearance="outline">
+    <mat-label>
+      Select Leg (Set {{ form.legSelection().value()?.setEntry?.setNumber }})
+    </mat-label>
+
+    <mat-select
+      [formField]="form.legSelection"
+      [compareWith]="compareLegSelection"
+      (selectionChange)="onLegSelectionChange($event)">
+      @for (setEntry of match().sets; track setEntry.setNumber) {
+        <mat-optgroup label="Set {{ setEntry.setNumber }}">
+          @for (legEntry of setEntry.set.legs; track legEntry.legNumber) {
+            <mat-option [value]="{setEntry, legEntry}">
+              Leg {{ legEntry.legNumber }}
+            </mat-option>
+          }
+        </mat-optgroup>
+      }
+    </mat-select>
+  </mat-form-field>
+</form>

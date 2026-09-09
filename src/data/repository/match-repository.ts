@@ -8,7 +8,13 @@ import {unwrapApiError} from '../api/http/http-error.operator';
 import {WebSocketService} from '../api/ws/websocket.service';
 import {DARTS_MATCHER_WS_DESTINATIONS, WsDestinationType} from '../api/ws-endpoints';
 import {StreamEvent} from './stream-event.type';
-import {DeleteMatchMessage, MatchMessageUnion, ProcessMatchMessage, ResetMatchMessage} from '../api/ws/match-message';
+import {
+  DeleteLastTurnMessage,
+  DeleteMatchMessage,
+  MatchMessageUnion,
+  ProcessMatchMessage,
+  ResetMatchMessage
+} from '../api/ws/match-message';
 import {handledLocallyHttpContext} from '../api/http/http-api-error-context';
 import {ApiErrorCodes} from '../api/errors/api-error-code';
 
@@ -101,5 +107,17 @@ export class MatchRepository {
   deleteMatch(matchId: string, handleLocally: ApiErrorCodes = []): Observable<DeleteMatchMessage> {
     const destination = DARTS_MATCHER_WS_DESTINATIONS.X01.PUBLISH.DELETE_MATCH(matchId);
     return this.webSocket.publish<DeleteMatchMessage>(destination, undefined, handleLocally);
+  }
+
+  /**
+   * Deletes the last turn from a match.
+   *
+   * @param matchId - ID of the match whose last turn should be deleted.
+   * @param handleLocally - API error codes handled locally by the caller.
+   * @returns Observable containing the delete-last-turn WebSocket message.
+   */
+  deleteLastTurn(matchId: string, handleLocally: ApiErrorCodes = []): Observable<DeleteLastTurnMessage> {
+    const destination = DARTS_MATCHER_WS_DESTINATIONS.X01.PUBLISH.DELETE_LAST_TURN(matchId);
+    return this.webSocket.publish<DeleteLastTurnMessage>(destination, undefined, handleLocally);
   }
 }

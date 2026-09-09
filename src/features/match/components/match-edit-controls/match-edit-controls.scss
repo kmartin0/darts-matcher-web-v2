@@ -1,0 +1,33 @@
+@use "mixins/devices";
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.match-edit-controls {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  gap: 4px;
+  align-items: center;
+  justify-items: center;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 500px;
+  padding: 4px 4px 0 4px;
+}
+
+.undo-score-control,
+.toggle-edit-mode-control {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.toggle-edit-mode-btn {
+  scale: 0.8;
+
+  @include devices.device(phone, phablet) {
+    display: none;
+  }
+}

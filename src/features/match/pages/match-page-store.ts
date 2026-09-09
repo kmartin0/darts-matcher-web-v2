@@ -71,6 +71,18 @@ export class MatchPageStore {
   }
 
   /**
+   * Deletes the last turn from the current match.
+   *
+   * Displays a toolbar error when the operation fails.
+   */
+  deleteLastTurn(): void {
+    this.executeMatchCommand(
+      match => this.matchRepository.deleteLastTurn(match.id, ALL_API_ERROR_CODES),
+      () => this.patchState({toolbarError: 'Failed to delete last turn'})
+    );
+  }
+
+  /**
    * Loads the checkout suggestions required by the match page.
    */
   private loadCheckouts(): void {

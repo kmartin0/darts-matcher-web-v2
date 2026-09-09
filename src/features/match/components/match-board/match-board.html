@@ -1,10 +1,17 @@
 <div class="match-board">
   <div class="match-board-content">
     <app-match-header [match]="match()"/>
+
     <app-match-player-cards
       [match]="match()"
       [legSelection]="legSelection()"
-      [checkouts]="checkouts()"
-    />
+      [checkouts]="checkouts()"/>
+
+    <app-match-edit-controls
+      [match]="match()"
+      [legSelection]="legSelection()"
+      (legSelectionChange)="onLegSelectionChange($event)"
+      (deleteLastTurn)="deleteLastTurn.emit()"
+      (toggleEditMode)="onToggleEditMode()"/>
   </div>
 </div>

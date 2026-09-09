@@ -1,4 +1,4 @@
-import {Component, computed, inject} from '@angular/core';
+import {Component, computed, inject, linkedSignal} from '@angular/core';
 import {MatchPageStore} from './match-page-store';
 import {PageError} from '../../../shared/components/page-error/page-error';
 import {MatchToolbar} from '../components/match-toolbar/match-toolbar';
@@ -60,7 +60,7 @@ export class MatchPage {
   /**
    * Repairs the current match.
    */
-  protected onRepairMatch() {
+  protected onRepairMatch(): void {
     this.store.repairMatch();
   }
 
@@ -69,7 +69,7 @@ export class MatchPage {
    *
    * Opens a confirmation dialog and resets the match when the user confirms the action.
    */
-  protected onResetMatch() {
+  protected onResetMatch(): void {
     const dialogRef = this.commonDialogService.openConfirmDialog('Reset Match');
 
     dialogRef?.afterClosed().subscribe(confirmed => {
@@ -84,7 +84,7 @@ export class MatchPage {
    *
    * Opens a confirmation dialog and deletes the match when the user confirms the action.
    */
-  protected onDeleteMatch() {
+  protected onDeleteMatch(): void {
     const dialogRef = this.commonDialogService.openConfirmDialog('Delete Match');
 
     dialogRef?.afterClosed().subscribe(confirmed => {
@@ -92,6 +92,13 @@ export class MatchPage {
         this.store.deleteMatch();
       }
     });
+  }
+
+  /**
+   * Deletes the last turn from the current match.
+   */
+  protected onDeleteLastTurn(): void {
+    this.store.deleteLastTurn();
   }
 
   /**
@@ -127,7 +134,7 @@ export class MatchPage {
   /**
    * Navigates from the match page to the home page.
    */
-  protected onNavigateHome() {
+  protected onNavigateHome(): void {
     void this.router.navigateByUrl(AppEndpoints.home());
   }
 

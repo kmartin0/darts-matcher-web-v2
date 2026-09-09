@@ -1,0 +1,28 @@
+<div class="match-edit-controls">
+  <div class="undo-score-control">
+    @if (canUndoScore()) {
+      <button
+        class="undo-score-btn"
+        mat-icon-button
+        matTooltip="Undo last score"
+        (click)="deleteLastTurn.emit()">
+        <mat-icon>undo</mat-icon>
+      </button>
+    }
+  </div>
+
+  <app-match-leg-selection-form
+    [match]="match()"
+    [legSelection]="legSelection()"
+    (legSelectionChange)="legSelectionChange.emit($event)"/>
+
+  <div class="toggle-edit-mode-control">
+    <button
+      class="toggle-edit-mode-btn"
+      mat-icon-button
+      matTooltip="Edit score"
+      (click)="toggleEditMode.emit()">
+      <mat-icon>content_cut</mat-icon>
+    </button>
+  </div>
+</div>
