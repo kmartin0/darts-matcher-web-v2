@@ -3,10 +3,7 @@ import {HttpClient} from '@angular/common/http';
 import {map, Observable, of, tap} from 'rxjs';
 import {DARTS_MATCHER_REST_ENDPOINTS} from '../api/rest-endpoints';
 import {unwrapApiError} from '../api/http/http-error.operator';
-import {
-  X01Checkout,
-  X01CheckoutsMap
-} from '../model/x01/checkout/x01-checkout';
+import {X01Checkout, X01CheckoutsMap} from '../model/x01/checkout/x01-checkout';
 
 @Injectable({
   providedIn: 'root'

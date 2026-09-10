@@ -101,18 +101,15 @@ export class MatchPlayerCards {
    * @param leg - Leg containing the rounds to process.
    * @param playerCardDataMap - Player card data keyed by player ID.
    */
-  private updatePlayerCardDataFromLegRounds(
-    leg: X01Leg,
-    playerCardDataMap: Map<string, MatchPlayerCardData>
-  ): void {
+  private updatePlayerCardDataFromLegRounds(leg: X01Leg, playerCardDataMap: Map<string, MatchPlayerCardData>): void {
     const checkoutDartsUsed = leg.checkoutDartsUsed;
 
-    leg.rounds.forEach(roundEntry => {
-      const isFinalRound = roundEntry.roundNumber === leg.rounds.length - 1;
+    leg.rounds.forEach((roundEntry, index) => {
+      const isFinalRound = index === leg.rounds.length - 1;
 
       Object.entries(roundEntry.round.turns).forEach(([playerId, turn]) => {
         const playerCardData = playerCardDataMap.get(playerId);
-        const isCheckoutTurn = isFinalRound && leg.winner === playerId && checkoutDartsUsed != null;
+        const isCheckoutTurn = isFinalRound && leg.winner === playerId && checkoutDartsUsed !== null;
 
         if (playerCardData) {
           playerCardData.remaining = turn.remaining;

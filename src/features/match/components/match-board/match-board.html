@@ -13,5 +13,10 @@
       (legSelectionChange)="onLegSelectionChange($event)"
       (deleteLastTurn)="deleteLastTurn.emit()"
       (toggleEditMode)="onToggleEditMode()"/>
+
+    <app-match-score-table
+      [match]="match()"
+      [legSelection]="legSelection()"
+      [isEditMode]="isEditMode()"/>
   </div>
 </div>

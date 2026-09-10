@@ -3,7 +3,7 @@ import {MatIconButton} from '@angular/material/button';
 import {MatIcon} from '@angular/material/icon';
 import {MatTooltip} from '@angular/material/tooltip';
 import {X01Match} from '../../../../data/model/x01/match/x01-match';
-import {LegSelection} from '../match-board/leg-selection';
+import {isLastLegSelected, LegSelection} from '../match-board/leg-selection';
 import {MatchLegSelectionForm} from '../match-leg-selection-form/match-leg-selection-form';
 
 @Component({
@@ -26,24 +26,9 @@ export class MatchEditControls {
   readonly toggleEditMode = output<void>();
 
   protected readonly canUndoScore = computed<boolean>(() =>
-    this.isLastLegSelected(this.match(), this.legSelection()) &&
+    isLastLegSelected(this.match(), this.legSelection()) &&
     this.matchContainsAnyTurn(this.match())
   );
-
-  /**
-   * Checks whether the currently selected leg is the last leg in the match.
-   *
-   * @param match - Match containing the sets and legs.
-   * @param legSelection - Currently selected leg.
-   * @returns Whether the selected leg is the last leg.
-   */
-  private isLastLegSelected(match: X01Match, legSelection: LegSelection): boolean {
-    const lastSetEntry = match.sets.at(-1);
-    const lastLegEntry = lastSetEntry?.set.legs.at(-1);
-
-    return legSelection.setEntry.setNumber === lastSetEntry?.setNumber &&
-      legSelection.legEntry.legNumber === lastLegEntry?.legNumber;
-  }
 
   /**
    * Checks whether the match contains at least one turn.

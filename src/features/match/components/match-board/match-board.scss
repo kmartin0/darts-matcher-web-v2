@@ -5,25 +5,35 @@
   flex: 1;
   min-height: 0;
   width: 100%;
+  overflow: hidden;
 }
 
 .match-board {
   height: 100%;
-  width: 100%;
-  display: grid;
-  grid-template-rows: 1fr;
   min-height: 0;
+  width: 100%;
+  overflow: hidden;
 }
 
 .match-board-content {
+  height: 100%;
+  min-height: 0;
   width: 100%;
   display: grid;
-  grid-template-rows: max-content max-content max-content;
+  grid-template-rows: max-content max-content max-content minmax(160px, 1fr);
   gap: 20px;
-  min-height: 0;
   overflow-y: auto;
 
   @include devices.device(phone, phablet) {
+    grid-template-rows: max-content max-content max-content;
     gap: 12px;
+  }
+}
+
+app-match-score-table {
+  min-height: 0;
+
+  @include devices.device(phone, phablet) {
+    display: none;
   }
 }

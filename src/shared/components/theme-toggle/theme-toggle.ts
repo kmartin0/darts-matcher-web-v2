@@ -3,7 +3,7 @@ import {MatIconButton} from '@angular/material/button';
 import {MatIcon} from '@angular/material/icon';
 import {MatTooltip} from '@angular/material/tooltip';
 import {AppStore} from '../../../app/app-store';
-import {DEFAULT_THEME_MODE, ThemeMode} from '../../../data/model/settings/theme-mode';
+import {ThemeMode} from '../../../data/model/settings/theme-mode';
 import {LoseFocusAfterClickDirective} from '../../directives/lose-focus-after-click';
 
 @Component({

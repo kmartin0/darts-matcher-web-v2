@@ -25,7 +25,9 @@
 }
 
 .toggle-edit-mode-btn {
-  scale: 0.8;
+  mat-icon {
+    scale: 0.8;
+  }
 
   @include devices.device(phone, phablet) {
     display: none;

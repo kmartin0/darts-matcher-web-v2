@@ -5,6 +5,7 @@ import {MatchEditControls} from '../match-edit-controls/match-edit-controls';
 import {MatchHeader} from '../match-header/match-header';
 import {MatchPlayerCards} from '../match-player-cards/match-player-cards';
 import {LegSelection} from './leg-selection';
+import {MatchScoreTable} from '../match-score-table/match-score-table';
 
 @Component({
   selector: 'app-match-board',
@@ -13,7 +14,8 @@ import {LegSelection} from './leg-selection';
   imports: [
     MatchHeader,
     MatchPlayerCards,
-    MatchEditControls
+    MatchEditControls,
+    MatchScoreTable
   ]
 })
 export class MatchBoard {

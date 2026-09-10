@@ -1,0 +1,79 @@
+<div #tableContainer class="match-score-table">
+  <table mat-table [dataSource]="rows()" [trackBy]="trackByRoundNumber">
+
+    <!-- ---------- Fixed Darts / Round column ---------- -->
+    <ng-container [matColumnDef]="ROUND_COLUMN_ID">
+      <!-- Header labels -->
+      <th mat-header-cell *matHeaderCellDef>
+        <div class="cell-content-container">
+          <span>Darts</span>
+          <span>Round</span>
+        </div>
+      </th>
+
+      <!-- Cumulative darts thrown and round number -->
+      <td mat-cell *matCellDef="let row">
+        <div class="cell-content-container">
+          <span>{{ row.dartsThrown }}</span>
+          <span>{{ row.roundNumber }}</span>
+        </div>
+      </td>
+    </ng-container>
+
+    <!-- ---------- Dynamic player columns ---------- -->
+    @for (player of match().players; track player.playerId) {
+      <ng-container [matColumnDef]="player.playerId">
+        <!-- Player header cell-->
+        <th mat-header-cell *matHeaderCellDef>
+          <div class="cell-content-container" [class.edit-mode]="isEditMode()">
+            @if (isEditMode()) {
+              <span></span>
+            }
+            <span>Score</span>
+            <span>To Go</span>
+          </div>
+        </th>
+
+        <!-- Player turn cell-->
+        <td mat-cell *matCellDef="let row">
+          @let turn = row.turns[player.playerId];
+
+          <div class="cell-content-container" [class.edit-mode]="isEditMode()">
+            @if (isEditMode()) {
+              <span>
+                @if (turn) {
+                  <button
+                    mat-icon-button
+                    type="button"
+                    aria-label="Edit score"
+                    (click)="onEditTurn(player, row)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                }
+              </span>
+            }
+
+            <span>
+              @if (turn) {
+                {{ turn.score }}
+              }
+            </span>
+
+            <span>
+              @if (turn) {
+                {{ turn.remaining }}
+              } @else if (row.currentThrowerId === player.playerId) {
+                <mat-icon svgIcon="darts"></mat-icon>
+              }
+            </span>
+          </div>
+        </td>
+      </ng-container>
+    }
+
+    <!-- ---------- Table rows ---------- -->
+    <!-- Render the sticky header and score table rows using the ordered column IDs. -->
+    <tr #stickyHeaderRow mat-header-row *matHeaderRowDef="displayedColumns(); sticky: true"></tr>
+    <tr #scoreRow mat-row *matRowDef="let row; columns: displayedColumns()"></tr>
+  </table>
+</div>
