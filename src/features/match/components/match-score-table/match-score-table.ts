@@ -4,6 +4,7 @@ import {
   computed,
   ElementRef,
   input,
+  linkedSignal,
   output,
   untracked,
   viewChild,
@@ -28,6 +29,12 @@ import {MatIcon} from '@angular/material/icon';
 import {MatIconButton} from '@angular/material/button';
 import {X01MatchPlayer} from '../../../../data/model/x01/match/x01-match-player';
 import {MatchScoreTableEditTarget} from './match-score-table-edit-target';
+
+interface MatchScoreTableScrollTarget {
+  setNumber: number;
+  legNumber: number;
+  roundNumber: number;
+}
 
 const ROUND_COLUMN_ID = 'round';
 
@@ -66,6 +73,17 @@ export class MatchScoreTable {
   protected readonly rows = computed<MatchScoreTableRow[]>(() =>
     this.createRows(this.match(), this.legSelection())
   );
+
+  private readonly scrollTarget = linkedSignal<LegSelection, MatchScoreTableScrollTarget | null>({
+    source: this.legSelection,
+    computation: (legSelection, previous) => {
+      // MatchBoard refreshes the leg selection on every match update, so read the latest match untracked.
+      const match = untracked(this.match);
+      const previousLegSelection = previous?.source;
+
+      return this.createScrollTarget(match, legSelection, previousLegSelection);
+    }
+  });
 
   private readonly tableContainerElementRef = viewChild.required<ElementRef<HTMLDivElement>>('tableContainer');
   private readonly stickyHeaderRowElementRef = viewChild.required('stickyHeaderRow', {read: ElementRef});
@@ -137,6 +155,7 @@ export class MatchScoreTable {
     const leg = legSelection.legEntry.leg;
     let dartsThrown = 0;
 
+    // Map the leg rounds to score table rows.
     return leg.rounds.map((roundEntry, index) => {
       const isFinalRound = index === leg.rounds.length - 1;
       const checkoutDartsUsed = leg.checkoutDartsUsed;
@@ -170,7 +189,7 @@ export class MatchScoreTable {
   }
 
   /**
-   * Registers score table scrolling for leg selection changes.
+   * Registers score table scrolling for scroll target changes.
    *
    * Uses `afterRenderEffect` so scrolling runs after Angular has rendered the updated table rows.
    * The `mixedReadWrite` phase is used because scrolling requires reading layout dimensions before
@@ -179,21 +198,76 @@ export class MatchScoreTable {
   private registerScrollEffect(): void {
     afterRenderEffect({
       mixedReadWrite: () => {
-        // Read the selected leg while keeping match updates untracked.
-        const legSelection = this.legSelection();
-        const match = untracked(this.match);
+        const scrollTarget = this.scrollTarget();
 
-        // Resolve the round to scroll to for the selected leg.
-        const targetRoundNumber = this.getTargetRoundNumber(match, legSelection);
-
-        if (targetRoundNumber === null) {
+        if (scrollTarget === null) {
           return;
         }
 
         // Scroll without tracking the row and element signals used internally.
-        untracked(() => this.scrollToRound(targetRoundNumber));
+        untracked(() => this.scrollToRound(scrollTarget.roundNumber));
       }
     });
+  }
+
+  /**
+   * Creates the scroll target for the selected leg.
+   *
+   * Always creates a target when the leg in play is selected, or when the last leg
+   * is selected after the match has finished. Other selected legs only create a
+   * new target when the selected set or leg changes.
+   *
+   * @param match - Match containing the current match progress.
+   * @param legSelection - Currently selected leg.
+   * @param previousLegSelection - Previously selected leg, when available.
+   * @returns Scroll target for the selected leg, or null when the current scroll position should be preserved.
+   */
+  private createScrollTarget(
+    match: X01Match,
+    legSelection: LegSelection,
+    previousLegSelection: LegSelection | undefined
+  ): MatchScoreTableScrollTarget | null {
+    // Create a scroll target for the initial selection, leg in play or last leg of a finished match.
+    if (previousLegSelection === undefined || isCurrentOrLastLegSelected(match, legSelection)) {
+      return this.createScrollTargetForLeg(match, legSelection);
+    }
+
+    // Determine whether the selected set or leg has changed.
+    const hasSelectedLegChanged =
+      previousLegSelection.setEntry.setNumber !== legSelection.setEntry.setNumber ||
+      previousLegSelection.legEntry.legNumber !== legSelection.legEntry.legNumber;
+
+    // When the selected leg has not changed, preserve the current scroll position.
+    if (!hasSelectedLegChanged) {
+      return null;
+    }
+
+    // Otherwise create a scroll target for the newly selected leg.
+    return this.createScrollTargetForLeg(match, legSelection);
+  }
+
+  /**
+   * Creates a scroll target for the selected leg.
+   *
+   * @param match - Match containing the current match progress.
+   * @param legSelection - Selected leg.
+   * @returns Scroll target, or null when no round is available.
+   */
+  private createScrollTargetForLeg(
+    match: X01Match,
+    legSelection: LegSelection
+  ): MatchScoreTableScrollTarget | null {
+    const targetRoundNumber = this.getScrollTargetRoundNumber(match, legSelection);
+
+    if (targetRoundNumber === null) {
+      return null;
+    }
+
+    return {
+      setNumber: legSelection.setEntry.setNumber,
+      legNumber: legSelection.legEntry.legNumber,
+      roundNumber: targetRoundNumber
+    };
   }
 
   /**
@@ -203,10 +277,10 @@ export class MatchScoreTable {
    * @param legSelection - Selected leg.
    * @returns Round number to scroll to, or null when no round is available.
    */
-  private getTargetRoundNumber(match: X01Match, legSelection: LegSelection): number | null {
-    const isCurrentLegSelected = isCurrentOrLastLegSelected(match, legSelection);
+  private getScrollTargetRoundNumber(match: X01Match, legSelection: LegSelection): number | null {
+    const shouldScrollToLatestRound = isCurrentOrLastLegSelected(match, legSelection);
 
-    const targetRoundNumber = isCurrentLegSelected
+    const targetRoundNumber = shouldScrollToLatestRound
       ? match.matchProgress.currentRound ?? legSelection.legEntry.leg.rounds.at(-1)?.roundNumber
       : legSelection.legEntry.leg.rounds.at(0)?.roundNumber;
 
