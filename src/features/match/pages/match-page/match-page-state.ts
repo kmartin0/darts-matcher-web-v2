@@ -1,7 +1,7 @@
-import {StreamConnectionState} from '../../../data/api/ws/stream-event-type';
-import {X01CheckoutsMap} from '../../../data/model/x01/checkout/x01-checkout';
-import {X01Match} from '../../../data/model/x01/match/x01-match';
-import {LoadState} from '../../../shared/types/load-state';
+import {StreamConnectionState} from '../../../../data/api/ws/stream-event-type';
+import {X01CheckoutsMap} from '../../../../data/model/x01/checkout/x01-checkout';
+import {X01Match} from '../../../../data/model/x01/match/x01-match';
+import {LoadState} from '../../../../shared/types/load-state';
 
 type MatchLoadState = LoadState<X01Match> | { status: 'deleted' };
 

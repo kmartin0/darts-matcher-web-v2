@@ -1,6 +1,6 @@
 import {Routes} from '@angular/router';
 import {HomePage} from '../features/home/pages/home-page/home-page';
-import {MatchPage} from '../features/match/pages/match-page';
+import {MatchPage} from '../features/match/pages/match-page/match-page';
 import {PageError} from '../shared/components/page-error/page-error';
 
 export const routes: Routes = [

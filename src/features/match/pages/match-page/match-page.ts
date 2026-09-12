@@ -3,12 +3,14 @@ import {Clipboard} from '@angular/cdk/clipboard';
 import {MatButton} from '@angular/material/button';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {RouterLink} from '@angular/router';
-import {AppEndpoints} from '../../../app/app-endpoints';
-import {X01Match} from '../../../data/model/x01/match/x01-match';
-import {PageError} from '../../../shared/components/page-error/page-error';
-import {CommonDialogService} from '../../../shared/services/common-dialog.service';
-import {MatchBoard} from '../components/match-board/match-board';
-import {MatchToolbar} from '../components/match-toolbar/match-toolbar';
+import {AppEndpoints} from '../../../../app/app-endpoints';
+import {X01Match} from '../../../../data/model/x01/match/x01-match';
+import {PageError} from '../../../../shared/components/page-error/page-error';
+import {CommonDialogService} from '../../../../shared/services/common-dialog.service';
+import {MatchBoard} from '../../components/match-board/match-board';
+import {MatchToolbar} from '../../components/match-toolbar/match-toolbar';
+import {MatchScoreTableEditTarget} from '../../components/match-score-table/match-score-table-edit-target';
+import {MatchTurnInputService} from '../../services/match-turn-input.service';
 import {MatchPageStore} from './match-page-store';
 
 @Component({
@@ -27,6 +29,7 @@ import {MatchPageStore} from './match-page-store';
 export class MatchPage {
   private readonly store = inject(MatchPageStore);
   private readonly commonDialogService = inject(CommonDialogService);
+  private readonly matchTurnInputService = inject(MatchTurnInputService);
   private readonly clipboard = inject(Clipboard);
   private readonly snackBar = inject(MatSnackBar);
 
@@ -48,7 +51,8 @@ export class MatchPage {
     const state = this.uiState();
 
     const isMatchLoading = state.match.status === 'loading';
-    const isWaitingForStream = state.match.status === 'loaded' && state.streamConnectionState !== 'connected';
+    const isWaitingForStream = state.match.status === 'loaded' &&
+      state.streamConnectionState !== 'connected';
 
     return isMatchLoading || isWaitingForStream;
   });
@@ -125,6 +129,30 @@ export class MatchPage {
         ? 'Match ID copied'
         : failedMessage
     );
+  }
+
+  /**
+   * Handles editing a turn selected from the match score table.
+   *
+   * Resolves the required match state before delegating turn input resolution
+   * to the match turn input service and dispatching the edit to the store.
+   *
+   * @param editTarget - Turn selected for editing.
+   */
+  protected async onEditTurn(editTarget: MatchScoreTableEditTarget): Promise<void> {
+    const match = this.match();
+    const checkoutsState = this.uiState().checkouts;
+    const checkouts = checkoutsState.status === 'loaded' ? checkoutsState.data : null;
+    if (match === null || checkouts === null) return;
+
+    const editTurnInput = await this.matchTurnInputService.resolveEditTurnInput(
+      editTarget,
+      match,
+      checkouts
+    );
+    if (editTurnInput === null) return;
+
+    this.store.editTurn(editTurnInput);
   }
 
   /**

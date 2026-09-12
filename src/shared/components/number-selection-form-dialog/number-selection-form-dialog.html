@@ -1,0 +1,24 @@
+<form class="dialog-container" (submit)="onSubmit(); $event.preventDefault()">
+
+  <div class="header">
+    <h2 mat-dialog-title class="title">{{ dialogData.title }}</h2>
+  </div>
+
+  <mat-dialog-content class="content">
+    <mat-radio-group
+      class="number-options"
+      [formField]="numberSelectionForm.number">
+
+      @for (option of dialogData.options; track option) {
+        <mat-radio-button [value]="option">
+          {{ option }}
+        </mat-radio-button>
+      }
+    </mat-radio-group>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="actions" align="end">
+    <button type="button" mat-button mat-dialog-close>Cancel</button>
+    <button type="submit" mat-button cdkFocusInitial>Enter</button>
+  </mat-dialog-actions>
+</form>

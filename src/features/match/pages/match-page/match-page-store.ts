@@ -2,17 +2,20 @@ import {DestroyRef, inject, Injectable, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute} from '@angular/router';
 import {catchError, EMPTY, map, Observable, switchMap, tap} from 'rxjs';
-import {ALL_API_ERROR_CODES, ApiErrorCode} from '../../../data/api/errors/api-error-code';
-import {isApiErrorResponse} from '../../../data/api/errors/api-error-response';
-import {isValidObjectId} from '../../../data/api/utils/object-id.util';
-import {DeleteMatchMessage, MatchMessageUnion, MatchUpdateMessage} from '../../../data/api/ws/match-message';
-import {MatchMessageType} from '../../../data/api/ws/match-message-type';
-import {StreamEventType} from '../../../data/api/ws/stream-event-type';
-import {X01Match} from '../../../data/model/x01/match/x01-match';
-import {CheckoutRepository} from '../../../data/repository/checkout-repository';
-import {MatchRepository} from '../../../data/repository/match-repository';
-import {RecentMatchesRepository} from '../../../data/repository/recent-matches-repository';
+import {ALL_API_ERROR_CODES, ApiErrorCode} from '../../../../data/api/errors/api-error-code';
+import {isApiErrorResponse} from '../../../../data/api/errors/api-error-response';
+import {isValidObjectId} from '../../../../data/api/utils/object-id.util';
+import {DeleteMatchMessage, MatchMessageUnion, MatchUpdateMessage} from '../../../../data/api/ws/match-message';
+import {MatchMessageType} from '../../../../data/api/ws/match-message-type';
+import {StreamEventType} from '../../../../data/api/ws/stream-event-type';
+import {X01Match} from '../../../../data/model/x01/match/x01-match';
+import {CheckoutRepository} from '../../../../data/repository/checkout-repository';
+import {MatchRepository} from '../../../../data/repository/match-repository';
+import {RecentMatchesRepository} from '../../../../data/repository/recent-matches-repository';
 import {INITIAL_MATCH_PAGE_STATE, MatchPageState} from './match-page-state';
+import {mapToEditTurnRequestDto} from '../../mappers/edit-turn-request.mapper';
+import {mapToEditTurnErrorMessage} from '../../mappers/edit-turn-error.mapper';
+import {EditTurnInput} from '../../model/turn-input';
 
 @Injectable()
 export class MatchPageStore {
@@ -78,6 +81,26 @@ export class MatchPageStore {
     this.executeMatchCommand(
       match => this.matchRepository.deleteLastTurn(match.id, ALL_API_ERROR_CODES),
       () => this.patchState({toolbarError: 'Failed to delete last turn'})
+    );
+  }
+
+  /**
+   * Edits an existing turn in the current match.
+   *
+   * Maps the resolved edit-turn input to the API request DTO and executes the edit command for the loaded match.
+   *
+   * @param editTurnInput - Resolved values required to edit the turn.
+   */
+  editTurn(editTurnInput: EditTurnInput): void {
+    const editTurnRequestDto = mapToEditTurnRequestDto(editTurnInput);
+
+    this.executeMatchCommand(
+      match => this.matchRepository.editTurn(match.id, editTurnRequestDto, ALL_API_ERROR_CODES),
+      error => {
+        const errorResponse = isApiErrorResponse(error) ? error : undefined;
+        const errorMessage = mapToEditTurnErrorMessage(errorResponse);
+        this.patchState({toolbarError: errorMessage}); // TODO: Move to score error field
+      }
     );
   }
 

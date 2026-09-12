@@ -11,12 +11,14 @@ import {StreamEventType} from '../api/ws/stream-event-type';
 import {
   DeleteLastTurnMessage,
   DeleteMatchMessage,
+  EditTurnMessage,
   MatchMessageUnion,
   ProcessMatchMessage,
   ResetMatchMessage
 } from '../api/ws/match-message';
 import {handledLocallyHttpContext} from '../api/http/http-api-error-context';
 import {ApiErrorCodes} from '../api/errors/api-error-code';
+import {X01EditTurnRequestDto} from '../dto/edit-turn-request.dto';
 
 @Injectable({providedIn: 'root'})
 export class MatchRepository {
@@ -119,5 +121,18 @@ export class MatchRepository {
   deleteLastTurn(matchId: string, handleLocally: ApiErrorCodes = []): Observable<DeleteLastTurnMessage> {
     const destination = DARTS_MATCHER_WS_DESTINATIONS.X01.PUBLISH.DELETE_LAST_TURN(matchId);
     return this.webSocket.publish<DeleteLastTurnMessage>(destination, undefined, handleLocally);
+  }
+
+  /**
+   * Edits an existing turn in an X01 match.
+   *
+   * @param matchId - ID of the match containing the turn.
+   * @param body - Turn edit request.
+   * @param handleLocally - API error codes handled locally by the caller.
+   * @returns Observable containing the edit turn message.
+   */
+  editTurn(matchId: string, body: X01EditTurnRequestDto, handleLocally: ApiErrorCodes = []): Observable<EditTurnMessage> {
+    const destination = DARTS_MATCHER_WS_DESTINATIONS.X01.PUBLISH.EDIT_TURN(matchId);
+    return this.webSocket.publish<EditTurnMessage>(destination, body, handleLocally);
   }
 }

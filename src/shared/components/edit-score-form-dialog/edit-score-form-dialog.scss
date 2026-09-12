@@ -1,0 +1,13 @@
+@use "mixins/dialog";
+
+@include dialog.layout;
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  margin-top: 12px;
+
+  mat-form-field {
+    width: 100%;
+  }
+}

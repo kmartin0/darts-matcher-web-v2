@@ -6,6 +6,7 @@ import {MatchHeader} from '../match-header/match-header';
 import {MatchPlayerCards} from '../match-player-cards/match-player-cards';
 import {isCurrentOrLastLegSelected, LegSelection} from './leg-selection';
 import {MatchScoreTable} from '../match-score-table/match-score-table';
+import {MatchScoreTableEditTarget} from '../match-score-table/match-score-table-edit-target';
 
 @Component({
   selector: 'app-match-board',
@@ -23,6 +24,7 @@ export class MatchBoard {
   readonly checkouts = input.required<X01CheckoutsMap>();
 
   readonly deleteLastTurn = output<void>();
+  readonly editTurn = output<MatchScoreTableEditTarget>();
 
   protected readonly legSelection = linkedSignal<X01Match, LegSelection>({
     source: this.match,

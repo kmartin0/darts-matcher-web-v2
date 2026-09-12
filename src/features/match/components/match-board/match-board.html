@@ -17,6 +17,7 @@
     <app-match-score-table
       [match]="match()"
       [legSelection]="legSelection()"
-      [isEditMode]="isEditMode()"/>
+      [isEditMode]="isEditMode()"
+      (editTurn)="editTurn.emit($event)"/>
   </div>
 </div>

@@ -26,7 +26,8 @@
         <app-match-board
           [match]="matchLoadState.data"
           [checkouts]="checkoutsLoadState.data"
-          (deleteLastTurn)="onDeleteLastTurn()"/>
+          (deleteLastTurn)="onDeleteLastTurn()"
+          (editTurn)="onEditTurn($event)"/>
       }
     }
     @case ('deleted') {

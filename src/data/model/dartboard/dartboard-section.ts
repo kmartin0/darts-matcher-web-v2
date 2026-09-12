@@ -47,3 +47,5 @@ export const DARTBOARD_SECTION_TO_NUMBER: Record<DartboardSection, number> = {
   [DartboardSection.BULL]: 25,
   [DartboardSection.MISS]: 0
 };
+
+export const MAX_DOUBLE_SCORE = 50;
