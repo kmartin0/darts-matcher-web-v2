@@ -1,3 +1,6 @@
+/**
+ * X01 average statistics for a player.
+ */
 export interface X01AverageStatistics {
   pointsThrown: number;
   dartsThrown: number;
@@ -5,4 +8,29 @@ export interface X01AverageStatistics {
   pointsThrownFirstNine: number;
   dartsThrownFirstNine: number;
   averageFirstNine: number | null;
+}
+
+/**
+ * Calculates a three-dart X01 average rounded to the nearest whole number.
+ *
+ * @param pointsThrown - Number of points scored.
+ * @param dartsThrown - Number of darts thrown.
+ * @returns Rounded three-dart average, or null when no darts have been thrown.
+ */
+export function calculateX01Average(pointsThrown: number, dartsThrown: number): number | null {
+  if (dartsThrown === 0) {
+    return null;
+  }
+
+  return Math.round((pointsThrown / dartsThrown) * 3);
+}
+
+/**
+ * Checks whether a player's turn is part of the first nine darts of a leg.
+ *
+ * @param turnNumber - One-based turn number for the player in the leg.
+ * @returns Whether the turn is part of the first nine darts.
+ */
+export function isFirstNineTurn(turnNumber: number): boolean {
+  return turnNumber <= 3;
 }

@@ -4,7 +4,7 @@ import {X01BestOfType} from '../../../../../data/model/x01/rules/x01-best-of-typ
 export interface PlayerScorePipeData {
   bestOfType: X01BestOfType;
   setsWon: number;
-  legsWonInCurrentSet: number;
+  legsWon: number;
 }
 
 /**
@@ -23,7 +23,7 @@ export class PlayerScorePipe implements PipeTransform {
    */
   transform(data: PlayerScorePipeData): string {
     return data.bestOfType === X01BestOfType.SETS
-      ? `${data.setsWon} (${data.legsWonInCurrentSet})`
-      : `${data.legsWonInCurrentSet}`;
+      ? `${data.setsWon} (${data.legsWon})`
+      : `${data.legsWon}`;
   }
 }

@@ -2,9 +2,9 @@
 
 <div
   class="match-player-card"
-  [class.current-thrower]="isCurrentThrower()"
-  [class.starts-leg]="isLegStarter()"
-  [class.win-or-draw]="isWinOrDraw()">
+  [class.current-thrower]="player.isCurrentThrower"
+  [class.starts-leg]="player.startsLeg"
+  [class.win-or-draw]="player.isWinOrDraw">
 
   <mat-card class="player-info-card">
     <span class="player-name">{{ player.name }}</span>

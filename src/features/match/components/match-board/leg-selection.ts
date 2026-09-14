@@ -1,6 +1,9 @@
 import {X01LegEntry} from '../../../../data/model/x01/leg/x01-leg-entry';
+import {
+  isLastLegInMatch,
+  X01Match
+} from '../../../../data/model/x01/match/x01-match';
 import {X01SetEntry} from '../../../../data/model/x01/set/x01-set-entry';
-import {X01Match} from '../../../../data/model/x01/match/x01-match';
 
 export interface LegSelection {
   setEntry: X01SetEntry;
@@ -22,23 +25,25 @@ export function isCurrentLegSelected(match: X01Match, legSelection: LegSelection
     return false;
   }
 
-  return currentSetNumber === legSelection.setEntry.setNumber &&
-    currentLegNumber === legSelection.legEntry.legNumber;
+  return (
+    currentSetNumber === legSelection.setEntry.setNumber &&
+    currentLegNumber === legSelection.legEntry.legNumber
+  );
 }
 
 /**
- * Checks whether the last leg in the match is selected.
+ * Checks whether the last leg currently present in the match is selected.
  *
  * @param match - Match containing the sets and legs.
  * @param legSelection - Currently selected leg.
- * @returns Whether the last match leg is selected.
+ * @returns Whether the last leg currently present in the match is selected.
  */
 export function isLastLegSelected(match: X01Match, legSelection: LegSelection): boolean {
-  const lastSetEntry = match.sets.at(-1);
-  const lastLegEntry = lastSetEntry?.set.legs.at(-1);
-
-  return legSelection.setEntry.setNumber === lastSetEntry?.setNumber &&
-    legSelection.legEntry.legNumber === lastLegEntry?.legNumber;
+  return isLastLegInMatch(
+    match,
+    legSelection.setEntry.setNumber,
+    legSelection.legEntry.legNumber
+  );
 }
 
 /**
@@ -54,4 +59,33 @@ export function isCurrentOrLastLegSelected(match: X01Match, legSelection: LegSel
   }
 
   return isLastLegSelected(match, legSelection);
+}
+
+/**
+ * Checks whether the specified set and leg are selected.
+ *
+ * @param legSelection - Currently selected leg.
+ * @param setNumber - Number of the set to check.
+ * @param legNumber - Number of the leg to check.
+ * @returns Whether the specified set and leg are selected.
+ */
+export function isLegSelected(legSelection: LegSelection, setNumber: number, legNumber: number): boolean {
+  return (
+    legSelection.setEntry.setNumber === setNumber &&
+    legSelection.legEntry.legNumber === legNumber
+  );
+}
+
+/**
+ * Checks whether two selections refer to the same leg.
+ *
+ * @param first - First leg selection.
+ * @param second - Second leg selection.
+ * @returns Whether both selections refer to the same leg.
+ */
+export function isSameLegSelected(first: LegSelection, second: LegSelection): boolean {
+  return (
+    first.setEntry.setNumber === second.setEntry.setNumber &&
+    first.legEntry.legNumber === second.legEntry.legNumber
+  );
 }

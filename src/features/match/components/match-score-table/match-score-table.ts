@@ -10,9 +10,8 @@ import {
   viewChild,
   viewChildren
 } from '@angular/core';
-import {X01Match} from '../../../../data/model/x01/match/x01-match';
-import {isCurrentOrLastLegSelected, LegSelection} from '../match-board/leg-selection';
-import {MatchScoreTableRow} from './match-score-table-row';
+import {MatIconButton} from '@angular/material/button';
+import {MatIcon} from '@angular/material/icon';
 import {
   MatCell,
   MatCellDef,
@@ -25,10 +24,22 @@ import {
   MatRowDef,
   MatTable
 } from '@angular/material/table';
-import {MatIcon} from '@angular/material/icon';
-import {MatIconButton} from '@angular/material/button';
+import {
+  getFirstRoundInLeg,
+  getLastRoundInLeg,
+  isLastRoundInLeg,
+  isLegFinished
+} from '../../../../data/model/x01/leg/x01-leg';
+import {X01Match} from '../../../../data/model/x01/match/x01-match';
 import {X01MatchPlayer} from '../../../../data/model/x01/match/x01-match-player';
+import {
+  isCurrentLegSelected,
+  isCurrentOrLastLegSelected,
+  isSameLegSelected,
+  LegSelection
+} from '../match-board/leg-selection';
 import {MatchScoreTableEditTarget} from './match-score-table-edit-target';
+import {MatchScoreTableRow} from './match-score-table-row';
 
 interface MatchScoreTableScrollTarget {
   setNumber: number;
@@ -40,7 +51,6 @@ const ROUND_COLUMN_ID = 'round';
 
 @Component({
   selector: 'app-match-score-table',
-  templateUrl: './match-score-table.html',
   imports: [
     MatTable,
     MatHeaderRow,
@@ -55,6 +65,7 @@ const ROUND_COLUMN_ID = 'round';
     MatIcon,
     MatIconButton
   ],
+  templateUrl: './match-score-table.html',
   styleUrl: './match-score-table.scss'
 })
 export class MatchScoreTable {
@@ -101,7 +112,7 @@ export class MatchScoreTable {
    */
   protected onEditTurn(player: X01MatchPlayer, row: MatchScoreTableRow): void {
     const currentTurn = row.turns[player.playerId];
-    if (!currentTurn) return;
+    if (currentTurn === undefined) return;
 
     const legSelection = this.legSelection();
 
@@ -156,14 +167,12 @@ export class MatchScoreTable {
     let dartsThrown = 0;
 
     // Map the leg rounds to score table rows.
-    return leg.rounds.map((roundEntry, index) => {
-      const isFinalRound = index === leg.rounds.length - 1;
-      const checkoutDartsUsed = leg.checkoutDartsUsed;
-      const isCheckoutRound = isFinalRound && leg.winner !== null && checkoutDartsUsed !== null;
+    return leg.rounds.map(roundEntry => {
+      const isCheckoutRound = isLastRoundInLeg(leg, roundEntry.roundNumber) && isLegFinished(leg);
       const isCurrentRound = this.isCurrentRound(match, legSelection, roundEntry.roundNumber);
 
       // Add the actual checkout darts for the final round; otherwise count all three darts.
-      dartsThrown += isCheckoutRound ? checkoutDartsUsed : 3;
+      dartsThrown += isCheckoutRound ? leg.checkoutDartsUsed : 3;
 
       return {
         roundNumber: roundEntry.roundNumber,
@@ -183,9 +192,10 @@ export class MatchScoreTable {
    * @returns Whether the round is currently in play.
    */
   private isCurrentRound(match: X01Match, legSelection: LegSelection, roundNumber: number): boolean {
-    return match.matchProgress.currentSet === legSelection.setEntry.setNumber &&
-      match.matchProgress.currentLeg === legSelection.legEntry.legNumber &&
-      match.matchProgress.currentRound === roundNumber;
+    return (
+      isCurrentLegSelected(match, legSelection) &&
+      match.matchProgress.currentRound === roundNumber
+    );
   }
 
   /**
@@ -232,13 +242,8 @@ export class MatchScoreTable {
       return this.createScrollTargetForLeg(match, legSelection);
     }
 
-    // Determine whether the selected set or leg has changed.
-    const hasSelectedLegChanged =
-      previousLegSelection.setEntry.setNumber !== legSelection.setEntry.setNumber ||
-      previousLegSelection.legEntry.legNumber !== legSelection.legEntry.legNumber;
-
     // When the selected leg has not changed, preserve the current scroll position.
-    if (!hasSelectedLegChanged) {
+    if (isSameLegSelected(previousLegSelection, legSelection)) {
       return null;
     }
 
@@ -253,10 +258,7 @@ export class MatchScoreTable {
    * @param legSelection - Selected leg.
    * @returns Scroll target, or null when no round is available.
    */
-  private createScrollTargetForLeg(
-    match: X01Match,
-    legSelection: LegSelection
-  ): MatchScoreTableScrollTarget | null {
+  private createScrollTargetForLeg(match: X01Match, legSelection: LegSelection): MatchScoreTableScrollTarget | null {
     const targetRoundNumber = this.getScrollTargetRoundNumber(match, legSelection);
 
     if (targetRoundNumber === null) {
@@ -280,9 +282,11 @@ export class MatchScoreTable {
   private getScrollTargetRoundNumber(match: X01Match, legSelection: LegSelection): number | null {
     const shouldScrollToLatestRound = isCurrentOrLastLegSelected(match, legSelection);
 
+    const leg = legSelection.legEntry.leg;
+
     const targetRoundNumber = shouldScrollToLatestRound
-      ? match.matchProgress.currentRound ?? legSelection.legEntry.leg.rounds.at(-1)?.roundNumber
-      : legSelection.legEntry.leg.rounds.at(0)?.roundNumber;
+      ? match.matchProgress.currentRound ?? getLastRoundInLeg(leg)?.roundNumber
+      : getFirstRoundInLeg(leg)?.roundNumber;
 
     return targetRoundNumber ?? null;
   }
@@ -294,7 +298,9 @@ export class MatchScoreTable {
    */
   private scrollToRound(targetRoundNumber: number): void {
     // Find the rendered row matching the target round.
-    const rowIndex = this.rows().findIndex(row => row.roundNumber === targetRoundNumber);
+    const rowIndex = this.rows().findIndex(
+      row => row.roundNumber === targetRoundNumber
+    );
 
     if (rowIndex === -1) {
       return;
