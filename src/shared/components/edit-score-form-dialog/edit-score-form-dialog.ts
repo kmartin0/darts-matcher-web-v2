@@ -10,6 +10,7 @@ import {
 } from '@angular/material/dialog';
 import {MatButton} from '@angular/material/button';
 import {MatFormField, MatInput, MatLabel} from '@angular/material/input';
+import {DialogResult} from '../../types/dialog-result';
 import {FormError} from '../form-error/form-error';
 
 import * as EditScoreFormDialogModel from './edit-score-form-dialog.model';
@@ -18,8 +19,6 @@ import {EditScoreFormDialogData} from './edit-score-form-dialog-data';
 
 @Component({
   selector: 'app-edit-score-dialog',
-  templateUrl: './edit-score-form-dialog.html',
-  styleUrl: './edit-score-form-dialog.scss',
   imports: [
     FormField,
     MatDialogTitle,
@@ -31,11 +30,13 @@ import {EditScoreFormDialogData} from './edit-score-form-dialog-data';
     MatLabel,
     FormError,
     MatDialogClose
-  ]
+  ],
+  templateUrl: './edit-score-form-dialog.html',
+  styleUrl: './edit-score-form-dialog.scss'
 })
 export class EditScoreFormDialog {
   private readonly dialogData = inject<EditScoreFormDialogData>(MAT_DIALOG_DATA);
-  private readonly dialogRef = inject(MatDialogRef<EditScoreFormDialog, number>);
+  private readonly dialogRef = inject<MatDialogRef<EditScoreFormDialog, DialogResult<number>>>(MatDialogRef);
 
   private readonly formModel = signal<EditScoreFormDialogModel.FormModel>(
     EditScoreFormDialogModel.createInitialFormModel(this.dialogData.currentScore)
@@ -51,14 +52,21 @@ export class EditScoreFormDialog {
   protected readonly legNumber = this.dialogData.legNumber;
   protected readonly roundNumber = this.dialogData.roundNumber;
 
+  protected readonly dismissedResult: DialogResult<number> = {
+    status: 'dismissed'
+  };
+
   /**
-   * Submits the edited score and closes the dialog.
+   * Submits the edited score and closes the dialog with a confirmed result.
    */
   protected onSubmit(): void {
     if (this.editScoreForm().invalid()) {
       return;
     }
 
-    this.dialogRef.close(this.formModel().score);
+    this.dialogRef.close({
+      status: 'confirmed',
+      value: this.formModel().score
+    });
   }
 }

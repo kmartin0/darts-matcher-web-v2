@@ -8,6 +8,7 @@ import {
   MatDialogTitle
 } from '@angular/material/dialog';
 import {MatIcon} from '@angular/material/icon';
+import {DialogResult} from '../../types/dialog-result';
 import {TextDialogData} from './text-dialog-data';
 
 @Component({
@@ -33,4 +34,13 @@ export class TextDialog {
   protected readonly cancelText = this.data.cancelText ?? 'Cancel';
   protected readonly isCancelable = this.data.isCancelable ?? false;
   protected readonly matIcon = this.data.matIcon ?? null;
+
+  protected readonly dismissedResult: DialogResult<undefined> = {
+    status: 'dismissed'
+  };
+
+  protected readonly confirmedResult: DialogResult<undefined> = {
+    status: 'confirmed',
+    value: undefined
+  };
 }

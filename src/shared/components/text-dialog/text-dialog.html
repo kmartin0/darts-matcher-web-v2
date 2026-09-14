@@ -30,15 +30,12 @@
 
   <mat-dialog-actions class="actions" align="end">
     @if (isCancelable) {
-      <button mat-button mat-dialog-close>
+      <button mat-button [mat-dialog-close]="dismissedResult">
         {{ cancelText }}
       </button>
     }
 
-    <button
-      mat-button
-      [mat-dialog-close]="true"
-      cdkFocusInitial>
+    <button mat-button [mat-dialog-close]="confirmedResult" cdkFocusInitial>
       {{ confirmText }}
     </button>
   </mat-dialog-actions>

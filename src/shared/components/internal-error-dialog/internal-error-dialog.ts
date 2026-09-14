@@ -1,7 +1,8 @@
 import {Component} from '@angular/core';
-import {MatDialogActions, MatDialogClose, MatDialogContent, MatDialogTitle} from '@angular/material/dialog';
 import {MatButton} from '@angular/material/button';
+import {MatDialogActions, MatDialogClose, MatDialogContent, MatDialogTitle} from '@angular/material/dialog';
 import {MatIcon} from '@angular/material/icon';
+import {DialogResult} from '../../types/dialog-result';
 
 /**
  * Displays a static dialog for unexpected internal application or API errors.
@@ -23,4 +24,8 @@ import {MatIcon} from '@angular/material/icon';
   styleUrl: './internal-error-dialog.scss'
 })
 export class InternalErrorDialog {
+  protected readonly confirmedResult: DialogResult<undefined> = {
+    status: 'confirmed',
+    value: undefined
+  };
 }

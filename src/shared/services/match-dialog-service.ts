@@ -1,13 +1,13 @@
 import {inject, Injectable} from '@angular/core';
-import {MatDialogRef} from '@angular/material/dialog';
+import {X01Checkout} from '../../data/model/x01/checkout/x01-checkout';
 import {EditScoreFormDialog} from '../components/edit-score-form-dialog/edit-score-form-dialog';
 import {EditScoreFormDialogData} from '../components/edit-score-form-dialog/edit-score-form-dialog-data';
-import {DialogManagerService} from './dialog-manager.service';
-import {X01Checkout} from '../../data/model/x01/checkout/x01-checkout';
 import {NumberSelectionFormDialog} from '../components/number-selection-form-dialog/number-selection-form-dialog';
 import {
   NumberSelectionFormDialogData
 } from '../components/number-selection-form-dialog/number-selection-form-dialog-data';
+import {DialogResult} from '../types/dialog-result';
+import {DialogManagerService} from './dialog-manager.service';
 
 @Injectable({providedIn: 'root'})
 export class MatchDialogService {
@@ -18,10 +18,10 @@ export class MatchDialogService {
    *
    * @param data - Data used to initialize the edit score form.
    * @param stackable - Whether the dialog can be opened while another dialog is already open.
-   * @returns Reference to the opened dialog, or null when prevented by stacking rules.
+   * @returns Result of the edit score dialog.
    */
-  openEditScoreDialog(data: EditScoreFormDialogData, stackable: boolean = false): MatDialogRef<EditScoreFormDialog, number> | null {
-    return this.dialogManagerService.open(
+  openEditScoreDialog(data: EditScoreFormDialogData, stackable: boolean = false): Promise<DialogResult<number>> {
+    return this.dialogManagerService.open<EditScoreFormDialog, EditScoreFormDialogData, number>(
       EditScoreFormDialog,
       {data: data},
       stackable
@@ -36,10 +36,10 @@ export class MatchDialogService {
    *
    * @param checkout - Checkout used to determine the minimum number of darts.
    * @param stackable - Whether the dialog can be opened while another dialog is already open.
-   * @returns Reference to the opened dialog, or null when prevented by stacking rules.
+   * @returns Result of the checkout darts used dialog.
    */
-  openCheckoutDartsUsedDialog(checkout: X01Checkout | null, stackable: boolean = false): MatDialogRef<NumberSelectionFormDialog, number> | null {
-    const minDarts = checkout?.minDarts ?? 1;
+  openCheckoutDartsUsedDialog(checkout: X01Checkout, stackable: boolean = false): Promise<DialogResult<number>> {
+    const minDarts = checkout.minDarts;
     const maxDarts = 3;
     const options: number[] = [];
 
@@ -52,7 +52,7 @@ export class MatchDialogService {
       options: options
     };
 
-    return this.dialogManagerService.open(
+    return this.dialogManagerService.open<NumberSelectionFormDialog, NumberSelectionFormDialogData, number>(
       NumberSelectionFormDialog,
       {data: data},
       stackable
@@ -63,15 +63,15 @@ export class MatchDialogService {
    * Opens the doubles missed dialog.
    *
    * @param stackable - Whether the dialog can be opened while another dialog is already open.
-   * @returns Reference to the opened dialog, or null when prevented by stacking rules.
+   * @returns Result of the doubles missed dialog.
    */
-  openDoublesMissedDialog(stackable: boolean = false): MatDialogRef<NumberSelectionFormDialog, number> | null {
+  openDoublesMissedDialog(stackable: boolean = false): Promise<DialogResult<number>> {
     const data: NumberSelectionFormDialogData = {
       title: 'Doubles Missed',
       options: [0, 1, 2, 3]
     };
 
-    return this.dialogManagerService.open(
+    return this.dialogManagerService.open<NumberSelectionFormDialog, NumberSelectionFormDialogData, number>(
       NumberSelectionFormDialog,
       {data: data},
       stackable

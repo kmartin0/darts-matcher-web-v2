@@ -1,32 +1,47 @@
 import {ComponentType} from '@angular/cdk/portal';
 import {inject, Injectable} from '@angular/core';
-import {MatDialog, MatDialogConfig, MatDialogRef} from '@angular/material/dialog';
+import {MatDialog, MatDialogConfig} from '@angular/material/dialog';
+import {firstValueFrom} from 'rxjs';
+import {DialogResult} from '../types/dialog-result';
 
 @Injectable({providedIn: 'root'})
 export class DialogManagerService {
   private readonly matDialog = inject(MatDialog);
 
   /**
-   * Opens a dialog for the specified component.
+   * Opens a dialog for the specified component and resolves its result.
+   *
+   * Material dialog dismissals that do not provide an explicit result, such as
+   * backdrop clicks or Escape, are normalized to a dismissed dialog result.
+   * Opening can also resolve as dismissed when prevented by stacking rules.
    *
    * @param component - Component to render inside the dialog.
    * @param config - Optional dialog configuration.
    * @param stackable - Whether the dialog can be opened while another dialog is already open.
-   * @returns Reference to the opened dialog, or null when prevented by stacking rules.
+   * @returns Result of the dialog.
    */
-  open<Component, Data = unknown, Result = unknown>(
+  async open<Component, Data = unknown, Value = unknown>(
     component: ComponentType<Component>,
     config?: MatDialogConfig<Data>,
     stackable: boolean = true
-  ): MatDialogRef<Component, Result> | null {
+  ): Promise<DialogResult<Value>> {
+    // Prevent opening a non-stackable dialog while another dialog is already open.
     if (!stackable && this.isDialogOpen()) {
-      return null;
+      return {
+        status: 'dismissed'
+      };
     }
 
-    return this.matDialog.open<Component, Data, Result>(component, {
-      ...config,
-      restoreFocus: false
-    });
+    // Open the dialog while preserving the existing focus restoration behavior.
+    const dialogRef = this.matDialog.open<Component, Data, DialogResult<Value>>(
+      component,
+      {...config, restoreFocus: false}
+    );
+
+    // Normalize Material dismissals, which close without an explicit result.
+    return await firstValueFrom(dialogRef.afterClosed()) ?? {
+      status: 'dismissed'
+    };
   }
 
   /**

@@ -1,8 +1,5 @@
 import {X01LegEntry} from '../../../../data/model/x01/leg/x01-leg-entry';
-import {
-  isLastLegInMatch,
-  X01Match
-} from '../../../../data/model/x01/match/x01-match';
+import {isLastLegInMatch, X01Match} from '../../../../data/model/x01/match/x01-match';
 import {X01SetEntry} from '../../../../data/model/x01/set/x01-set-entry';
 
 export interface LegSelection {

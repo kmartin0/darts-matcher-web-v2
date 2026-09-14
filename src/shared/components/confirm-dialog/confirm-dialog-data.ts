@@ -1,3 +1,3 @@
 export interface ConfirmDialogData {
-  action: string;
+  actionText: string;
 }

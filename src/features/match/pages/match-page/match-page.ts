@@ -69,14 +69,14 @@ export class MatchPage {
    *
    * Opens a confirmation dialog and resets the match when the user confirms the action.
    */
-  protected onResetMatch(): void {
-    const dialogRef = this.commonDialogService.openConfirmDialog('Reset match');
+  protected async onResetMatch(): Promise<void> {
+    const result = await this.commonDialogService.openConfirmDialog('Reset match');
 
-    dialogRef?.afterClosed().subscribe(confirmed => {
-      if (confirmed) {
-        this.store.resetMatch();
-      }
-    });
+    if (result.status === 'dismissed') {
+      return;
+    }
+
+    this.store.resetMatch();
   }
 
   /**
@@ -84,14 +84,14 @@ export class MatchPage {
    *
    * Opens a confirmation dialog and deletes the match when the user confirms the action.
    */
-  protected onDeleteMatch(): void {
-    const dialogRef = this.commonDialogService.openConfirmDialog('Delete match');
+  protected async onDeleteMatch(): Promise<void> {
+    const result = await this.commonDialogService.openConfirmDialog('Delete match');
 
-    dialogRef?.afterClosed().subscribe(confirmed => {
-      if (confirmed) {
-        this.store.deleteMatch();
-      }
-    });
+    if (result.status === 'dismissed') {
+      return;
+    }
+
+    this.store.deleteMatch();
   }
 
   /**

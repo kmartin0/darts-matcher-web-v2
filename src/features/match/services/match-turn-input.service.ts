@@ -1,5 +1,4 @@
 import {inject, Injectable} from '@angular/core';
-import {firstValueFrom} from 'rxjs';
 import {MAX_DOUBLE_SCORE} from '../../../data/model/dartboard/dartboard-section';
 import {X01Checkout, X01CheckoutsMap} from '../../../data/model/x01/checkout/x01-checkout';
 import {getLastTurnForPlayerInLeg, isLastRoundForPlayerInLeg, X01Leg} from '../../../data/model/x01/leg/x01-leg';
@@ -7,6 +6,7 @@ import {getLegInMatch, X01Match} from '../../../data/model/x01/match/x01-match';
 import {isMatchProgressInPlay} from '../../../data/model/x01/match/x01-match-progress';
 import {X01Turn} from '../../../data/model/x01/round/x01-turn';
 import {MatchDialogService} from '../../../shared/services/match-dialog-service';
+import {DialogResult} from '../../../shared/types/dialog-result';
 import {MatchScoreTableEditTarget} from '../components/match-score-table/match-score-table-edit-target';
 import {CreateTurnInput, EditTurnInput, TurnInput} from '../model/turn-input';
 
@@ -21,9 +21,13 @@ export class MatchTurnInputService {
    * @param match - Match to create the turn for.
    * @param checkouts - Available checkout suggestions.
    * @returns The resolved create-turn input, or null when required match data
-   * cannot be resolved or the dialog flow is canceled.
+   * cannot be resolved or the dialog flow is dismissed.
    */
-  async resolveCreateTurnInput(score: number, match: X01Match, checkouts: X01CheckoutsMap): Promise<CreateTurnInput | null> {
+  async resolveCreateTurnInput(
+    score: number,
+    match: X01Match,
+    checkouts: X01CheckoutsMap
+  ): Promise<CreateTurnInput | null> {
     // Resolve the current thrower and leg.
     const matchProgress = match.matchProgress;
     if (!isMatchProgressInPlay(matchProgress)) return null;
@@ -35,6 +39,7 @@ export class MatchTurnInputService {
 
     // Calculate the player's remaining score after applying the turn.
     const lastTurn = getLastTurnForPlayerInLeg(legEntry.leg, currentThrowerId);
+
     const remainingBeforeTurn = lastTurn?.remaining ?? match.matchSettings.x01;
     const remainingAfterTurn = remainingBeforeTurn - score;
 
@@ -52,7 +57,7 @@ export class MatchTurnInputService {
    * @param match - Match containing the edited turn.
    * @param checkouts - Available checkout suggestions.
    * @returns The resolved edit-turn input, or null when required match data
-   * cannot be resolved or the dialog flow is canceled.
+   * cannot be resolved or the dialog flow is dismissed.
    */
   async resolveEditTurnInput(
     editTarget: MatchScoreTableEditTarget,
@@ -93,7 +98,7 @@ export class MatchTurnInputService {
    * @param leg - Leg containing the edited turn.
    * @param lastTurn - Player's last turn in the leg before the edit.
    * @param checkouts - Available checkout suggestions.
-   * @returns The resolved turn input, or null when the dialog flow is canceled.
+   * @returns The resolved turn input, or null when the dialog flow is dismissed.
    */
   private async runEditTurnDialogs(
     editTarget: MatchScoreTableEditTarget,
@@ -103,8 +108,10 @@ export class MatchTurnInputService {
     checkouts: X01CheckoutsMap
   ): Promise<TurnInput | null> {
     // Open the edit-score dialog.
-    const newScore = await this.openEditScoreDialog(editTarget);
-    if (newScore === undefined) return null;
+    const scoreResult = await this.openEditScoreDialog(editTarget);
+    if (scoreResult.status === 'dismissed') return null;
+
+    const newScore = scoreResult.value;
 
     // Calculate the player's remaining score after applying the edit.
     const remainingAfterEdit = lastTurn.remaining + editTarget.currentTurn.score - newScore;
@@ -127,7 +134,7 @@ export class MatchTurnInputService {
    * @param checkout - Checkout that applies to the turn, if any.
    * @param trackDoubles - Whether doubles missed are tracked for the match.
    * @param remaining - Remaining score after applying the turn.
-   * @returns The resolved turn input, or null when the dialog flow is canceled.
+   * @returns The resolved turn input, or null when the dialog flow is dismissed.
    */
   private async runTurnDialogs(
     score: number,
@@ -135,18 +142,18 @@ export class MatchTurnInputService {
     trackDoubles: boolean,
     remaining: number
   ): Promise<TurnInput | null> {
-    // Open the checkout-darts-used dialog when applicable.
-    const checkoutDartsUsed = await this.openCheckoutDartsUsedDialog(checkout);
-    if (checkoutDartsUsed === undefined) return null;
+    // Resolve checkout darts used.
+    const checkoutDartsUsedResult = await this.resolveCheckoutDartsUsed(checkout);
+    if (checkoutDartsUsedResult.status === 'dismissed') return null;
 
-    // Open the doubles-missed dialog when applicable.
-    const doublesMissed = await this.openDoublesMissedDialog(trackDoubles, remaining);
-    if (doublesMissed === undefined) return null;
+    // Resolve doubles missed.
+    const doublesMissedResult = await this.resolveDoublesMissed(trackDoubles, remaining);
+    if (doublesMissedResult.status === 'dismissed') return null;
 
     return {
       score: score,
-      checkoutDartsUsed: checkoutDartsUsed,
-      doublesMissed: doublesMissed
+      checkoutDartsUsed: checkoutDartsUsedResult.value,
+      doublesMissed: doublesMissedResult.value
     };
   }
 
@@ -171,71 +178,53 @@ export class MatchTurnInputService {
    * Opens the edit-score dialog for a turn.
    *
    * @param editTarget - Turn selected for editing.
-   * @returns The edited score, or undefined when the dialog is canceled or
-   * cannot be opened.
+   * @returns Result of the edit-score dialog.
    */
-  private async openEditScoreDialog(editTarget: MatchScoreTableEditTarget): Promise<number | undefined> {
-    const dialogRef = this.matchDialogService.openEditScoreDialog({
+  private openEditScoreDialog(editTarget: MatchScoreTableEditTarget): Promise<DialogResult<number>> {
+    return this.matchDialogService.openEditScoreDialog({
       playerName: editTarget.playerName,
       setNumber: editTarget.setNumber,
       legNumber: editTarget.legNumber,
       roundNumber: editTarget.roundNumber,
       currentScore: editTarget.currentTurn.score
     });
-
-    if (dialogRef === null) {
-      return undefined;
-    }
-
-    return firstValueFrom(dialogRef.afterClosed());
   }
 
   /**
-   * Opens the checkout-darts-used dialog when a checkout applies.
+   * Resolves the checkout darts used for a turn.
    *
-   * @param checkout - Checkout suggestion for the checkout score, if available.
-   * @returns The number of checkout darts used, null when no checkout applies,
-   * or undefined when the dialog is canceled or cannot be opened.
+   * When no checkout applies, the value resolves to null without opening a dialog.
+   *
+   * @param checkout - Checkout that applies to the turn, if any.
+   * @returns Resolved checkout darts used, or a dismissed result when the dialog is dismissed.
    */
-  private async openCheckoutDartsUsedDialog(checkout: X01Checkout | null): Promise<number | null | undefined> {
+  private async resolveCheckoutDartsUsed(checkout: X01Checkout | null): Promise<DialogResult<number | null>> {
     if (checkout === null) {
-      return null;
+      return {status: 'confirmed', value: null};
     }
 
-    const dialogRef = this.matchDialogService.openCheckoutDartsUsedDialog(checkout);
-
-    if (dialogRef === null) {
-      return undefined;
-    }
-
-    return firstValueFrom(dialogRef.afterClosed());
+    return this.matchDialogService.openCheckoutDartsUsedDialog(checkout);
   }
 
   /**
-   * Opens the doubles-missed dialog when doubles are tracked and a double can
-   * be attempted.
+   * Resolves the doubles missed for a turn.
+   *
+   * When doubles are not tracked, the value resolves to null. When no double
+   * can be attempted, the value resolves to zero without opening a dialog.
    *
    * @param trackDoubles - Whether doubles missed are tracked for the match.
    * @param remaining - Remaining score after applying the turn.
-   * @returns The number of doubles missed, null when doubles are not tracked,
-   * 0 when no double can be attempted, or undefined when the dialog is canceled
-   * or cannot be opened.
+   * @returns Resolved doubles missed, or a dismissed result when the dialog is dismissed.
    */
-  private async openDoublesMissedDialog(trackDoubles: boolean, remaining: number): Promise<number | null | undefined> {
+  private async resolveDoublesMissed(trackDoubles: boolean, remaining: number): Promise<DialogResult<number | null>> {
     if (!trackDoubles) {
-      return null;
+      return {status: 'confirmed', value: null};
     }
 
     if (remaining > MAX_DOUBLE_SCORE) {
-      return 0;
+      return {status: 'confirmed', value: 0};
     }
 
-    const dialogRef = this.matchDialogService.openDoublesMissedDialog();
-
-    if (dialogRef === null) {
-      return undefined;
-    }
-
-    return firstValueFrom(dialogRef.afterClosed());
+    return this.matchDialogService.openDoublesMissedDialog();
   }
 }

@@ -8,6 +8,7 @@ import {
   MatDialogTitle
 } from '@angular/material/dialog';
 import {ConfirmDialogData} from './confirm-dialog-data';
+import {DialogResult} from '../../types/dialog-result';
 
 @Component({
   selector: 'app-confirm-dialog',
@@ -24,5 +25,14 @@ import {ConfirmDialogData} from './confirm-dialog-data';
 export class ConfirmDialog {
   private readonly data = inject<ConfirmDialogData>(MAT_DIALOG_DATA);
 
-  protected readonly action = this.data.action;
+  protected readonly action = this.data.actionText;
+
+  protected readonly dismissedResult: DialogResult<boolean> = {
+    status: 'dismissed'
+  };
+
+  protected readonly confirmedResult: DialogResult<boolean> = {
+    status: 'confirmed',
+    value: true
+  };
 }

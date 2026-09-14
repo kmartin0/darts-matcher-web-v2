@@ -1,5 +1,4 @@
 import {inject, Injectable} from '@angular/core';
-import {MatDialogRef} from '@angular/material/dialog';
 import {InternalErrorDialog} from '../components/internal-error-dialog/internal-error-dialog';
 import {TextDialog} from '../components/text-dialog/text-dialog';
 import {TextDialogData} from '../components/text-dialog/text-dialog-data';
@@ -13,10 +12,9 @@ export class ErrorDialogService {
    * Opens the internal error dialog.
    *
    * @param stackable - Whether the dialog can be opened while another dialog is already open.
-   * @returns Reference to the opened dialog, or null when prevented by stacking rules.
    */
-  openInternalErrorDialog(stackable: boolean = false): MatDialogRef<InternalErrorDialog> | null {
-    return this.dialogManagerService.open(
+  openInternalErrorDialog(stackable: boolean = false): void {
+    void this.dialogManagerService.open<InternalErrorDialog, unknown, undefined>(
       InternalErrorDialog,
       undefined,
       stackable
@@ -27,9 +25,8 @@ export class ErrorDialogService {
    * Opens a dialog for an API URI that could not be found.
    *
    * @param stackable - Whether the dialog can be opened while another dialog is already open.
-   * @returns Reference to the opened dialog, or null when prevented by stacking rules.
    */
-  openUriNotFoundErrorDialog(stackable: boolean = false): MatDialogRef<TextDialog> | null {
+  openUriNotFoundErrorDialog(stackable: boolean = false): void {
     const data: TextDialogData = {
       title: 'Error',
       subtitle: 'The URI you are trying to reach could not be found',
@@ -37,22 +34,29 @@ export class ErrorDialogService {
       matIcon: 'error'
     };
 
-    return this.dialogManagerService.open(TextDialog, {data: data}, stackable);
+    void this.dialogManagerService.open<TextDialog, TextDialogData, undefined>(
+      TextDialog,
+      {data: data},
+      stackable
+    );
   }
 
   /**
    * Opens a dialog when the API cannot currently be reached.
    *
    * @param stackable - Whether the dialog can be opened while another dialog is already open.
-   * @returns Reference to the opened dialog, or null when prevented by stacking rules.
    */
-  openServiceUnavailableErrorDialog(stackable: boolean = false): MatDialogRef<TextDialog> | null {
+  openServiceUnavailableErrorDialog(stackable: boolean = false): void {
     const data: TextDialogData = {
       title: 'Could not make a connection',
       contentText: 'Please try again later.',
       matIcon: 'error'
     };
 
-    return this.dialogManagerService.open(TextDialog, {data: data}, stackable);
+    void this.dialogManagerService.open<TextDialog, TextDialogData, undefined>(
+      TextDialog,
+      {data: data},
+      stackable
+    );
   }
 }

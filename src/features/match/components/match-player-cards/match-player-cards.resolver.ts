@@ -1,19 +1,12 @@
 import {ResultType} from '../../../../data/model/base-match/result-type';
-import {
-  isCheckoutPossible,
-  X01Checkout,
-  X01CheckoutsMap
-} from '../../../../data/model/x01/checkout/x01-checkout';
+import {isCheckoutPossible, X01Checkout, X01CheckoutsMap} from '../../../../data/model/x01/checkout/x01-checkout';
 import {
   doesPlayerStartLeg,
   getDartsUsedForPlayerInRound,
   getLastTurnForPlayerInLeg,
   X01Leg
 } from '../../../../data/model/x01/leg/x01-leg';
-import {
-  isLastLegInMatch,
-  X01Match
-} from '../../../../data/model/x01/match/x01-match';
+import {isLastLegInMatch, X01Match} from '../../../../data/model/x01/match/x01-match';
 import {X01MatchPlayer} from '../../../../data/model/x01/match/x01-match-player';
 import {X01Turn} from '../../../../data/model/x01/round/x01-turn';
 import {isLastLegInSet} from '../../../../data/model/x01/set/x01-set';
@@ -22,11 +15,7 @@ import {
   isFirstNineTurn,
   X01AverageStatistics
 } from '../../../../data/model/x01/statistics/x01-average-statistics';
-import {
-  isCurrentLegSelected,
-  isLegSelected,
-  LegSelection
-} from '../match-board/leg-selection';
+import {isCurrentLegSelected, isLegSelected, LegSelection} from '../match-board/leg-selection';
 import {MatchPlayerCardData} from '../match-player-card/match-player-card-data';
 
 /**
@@ -203,36 +192,30 @@ function resolvePlayerAverageStatisticsForLeg(leg: X01Leg, playerId: string): X0
     const turn = roundEntry.round.turns[playerId];
     if (turn === undefined) continue;
 
+    // Count only rounds in which the player has thrown.
     playerTurnNumber++;
 
-    const dartsUsed = getDartsUsedForPlayerInRound(
-      leg,
-      roundEntry,
-      playerId
-    );
+    const dartsUsed = getDartsUsedForPlayerInRound(leg, roundEntry, playerId);
 
+    // Accumulate the player's statistics for the full leg.
     pointsThrown += turn.score;
     dartsThrown += dartsUsed;
 
+    // Accumulate the player's first-nine statistics from their first three turns.
     if (isFirstNineTurn(playerTurnNumber)) {
       pointsThrownFirstNine += turn.score;
       dartsThrownFirstNine += dartsUsed;
     }
   }
 
+  // Calculate the averages from the accumulated leg statistics.
   return {
     pointsThrown: pointsThrown,
     dartsThrown: dartsThrown,
-    average: calculateX01Average(
-      pointsThrown,
-      dartsThrown
-    ),
+    average: calculateX01Average(pointsThrown, dartsThrown),
     pointsThrownFirstNine: pointsThrownFirstNine,
     dartsThrownFirstNine: dartsThrownFirstNine,
-    averageFirstNine: calculateX01Average(
-      pointsThrownFirstNine,
-      dartsThrownFirstNine
-    )
+    averageFirstNine: calculateX01Average(pointsThrownFirstNine, dartsThrownFirstNine)
   };
 }
 
@@ -246,15 +229,8 @@ function resolvePlayerAverageStatisticsForLeg(leg: X01Leg, playerId: string): X0
  * @param playerId - ID of the player to check.
  * @returns Whether the player is currently throwing in the selected leg.
  */
-function isCurrentThrower(
-  match: X01Match,
-  legSelection: LegSelection,
-  playerId: string
-): boolean {
-  return (
-    isCurrentLegSelected(match, legSelection) &&
-    match.matchProgress.currentThrower === playerId
-  );
+function isCurrentThrower(match: X01Match, legSelection: LegSelection, playerId: string): boolean {
+  return isCurrentLegSelected(match, legSelection) && match.matchProgress.currentThrower === playerId;
 }
 
 /**
@@ -264,10 +240,7 @@ function isCurrentThrower(
  * @param startingScore - Starting X01 score.
  * @returns Remaining score, or the starting score when the player has not thrown.
  */
-function getRemaining(
-  lastTurn: X01Turn | null,
-  startingScore: number
-): number {
+function getRemaining(lastTurn: X01Turn | null, startingScore: number): number {
   return lastTurn?.remaining ?? startingScore;
 }
 
@@ -278,10 +251,7 @@ function getRemaining(
  * @param checkouts - Checkout suggestions keyed by remaining score.
  * @returns Checkout suggestion, or null when no checkout is available.
  */
-function getSuggestedCheckout(
-  remaining: number,
-  checkouts: X01CheckoutsMap
-): X01Checkout | null {
+function getSuggestedCheckout(remaining: number, checkouts: X01CheckoutsMap): X01Checkout | null {
   if (!isCheckoutPossible(remaining)) {
     return null;
   }
@@ -295,8 +265,6 @@ function getSuggestedCheckout(
  * @param lastTurn - Player's last turn in the leg, when available.
  * @returns Last turn score, or null when the player has not thrown.
  */
-function getLastScore(
-  lastTurn: X01Turn | null
-): number | null {
+function getLastScore(lastTurn: X01Turn | null): number | null {
   return lastTurn?.score ?? null;
 }

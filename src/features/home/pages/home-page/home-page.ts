@@ -63,16 +63,16 @@ export class HomePage {
    *
    * @param matchId - ID of the match to remove.
    */
-  protected onDeleteFromRecentMatches(matchId: string): void {
-    const dialogRef = this.commonDialogService.openConfirmDialog(
+  protected async onDeleteFromRecentMatches(matchId: string): Promise<void> {
+    const result = await this.commonDialogService.openConfirmDialog(
       'Remove this match from recents'
     );
 
-    dialogRef?.afterClosed().subscribe(confirmed => {
-      if (confirmed) {
-        this.store.deleteFromRecentMatches(matchId);
-      }
-    });
+    if (result.status === 'dismissed') {
+      return;
+    }
+
+    this.store.deleteFromRecentMatches(matchId);
   }
 
   /**
