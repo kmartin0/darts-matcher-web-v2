@@ -1,0 +1,10 @@
+<div class="keypad">
+  @for (key of keys; track key) {
+    <button
+      mat-flat-button
+      [disabled]="key === KeypadButton.ENTER && !enterEnabled()"
+      (click)="onKeyPress(key)">
+      {{ key }}
+    </button>
+  }
+</div>

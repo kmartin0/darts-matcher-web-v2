@@ -15,7 +15,9 @@ import {RecentMatchesRepository} from '../../../../data/repository/recent-matche
 import {INITIAL_MATCH_PAGE_STATE, MatchPageState} from './match-page-state';
 import {mapToEditTurnRequestDto} from '../../mappers/edit-turn-request.mapper';
 import {mapToEditTurnErrorMessage} from '../../mappers/edit-turn-error.mapper';
-import {EditTurnInput} from '../../model/turn-input';
+import {CreateTurnInput, EditTurnInput} from '../../model/turn-input';
+import {mapToCreateTurnRequestDto} from '../../mappers/create-turn-request.mapper';
+import {mapToCreateTurnErrorMessage} from '../../mappers/create-turn-error.mapper';
 
 @Injectable()
 export class MatchPageStore {
@@ -99,7 +101,27 @@ export class MatchPageStore {
       error => {
         const errorResponse = isApiErrorResponse(error) ? error : undefined;
         const errorMessage = mapToEditTurnErrorMessage(errorResponse);
-        this.patchState({toolbarError: errorMessage}); // TODO: Move to score error field
+        this.patchState({scoreInputError: errorMessage});
+      }
+    );
+  }
+
+  /**
+   * Adds a turn to the current match.
+   *
+   * Maps the resolved create-turn input to the API request DTO and executes the add command for the loaded match.
+   *
+   * @param createTurnInput - Resolved values required to create the turn.
+   */
+  addTurn(createTurnInput: CreateTurnInput): void {
+    const createTurnRequestDto = mapToCreateTurnRequestDto(createTurnInput);
+
+    this.executeMatchCommand(
+      match => this.matchRepository.addTurn(match.id, createTurnRequestDto, ALL_API_ERROR_CODES),
+      error => {
+        const errorResponse = isApiErrorResponse(error) ? error : undefined;
+        const errorMessage = mapToCreateTurnErrorMessage(errorResponse)
+        this.patchState({scoreInputError: errorMessage});
       }
     );
   }

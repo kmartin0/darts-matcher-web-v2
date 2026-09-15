@@ -1,4 +1,4 @@
-import {Component, computed, inject} from '@angular/core';
+import {Component, computed, inject, viewChild} from '@angular/core';
 import {Clipboard} from '@angular/cdk/clipboard';
 import {MatButton} from '@angular/material/button';
 import {MatSnackBar} from '@angular/material/snack-bar';
@@ -32,6 +32,8 @@ export class MatchPage {
   private readonly matchTurnInputService = inject(MatchTurnInputService);
   private readonly clipboard = inject(Clipboard);
   private readonly snackBar = inject(MatSnackBar);
+
+  private readonly matchBoard = viewChild(MatchBoard);
 
   protected readonly uiState = this.store.state;
   protected readonly AppEndpoints = AppEndpoints;
@@ -153,6 +155,33 @@ export class MatchPage {
     if (editTurnInput === null) return;
 
     this.store.editTurn(editTurnInput);
+  }
+
+  /**
+   * Handles submitting a score from the match score input.
+   *
+   * Resolves the required match state before delegating turn input resolution
+   * to the match turn input service, clearing the score input and dispatching
+   * the new turn to the store.
+   *
+   * @param score - Submitted score.
+   */
+  protected async onSubmitScore(score: number): Promise<void> {
+    const match = this.match();
+    const checkoutsState = this.uiState().checkouts;
+    const checkouts = checkoutsState.status === 'loaded' ? checkoutsState.data : null;
+    if (match === null || checkouts === null) return;
+
+    const createTurnInput = await this.matchTurnInputService.resolveCreateTurnInput(
+      score,
+      match,
+      checkouts
+    );
+
+    if (createTurnInput === null) return;
+
+    this.matchBoard()?.clearScoreInput();
+    this.store.addTurn(createTurnInput);
   }
 
   /**

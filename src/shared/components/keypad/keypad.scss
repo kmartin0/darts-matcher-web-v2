@@ -1,0 +1,43 @@
+@use "@angular/material" as mat;
+@use "mixins/helpers";
+@use "mixins/devices";
+
+:host {
+  display: block;
+  height: 100%;
+  min-height: 0;
+
+  @include helpers.dark-mode {
+    @include mat.button-overrides((
+      filled-container-color: var(--mat-sys-surface-bright),
+      filled-label-text-color: var(--mat-sys-on-surface)
+    ));
+  }
+}
+
+.keypad {
+  height: 100%;
+  width: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 4px;
+
+  button {
+    height: 100%;
+    width: 100%;
+    min-width: 0;
+    font: var(--mat-sys-title-large);
+    font-weight: 500;
+
+    @include devices.device(phone, phablet) {
+      font: var(--mat-sys-title-medium);
+      font-weight: 600;
+    }
+
+    @include devices.device(tablet) {
+      font-weight: 400;
+    }
+  }
+}

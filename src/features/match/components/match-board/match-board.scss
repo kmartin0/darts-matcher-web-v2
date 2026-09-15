@@ -12,11 +12,21 @@
   height: 100%;
   min-height: 0;
   width: 100%;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) max-content;
+  gap: 16px;
   overflow: hidden;
+
+  &.score-input-visible {
+    grid-template-rows: minmax(0, 1fr) max-content minmax(310px, min(30vh, 425px));
+
+    @include devices.device(phone, phablet, tablet) {
+      grid-template-rows: minmax(0, 1fr) max-content minmax(200px, min(30vh, 300px));
+    }
+  }
 }
 
 .match-board-content {
-  height: 100%;
   min-height: 0;
   width: 100%;
   display: grid;
@@ -27,6 +37,25 @@
   @include devices.device(phone, phablet) {
     grid-template-rows: max-content max-content max-content;
     gap: 12px;
+  }
+}
+
+app-error-message {
+  width: fit-content;
+  max-width: 100%;
+  justify-self: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+app-match-score-input {
+  width: 75%;
+  min-height: 0;
+  justify-self: center;
+  align-self: stretch;
+
+  @include devices.device(phone, phablet) {
+    width: 90%;
   }
 }
 

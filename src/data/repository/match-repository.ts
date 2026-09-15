@@ -1,6 +1,6 @@
 import {inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {CreateMatchRequestDto} from '../dto/create-match-request.dto';
+import {X01CreateMatchRequestDto} from '../dto/x01-create-match-request.dto';
 import {Observable} from 'rxjs';
 import {X01Match} from '../model/x01/match/x01-match';
 import {DARTS_MATCHER_REST_ENDPOINTS} from '../api/rest-endpoints';
@@ -9,6 +9,7 @@ import {WebSocketService} from '../api/ws/websocket.service';
 import {DARTS_MATCHER_WS_DESTINATIONS, WsDestinationType} from '../api/ws-endpoints';
 import {StreamEventType} from '../api/ws/stream-event-type';
 import {
+  AddHumanTurnMessage,
   DeleteLastTurnMessage,
   DeleteMatchMessage,
   EditTurnMessage,
@@ -18,7 +19,8 @@ import {
 } from '../api/ws/match-message';
 import {handledLocallyHttpContext} from '../api/http/http-api-error-context';
 import {ApiErrorCodes} from '../api/errors/api-error-code';
-import {X01EditTurnRequestDto} from '../dto/edit-turn-request.dto';
+import {X01EditTurnRequestDto} from '../dto/x01-edit-turn-request.dto';
+import {X01CreateTurnRequestDto} from '../dto/x01-create-turn-request.dto';
 
 @Injectable({providedIn: 'root'})
 export class MatchRepository {
@@ -32,7 +34,7 @@ export class MatchRepository {
    * @param handleLocally - API error codes handled locally by the caller.
    * @returns Observable containing the created match.
    */
-  createMatch(body: CreateMatchRequestDto, handleLocally: ApiErrorCodes = []): Observable<X01Match> {
+  createMatch(body: X01CreateMatchRequestDto, handleLocally: ApiErrorCodes = []): Observable<X01Match> {
     const context = handledLocallyHttpContext(handleLocally);
     return this.http.post<X01Match>(DARTS_MATCHER_REST_ENDPOINTS.X01.MATCHES, body, {context}).pipe(unwrapApiError());
   }
@@ -134,5 +136,18 @@ export class MatchRepository {
   editTurn(matchId: string, body: X01EditTurnRequestDto, handleLocally: ApiErrorCodes = []): Observable<EditTurnMessage> {
     const destination = DARTS_MATCHER_WS_DESTINATIONS.X01.PUBLISH.EDIT_TURN(matchId);
     return this.webSocket.publish<EditTurnMessage>(destination, body, handleLocally);
+  }
+
+  /**
+   * Adds a human turn to an X01 match.
+   *
+   * @param matchId - ID of the match receiving the turn.
+   * @param body - Turn creation request.
+   * @param handleLocally - API error codes handled locally by the caller.
+   * @returns Observable containing the add human turn message.
+   */
+  addTurn(matchId: string, body: X01CreateTurnRequestDto, handleLocally: ApiErrorCodes = []): Observable<AddHumanTurnMessage> {
+    const destination = DARTS_MATCHER_WS_DESTINATIONS.X01.PUBLISH.ADD_TURN(matchId);
+    return this.webSocket.publish<AddHumanTurnMessage>(destination, body, handleLocally);
   }
 }

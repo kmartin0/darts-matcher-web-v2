@@ -26,8 +26,10 @@
         <app-match-board
           [match]="matchLoadState.data"
           [checkouts]="checkoutsLoadState.data"
+          [scoreInputError]="state.scoreInputError"
           (deleteLastTurn)="onDeleteLastTurn()"
-          (editTurn)="onEditTurn($event)"/>
+          (editTurn)="onEditTurn($event)"
+          (submitScore)="onSubmitScore($event)"/>
       }
     }
     @case ('deleted') {

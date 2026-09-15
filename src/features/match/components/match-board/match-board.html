@@ -1,4 +1,5 @@
-<div class="match-board">
+<div
+  class="match-board" [class.score-input-visible]="isScoreInputVisible()">
   <div class="match-board-content">
     <app-match-header [match]="match()"/>
 
@@ -20,4 +21,12 @@
       [isEditMode]="isEditMode()"
       (editTurn)="editTurn.emit($event)"/>
   </div>
+
+  <app-error-message
+    [message]="scoreInputError()"
+    [contrast]="true"/>
+
+  @if (isScoreInputVisible()) {
+    <app-match-score-input (submitScore)="submitScore.emit($event)"/>
+  }
 </div>

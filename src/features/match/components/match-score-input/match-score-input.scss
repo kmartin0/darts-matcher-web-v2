@@ -1,0 +1,77 @@
+@use "@angular/material" as mat;
+@use "mixins/devices";
+
+:host {
+  display: block;
+  height: 100%;
+  min-height: 0;
+
+  @include mat.card-overrides((
+    elevated-container-shape: var(--mat-sys-corner-small),
+    elevated-container-elevation: var(--mat-sys-level1),
+    elevated-container-color: var(--mat-sys-surface-bright)
+  ));
+}
+
+.match-score-input {
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: max-content minmax(0, 1fr);
+  gap: 12px;
+}
+
+.score-card {
+  width: max-content;
+  justify-self: center;
+  font: var(--mat-sys-title-large);
+  font-weight: 500;
+  color: var(--mat-sys-on-surface);
+  text-align: center;
+
+  @include devices.device(phone, phablet) {
+    font: var(--mat-sys-title-medium);
+    font-weight: 600;
+  }
+
+  @include devices.device(tablet) {
+    font-weight: 400;
+  }
+}
+
+.score-card-content {
+  display: grid;
+  grid-template-columns: repeat(2, 100px);
+  align-items: center;
+  gap: 24px;
+  padding: 22px 38px !important;
+
+  @include devices.device(phone, phablet) {
+    grid-template-columns: repeat(2, 75px);
+    gap: 12px;
+    padding: 10px 16px !important;
+  }
+
+  @include devices.device(tablet) {
+    grid-template-columns: repeat(2, 75px);
+    padding: 12px 20px !important;
+  }
+}
+
+$border-size: 2px;
+
+.score-title {
+  padding-bottom: $border-size;
+}
+
+.score-input {
+  border-bottom: $border-size solid var(--mat-sys-primary);
+
+  &.blurred {
+    border-bottom-color: color-mix(in srgb, var(--mat-sys-primary) 20%, transparent);
+  }
+}
+
+app-keypad {
+  min-height: 0;
+}

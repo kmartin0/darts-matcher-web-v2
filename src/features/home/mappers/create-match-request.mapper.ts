@@ -1,4 +1,4 @@
-import {CreateMatchRequestDto} from '../../../data/dto/create-match-request.dto';
+import {X01CreateMatchRequestDto} from '../../../data/dto/x01-create-match-request.dto';
 import {PlayerType} from '../../../data/model/base-match/player-type';
 import * as CreateMatchFormModel from '../components/create-match-form/create-match-form.model';
 
@@ -8,7 +8,7 @@ import * as CreateMatchFormModel from '../components/create-match-form/create-ma
  * @param formModel - Create match form model to map.
  * @returns Create match request DTO.
  */
-export function mapToCreateMatchRequest(formModel: CreateMatchFormModel.FormModel): CreateMatchRequestDto {
+export function mapToCreateMatchRequest(formModel: CreateMatchFormModel.FormModel): X01CreateMatchRequestDto {
   const selectedTypes = formModel.clearByTwo.selectedTypes;
 
   return {

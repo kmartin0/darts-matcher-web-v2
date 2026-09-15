@@ -1,12 +1,15 @@
-import {Component, input, linkedSignal, output, signal} from '@angular/core';
+import {Component, computed, input, linkedSignal, output, signal, viewChild} from '@angular/core';
 import {X01CheckoutsMap} from '../../../../data/model/x01/checkout/x01-checkout';
 import {X01Match} from '../../../../data/model/x01/match/x01-match';
 import {MatchEditControls} from '../match-edit-controls/match-edit-controls';
 import {MatchHeader} from '../match-header/match-header';
 import {MatchPlayerCards} from '../match-player-cards/match-player-cards';
-import {isCurrentOrLastLegSelected, LegSelection} from './leg-selection';
+import {isCurrentLegSelected, isCurrentOrLastLegSelected, LegSelection} from './leg-selection';
 import {MatchScoreTable} from '../match-score-table/match-score-table';
 import {MatchScoreTableEditTarget} from '../match-score-table/match-score-table-edit-target';
+import {MatchScoreInput} from '../match-score-input/match-score-input';
+import {ErrorMessage} from '../../../../shared/components/error-message/error-message';
+import {MatchStatus} from '../../../../data/model/base-match/match-status';
 
 @Component({
   selector: 'app-match-board',
@@ -16,15 +19,21 @@ import {MatchScoreTableEditTarget} from '../match-score-table/match-score-table-
     MatchHeader,
     MatchPlayerCards,
     MatchEditControls,
-    MatchScoreTable
+    MatchScoreTable,
+    MatchScoreInput,
+    ErrorMessage
   ]
 })
 export class MatchBoard {
   readonly match = input.required<X01Match>();
   readonly checkouts = input.required<X01CheckoutsMap>();
+  readonly scoreInputError = input<string | null>(null);
 
   readonly deleteLastTurn = output<void>();
   readonly editTurn = output<MatchScoreTableEditTarget>();
+  readonly submitScore = output<number>();
+
+  private readonly scoreInput = viewChild(MatchScoreInput);
 
   protected readonly legSelection = linkedSignal<X01Match, LegSelection>({
     source: this.match,
@@ -37,6 +46,19 @@ export class MatchBoard {
   });
 
   protected readonly isEditMode = signal<boolean>(false);
+
+  protected readonly isScoreInputVisible = computed<boolean>(() => {
+    const match = this.match();
+
+    return match.matchStatus === MatchStatus.IN_PLAY && isCurrentLegSelected(match, this.legSelection());
+  });
+
+  /**
+   * Clears the currently entered score.
+   */
+  clearScoreInput(): void {
+    this.scoreInput()?.clear();
+  }
 
   /**
    * Updates the currently selected leg.

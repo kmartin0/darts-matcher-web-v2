@@ -1,4 +1,4 @@
-import {X01EditTurnRequestDto} from '../../../data/dto/edit-turn-request.dto';
+import {X01EditTurnRequestDto} from '../../../data/dto/x01-edit-turn-request.dto';
 import {EditTurnInput} from '../model/turn-input';
 
 export function mapToEditTurnRequestDto(input: EditTurnInput): X01EditTurnRequestDto {
