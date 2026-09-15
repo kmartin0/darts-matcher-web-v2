@@ -16,6 +16,7 @@ import {FormError} from '../form-error/form-error';
 import * as EditScoreFormDialogModel from './edit-score-form-dialog.model';
 import {EDIT_SCORE_FORM_DIALOG_SCHEMA} from './edit-score-form-dialog.schema';
 import {EditScoreFormDialogData} from './edit-score-form-dialog-data';
+import {shouldIgnoreKeyDown} from '../../utils/keyboard.util';
 
 @Component({
   selector: 'app-edit-score-dialog',
@@ -55,6 +56,23 @@ export class EditScoreFormDialog {
   protected readonly dismissedResult: DialogResult<number> = {
     status: 'dismissed'
   };
+
+  constructor() {
+    this.dialogRef.keydownEvents().subscribe(event => this.onDialogKeyDown(event));
+  }
+
+  /**
+   * Submits the dialog on Enter when a dialog action button is not focused.
+   *
+   * @param event - Keyboard event routed to the dialog.
+   */
+  private onDialogKeyDown(event: KeyboardEvent): void {
+    if (shouldIgnoreKeyDown(event)) return;
+    if (event.key !== 'Enter' || event.target instanceof HTMLButtonElement) return;
+
+    event.preventDefault();
+    this.onSubmit();
+  }
 
   /**
    * Submits the edited score and closes the dialog with a confirmed result.

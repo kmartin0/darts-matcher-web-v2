@@ -38,6 +38,9 @@ export class DialogManagerService {
       {...config, restoreFocus: false}
     );
 
+    // Keep dialog keydown from reaching listeners on the window.
+    dialogRef.keydownEvents().subscribe(event => event.stopPropagation());
+
     // Normalize Material dismissals, which close without an explicit result.
     return await firstValueFrom(dialogRef.afterClosed()) ?? {
       status: 'dismissed'

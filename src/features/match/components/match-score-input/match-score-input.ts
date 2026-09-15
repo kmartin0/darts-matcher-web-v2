@@ -48,11 +48,11 @@ export class MatchScoreInput {
    */
   protected onKeyPress(key: KeypadButton): void {
     switch (key) {
-      case KeypadButton.DELETE:
+      case 'delete':
         this.deleteDigit();
         break;
 
-      case KeypadButton.ENTER:
+      case 'enter':
         this.submit();
         break;
 
