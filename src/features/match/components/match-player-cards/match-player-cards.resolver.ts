@@ -1,29 +1,56 @@
-import {ResultType} from '../../../../data/model/base-match/result-type';
+import {isWinOrDrawResult} from '../../../../data/model/base-match/result-type';
 import {isCheckoutPossible, X01Checkout, X01CheckoutsMap} from '../../../../data/model/x01/checkout/x01-checkout';
 import {
   doesPlayerStartLeg,
   getDartsUsedForPlayerInRound,
-  getLastTurnForPlayerInLeg,
   X01Leg
 } from '../../../../data/model/x01/leg/x01-leg';
 import {isLastLegInMatch, X01Match} from '../../../../data/model/x01/match/x01-match';
 import {X01MatchPlayer} from '../../../../data/model/x01/match/x01-match-player';
-import {X01Turn} from '../../../../data/model/x01/round/x01-turn';
-import {isLastLegInSet} from '../../../../data/model/x01/set/x01-set';
+import {X01BestOfType} from '../../../../data/model/x01/rules/x01-best-of-type';
+import {isLastLegInSet, X01Set} from '../../../../data/model/x01/set/x01-set';
 import {
   calculateX01Average,
-  isFirstNineTurn,
-  X01AverageStatistics
+  isFirstNineRound
 } from '../../../../data/model/x01/statistics/x01-average-statistics';
 import {isCurrentLegSelected, isLegSelected, LegSelection} from '../match-board/leg-selection';
 import {MatchPlayerCardData} from '../match-player-card/match-player-card-data';
 
 /**
- * Player standing up to a specific leg in the match.
+ * Player identity and match settings that do not depend on the selected leg.
  */
-interface PlayerStanding {
+interface PlayerMatchValues {
+  playerId: string;
+  name: string;
+  bestOfType: X01BestOfType;
+}
+
+/**
+ * Player values through the selected leg, including raw totals for averages.
+ *
+ * Leg wins are scoped to the selected set. Match results are only shown at
+ * the last leg currently present in the match.
+ */
+interface PlayerCumulativeValues {
+  isWinOrDraw: boolean;
   setsWon: number;
   legsWon: number;
+  pointsThrown: number;
+  dartsThrown: number;
+  pointsThrownFirstNine: number;
+  dartsThrownFirstNine: number;
+}
+
+/**
+ * Player values scoped to the selected leg.
+ */
+interface PlayerLegValues {
+  isCurrentThrower: boolean;
+  startsLeg: boolean;
+  remaining: number;
+  suggestedCheckout: X01Checkout | null;
+  lastScore: number | null;
+  dartsUsed: number;
 }
 
 /**
@@ -36,187 +63,338 @@ interface PlayerStanding {
  * - `name`
  * - `bestOfType`
  *
- * Standings, up to and including the selected leg:
+ * Cumulative, up to and including the selected leg:
  * - `isWinOrDraw`
  * - `setsWon`
  * - `legsWon`
+ * - `average`
+ * - `averageFirstNine`
  *
  * Selected leg:
  * - `isCurrentThrower`
  * - `startsLeg`
  * - `remaining`
  * - `suggestedCheckout`
- * - `average`
- * - `averageFirstNine`
  * - `lastScore`
  * - `dartsUsed`
  *
+ * Leg wins are limited to the selected set. Averages include all legs through
+ * the selected leg, with first-nine counting restarted for each leg.
+ *
  * @param match - Match containing the players and match history.
- * @param legSelection - Selected leg used for standings and leg-specific values.
+ * @param legSelection - Selected leg used for cumulative and leg-specific values.
  * @param checkouts - Checkout suggestions keyed by remaining score.
- * @returns Render data for each player card.
+ * @returns Render data for each player card in match player order.
  */
 export function resolveMatchPlayerCards(
   match: X01Match,
   legSelection: LegSelection,
   checkouts: X01CheckoutsMap
 ): MatchPlayerCardData[] {
-  return match.players.map(player =>
-    resolveMatchPlayerCard(match, legSelection, checkouts, player)
+  const playerMatchValuesMap = resolvePlayerMatchValues(match);
+  const playerCumulativeValuesMap = resolvePlayerCumulativeValues(match, legSelection);
+  const playerLegValuesMap = resolvePlayerLegValues(match, legSelection, checkouts);
+
+  // Each resolver initializes an entry for every match player.
+  return match.players.map(player => {
+    const playerId = player.playerId;
+
+    const matchValues = playerMatchValuesMap.get(playerId);
+    const cumulativeValues = playerCumulativeValuesMap.get(playerId);
+    const legValues = playerLegValuesMap.get(playerId);
+
+    if (matchValues === undefined || cumulativeValues === undefined || legValues === undefined) {
+      throw new Error(`Missing resolved player values for player '${playerId}'.`);
+    }
+
+    return mapToMatchPlayerCardData(matchValues, cumulativeValues, legValues);
+  });
+}
+
+/**
+ * Maps a player's resolved values to card data.
+ *
+ * Both averages are calculated from cumulative raw totals. Darts used remains
+ * scoped to the selected leg.
+ *
+ * @param matchValues - Player identity and match settings.
+ * @param cumulativeValues - Player values through the selected leg.
+ * @param legValues - Player values within the selected leg.
+ * @returns Render data for the player card.
+ */
+function mapToMatchPlayerCardData(
+  matchValues: Readonly<PlayerMatchValues>,
+  cumulativeValues: Readonly<PlayerCumulativeValues>,
+  legValues: Readonly<PlayerLegValues>
+): MatchPlayerCardData {
+  return {
+    // Match.
+    playerId: matchValues.playerId,
+    name: matchValues.name,
+    bestOfType: matchValues.bestOfType,
+
+    // Cumulative, up to and including the selected leg.
+    isWinOrDraw: cumulativeValues.isWinOrDraw,
+    setsWon: cumulativeValues.setsWon,
+    legsWon: cumulativeValues.legsWon,
+    average: calculateX01Average(cumulativeValues.pointsThrown, cumulativeValues.dartsThrown),
+    averageFirstNine: calculateX01Average(cumulativeValues.pointsThrownFirstNine, cumulativeValues.dartsThrownFirstNine),
+
+    // Selected leg.
+    isCurrentThrower: legValues.isCurrentThrower,
+    startsLeg: legValues.startsLeg,
+    remaining: legValues.remaining,
+    suggestedCheckout: legValues.suggestedCheckout,
+    lastScore: legValues.lastScore,
+    dartsUsed: legValues.dartsUsed
+  };
+}
+
+/**
+ * Resolves player identity and match settings for every player.
+ *
+ * @param match - Match containing the players and settings.
+ * @returns Match-scoped player values keyed by player ID.
+ */
+function resolvePlayerMatchValues(match: X01Match): ReadonlyMap<string, PlayerMatchValues> {
+  return new Map(
+    match.players.map(player => [
+      player.playerId,
+      {
+        playerId: player.playerId,
+        name: player.playerName,
+        bestOfType: match.matchSettings.bestOf.bestOfType
+      }
+    ])
   );
 }
 
 /**
- * Resolves the render data for a single player card at the selected leg.
+ * Resolves cumulative values for all players through the selected leg, inclusive.
  *
- * @param match - Match containing the player and match history.
- * @param legSelection - Selected leg used for standings and leg-specific values.
- * @param checkouts - Checkout suggestions keyed by remaining score.
- * @param player - Player to resolve the card data for.
- * @returns Render data for the player card.
- */
-function resolveMatchPlayerCard(
-  match: X01Match,
-  legSelection: LegSelection,
-  checkouts: X01CheckoutsMap,
-  player: X01MatchPlayer
-): MatchPlayerCardData {
-  const leg = legSelection.legEntry.leg;
-  const playerId = player.playerId;
-
-  const standing = resolvePlayerStanding(match, legSelection, playerId);
-  const lastTurn = getLastTurnForPlayerInLeg(leg, playerId);
-  const averageStatistics = resolvePlayerAverageStatisticsForLeg(leg, playerId);
-  const remaining = getRemaining(lastTurn, match.matchSettings.x01);
-
-  return {
-    // Match.
-    playerId: playerId,
-    name: player.playerName,
-    bestOfType: match.matchSettings.bestOf.bestOfType,
-
-    // Standings, up to and including the selected leg.
-    isWinOrDraw: isWinOrDrawAtSelectedLeg(match, legSelection, player),
-    setsWon: standing.setsWon,
-    legsWon: standing.legsWon,
-
-    // Selected leg.
-    isCurrentThrower: isCurrentThrower(match, legSelection, playerId),
-    startsLeg: doesPlayerStartLeg(leg, playerId),
-    remaining: remaining,
-    suggestedCheckout: getSuggestedCheckout(remaining, checkouts),
-    average: averageStatistics.average,
-    averageFirstNine: averageStatistics.averageFirstNine,
-    lastScore: getLastScore(lastTurn),
-    dartsUsed: averageStatistics.dartsThrown
-  };
-}
-
-/**
- * Resolves a player's standing up to and including the selected leg.
+ * Leg wins are scoped to the selected set. Set wins and scoring totals are
+ * accumulated across all included sets and legs. Match result visibility is
+ * applied when traversal reaches the last currently present match leg.
  *
- * Leg wins are scoped to the selected set, while set wins are accumulated
- * across all sets up to the selected leg.
- *
- * @param match - Match containing the standings history.
+ * @param match - Match containing the players and match history.
  * @param legSelection - Selected leg used as the inclusive cutoff.
- * @param playerId - ID of the player to resolve the standing for.
- * @returns Player standing at the selected leg.
+ * @returns Cumulative player values keyed by player ID.
  */
-function resolvePlayerStanding(match: X01Match, legSelection: LegSelection, playerId: string): PlayerStanding {
-  const standing: PlayerStanding = {
-    setsWon: 0,
-    legsWon: 0
-  };
+function resolvePlayerCumulativeValues(
+  match: X01Match,
+  legSelection: LegSelection
+): ReadonlyMap<string, PlayerCumulativeValues> {
+  const playerCumulativeValuesMap = createInitialPlayerCumulativeValuesMap(match);
 
   for (const setEntry of match.sets) {
-    // Leg wins are scoped to the current set being traversed.
-    standing.legsWon = 0;
-
     for (const legEntry of setEntry.set.legs) {
-      // Count completed leg wins up to the selected leg.
-      if (legEntry.leg.winner === playerId) {
-        standing.legsWon++;
+      const leg = legEntry.leg;
+
+      // Accumulate scoring totals across all included legs.
+      updateScoringValuesForLeg(leg, playerCumulativeValuesMap);
+
+      // Only include leg wins from the selected set.
+      if (setEntry.setNumber === legSelection.setEntry.setNumber) {
+        updateLegsWon(leg, playerCumulativeValuesMap);
       }
 
-      // Count a set win once its final leg has been reached.
-      if (isLastLegInSet(setEntry.set, legEntry.legNumber) && setEntry.set.result?.[playerId] === ResultType.WIN) {
-        standing.setsWon++;
+      // Apply a set's result once its last currently present leg has been included.
+      if (isLastLegInSet(setEntry.set, legEntry.legNumber)) {
+        updateSetsWon(setEntry.set, playerCumulativeValuesMap);
       }
 
-      // Stop once the selected leg has been included in the standing.
+      // Show match results once the last currently present match leg has been included.
+      if (isLastLegInMatch(match, setEntry.setNumber, legEntry.legNumber)) {
+        updateWinOrDrawValues(match.players, playerCumulativeValuesMap);
+      }
+
+      // Return after including the selected leg to stop both loops.
       if (isLegSelected(legSelection, setEntry.setNumber, legEntry.legNumber)) {
-        return standing;
+        return playerCumulativeValuesMap;
       }
     }
   }
 
-  return standing;
+  return playerCumulativeValuesMap;
 }
 
 /**
- * Checks whether the player should be displayed as a match winner or draw
- * at the selected leg.
+ * Creates zeroed cumulative values for every player in the match.
  *
- * Match results are only shown when the last leg currently present in the
- * match is selected.
- *
- * @param match - Match containing the result.
- * @param legSelection - Currently selected leg.
- * @param player - Player whose result should be checked.
- * @returns Whether the player has a win or draw result at the selected leg.
+ * @param match - Match containing the players.
+ * @returns Initial cumulative player values keyed by player ID.
  */
-function isWinOrDrawAtSelectedLeg(match: X01Match, legSelection: LegSelection, player: X01MatchPlayer): boolean {
-  if (!isLastLegInMatch(match, legSelection.setEntry.setNumber, legSelection.legEntry.legNumber)) {
-    return false;
-  }
-
-  return player.resultType === ResultType.WIN || player.resultType === ResultType.DRAW;
+function createInitialPlayerCumulativeValuesMap(match: X01Match): Map<string, PlayerCumulativeValues> {
+  return new Map(
+    match.players.map(player => [
+      player.playerId,
+      {
+        isWinOrDraw: false,
+        setsWon: 0,
+        legsWon: 0,
+        pointsThrown: 0,
+        dartsThrown: 0,
+        pointsThrownFirstNine: 0,
+        dartsThrownFirstNine: 0
+      }
+    ])
+  );
 }
 
 /**
- * Resolves a player's average statistics for a leg.
+ * Adds a leg's scoring totals to each player's cumulative values.
  *
- * @param leg - Leg containing the player's turns.
- * @param playerId - ID of the player to resolve the statistics for.
- * @returns Average statistics for the player in the leg.
+ * First-nine totals include turns recorded in the first three rounds of the leg.
+ *
+ * @param leg - Leg containing the players' turns.
+ * @param playerCumulativeValuesMap - Cumulative values to update, keyed by player ID.
  */
-function resolvePlayerAverageStatisticsForLeg(leg: X01Leg, playerId: string): X01AverageStatistics {
-  let pointsThrown = 0;
-  let dartsThrown = 0;
-  let pointsThrownFirstNine = 0;
-  let dartsThrownFirstNine = 0;
-  let playerTurnNumber = 0;
+function updateScoringValuesForLeg(leg: X01Leg, playerCumulativeValuesMap: Map<string, PlayerCumulativeValues>): void {
+  leg.rounds.forEach(roundEntry => {
+    Object.entries(roundEntry.round.turns).forEach(([playerId, turn]) => {
+      const cumulativeValues = playerCumulativeValuesMap.get(playerId);
+      if (cumulativeValues === undefined) return;
 
-  for (const roundEntry of leg.rounds) {
-    const turn = roundEntry.round.turns[playerId];
-    if (turn === undefined) continue;
+      const dartsUsed = getDartsUsedForPlayerInRound(leg, roundEntry, playerId);
 
-    // Count only rounds in which the player has thrown.
-    playerTurnNumber++;
+      // Accumulate the player's scoring values across the full leg.
+      cumulativeValues.pointsThrown += turn.score;
+      cumulativeValues.dartsThrown += dartsUsed;
 
-    const dartsUsed = getDartsUsedForPlayerInRound(leg, roundEntry, playerId);
+      // Accumulate the player's scoring values from the first three rounds.
+      if (isFirstNineRound(roundEntry.roundNumber)) {
+        cumulativeValues.pointsThrownFirstNine += turn.score;
+        cumulativeValues.dartsThrownFirstNine += dartsUsed;
+      }
+    });
+  });
+}
 
-    // Accumulate the player's statistics for the full leg.
-    pointsThrown += turn.score;
-    dartsThrown += dartsUsed;
+/**
+ * Adds the leg's win to its winner's cumulative values, when a winner exists.
+ *
+ * The caller determines whether the leg belongs to the selected set.
+ *
+ * @param leg - Leg containing the winner.
+ * @param playerCumulativeValuesMap - Cumulative values to update, keyed by player ID.
+ */
+function updateLegsWon(leg: X01Leg, playerCumulativeValuesMap: Map<string, PlayerCumulativeValues>): void {
+  if (leg.winner === null) return;
 
-    // Accumulate the player's first-nine statistics from their first three turns.
-    if (isFirstNineTurn(playerTurnNumber)) {
-      pointsThrownFirstNine += turn.score;
-      dartsThrownFirstNine += dartsUsed;
-    }
-  }
+  // Increment legs won if the winner exists in the cumulative values map.
+  const winnerValues = playerCumulativeValuesMap.get(leg.winner);
+  if (winnerValues === undefined) return;
 
-  // Calculate the averages from the accumulated leg statistics.
-  return {
-    pointsThrown: pointsThrown,
-    dartsThrown: dartsThrown,
-    average: calculateX01Average(pointsThrown, dartsThrown),
-    pointsThrownFirstNine: pointsThrownFirstNine,
-    dartsThrownFirstNine: dartsThrownFirstNine,
-    averageFirstNine: calculateX01Average(pointsThrownFirstNine, dartsThrownFirstNine)
-  };
+  winnerValues.legsWon++;
+}
+
+/**
+ * Adds set wins and drawn-set results to the players' cumulative values.
+ *
+ * The caller ensures that the set's last currently present leg has been included.
+ *
+ * @param set - Set containing the recorded player results.
+ * @param playerCumulativeValuesMap - Cumulative values to update, keyed by player ID.
+ */
+function updateSetsWon(set: X01Set, playerCumulativeValuesMap: Map<string, PlayerCumulativeValues>): void {
+  if (set.result === null) return;
+
+  Object.entries(set.result).forEach(([playerId, result]) => {
+    if (!isWinOrDrawResult(result)) return;
+
+    // Increment sets won if the player exists in the cumulative values map.
+    const cumulativeValues = playerCumulativeValuesMap.get(playerId);
+    if (cumulativeValues === undefined) return;
+
+    cumulativeValues.setsWon++;
+  });
+}
+
+/**
+ * Updates whether each player should be displayed as a match winner or draw.
+ *
+ * The caller ensures that the last currently present match leg has been included.
+ *
+ * @param players - Match players containing their result types.
+ * @param playerCumulativeValuesMap - Cumulative values to update, keyed by player ID.
+ */
+function updateWinOrDrawValues(
+  players: readonly X01MatchPlayer[],
+  playerCumulativeValuesMap: Map<string, PlayerCumulativeValues>
+): void {
+  players.forEach(player => {
+    // Update the result flag if the player exists in the cumulative values map.
+    const cumulativeValues = playerCumulativeValuesMap.get(player.playerId);
+    if (cumulativeValues === undefined) return;
+
+    cumulativeValues.isWinOrDraw = isWinOrDrawResult(player.resultType);
+  });
+}
+
+/**
+ * Resolves selected-leg values for all players in one pass through its turns.
+ *
+ * Players who have not thrown retain the starting score, no last score, and
+ * zero darts used. Checkout suggestions use each player's final remaining score.
+ *
+ * @param match - Match containing the players, settings, and current progress.
+ * @param legSelection - Selected leg to resolve player values for.
+ * @param checkouts - Checkout suggestions keyed by remaining score.
+ * @returns Selected-leg player values keyed by player ID.
+ */
+function resolvePlayerLegValues(
+  match: X01Match,
+  legSelection: LegSelection,
+  checkouts: X01CheckoutsMap
+): ReadonlyMap<string, PlayerLegValues> {
+  const leg = legSelection.legEntry.leg;
+  const playerLegValuesMap = createInitialPlayerLegValuesMap(match, legSelection);
+
+  // Keep each player's latest turn values while counting only this leg's darts.
+  leg.rounds.forEach(roundEntry => {
+    Object.entries(roundEntry.round.turns).forEach(([playerId, turn]) => {
+      const legValues = playerLegValuesMap.get(playerId);
+      if (legValues === undefined) return;
+
+      legValues.remaining = turn.remaining;
+      legValues.lastScore = turn.score;
+      legValues.dartsUsed += getDartsUsedForPlayerInRound(leg, roundEntry, playerId);
+    });
+  });
+
+  // Resolve checkout suggestions after all turns have been included.
+  playerLegValuesMap.forEach(legValues => {
+    legValues.suggestedCheckout = getSuggestedCheckout(legValues.remaining, checkouts);
+  });
+
+  return playerLegValuesMap;
+}
+
+/**
+ * Initializes selected-leg values for every player.
+ *
+ * Players begin with the starting score, no last score, and zero darts used.
+ *
+ * @param match - Match containing the players, settings, and current progress.
+ * @param legSelection - Selected leg used to resolve leg-specific state.
+ * @returns Initial selected-leg values keyed by player ID.
+ */
+function createInitialPlayerLegValuesMap(match: X01Match, legSelection: LegSelection): Map<string, PlayerLegValues> {
+  const leg = legSelection.legEntry.leg;
+
+  return new Map(
+    match.players.map(player => [
+      player.playerId,
+      {
+        isCurrentThrower: isCurrentThrower(match, legSelection, player.playerId),
+        startsLeg: doesPlayerStartLeg(leg, player.playerId),
+        remaining: match.matchSettings.x01,
+        suggestedCheckout: null,
+        lastScore: null,
+        dartsUsed: 0
+      }
+    ])
+  );
 }
 
 /**
@@ -234,20 +412,9 @@ function isCurrentThrower(match: X01Match, legSelection: LegSelection, playerId:
 }
 
 /**
- * Gets the player's remaining score after their last turn in the leg.
- *
- * @param lastTurn - Player's last turn in the leg, when available.
- * @param startingScore - Starting X01 score.
- * @returns Remaining score, or the starting score when the player has not thrown.
- */
-function getRemaining(lastTurn: X01Turn | null, startingScore: number): number {
-  return lastTurn?.remaining ?? startingScore;
-}
-
-/**
  * Gets the checkout suggestion for a remaining score.
  *
- * @param remaining - Player's remaining score.
+ * @param remaining - Player's remaining score after the selected leg's turns.
  * @param checkouts - Checkout suggestions keyed by remaining score.
  * @returns Checkout suggestion, or null when no checkout is available.
  */
@@ -257,14 +424,4 @@ function getSuggestedCheckout(remaining: number, checkouts: X01CheckoutsMap): X0
   }
 
   return checkouts.get(remaining) ?? null;
-}
-
-/**
- * Gets the score of a player's last turn in the leg.
- *
- * @param lastTurn - Player's last turn in the leg, when available.
- * @returns Last turn score, or null when the player has not thrown.
- */
-function getLastScore(lastTurn: X01Turn | null): number | null {
-  return lastTurn?.score ?? null;
 }

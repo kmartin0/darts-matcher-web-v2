@@ -26,11 +26,11 @@ export function calculateX01Average(pointsThrown: number, dartsThrown: number): 
 }
 
 /**
- * Checks whether a player's turn is part of the first nine darts of a leg.
+ * Checks whether a round belongs to the first nine darts of a leg.
  *
- * @param turnNumber - One-based turn number for the player in the leg.
- * @returns Whether the turn is part of the first nine darts.
+ * @param roundNumber - One-based round number within the leg.
+ * @returns Whether the round belongs to the first nine darts.
  */
-export function isFirstNineTurn(turnNumber: number): boolean {
-  return turnNumber <= 3;
+export function isFirstNineRound(roundNumber: number): boolean {
+  return roundNumber <= 3;
 }
