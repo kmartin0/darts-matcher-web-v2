@@ -1,7 +1,7 @@
 import {DestroyRef, inject, Injectable, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute} from '@angular/router';
-import {catchError, EMPTY, map, Observable, switchMap, tap} from 'rxjs';
+import {catchError, concatMap, delay, EMPTY, map, Observable, of, switchMap, tap} from 'rxjs';
 import {ALL_API_ERROR_CODES, ApiErrorCode} from '../../../../data/api/errors/api-error-code';
 import {isApiErrorResponse} from '../../../../data/api/errors/api-error-response';
 import {isValidObjectId} from '../../../../data/api/utils/object-id.util';
@@ -18,6 +18,8 @@ import {mapToEditTurnErrorMessage} from '../../mappers/edit-turn-error.mapper';
 import {CreateTurnInput, EditTurnInput} from '../../model/turn-input';
 import {mapToCreateTurnRequestDto} from '../../mappers/create-turn-request.mapper';
 import {mapToCreateTurnErrorMessage} from '../../mappers/create-turn-error.mapper';
+
+const BOT_TURN_DELAY_MS = 500;
 
 @Injectable()
 export class MatchPageStore {
@@ -120,7 +122,7 @@ export class MatchPageStore {
       match => this.matchRepository.addTurn(match.id, createTurnRequestDto, ALL_API_ERROR_CODES),
       error => {
         const errorResponse = isApiErrorResponse(error) ? error : undefined;
-        const errorMessage = mapToCreateTurnErrorMessage(errorResponse)
+        const errorMessage = mapToCreateTurnErrorMessage(errorResponse);
         this.patchState({scoreInputError: errorMessage});
       }
     );
@@ -181,12 +183,29 @@ export class MatchPageStore {
     this.patchState({match: {status: 'loading'}});
 
     return this.matchRepository.streamMatch(matchId, ALL_API_ERROR_CODES).pipe(
+      concatMap(event => this.delayBotTurnEvent(event)),
       tap(streamEvent => this.handleStreamMatchEvent(streamEvent)),
       catchError((error: unknown) => {
         this.handleObserveMatchError(matchId, error);
         return EMPTY;
       }),
     );
+  }
+
+  /**
+   * Delays incoming bot turn events while preserving stream event order.
+   *
+   * All other stream events receive no additional delay.
+   *
+   * @param event - Stream event to evaluate.
+   * @returns Observable emitting the stream event, optionally delayed.
+   */
+  private delayBotTurnEvent(event: StreamEventType<MatchMessageUnion>): Observable<StreamEventType<MatchMessageUnion>> {
+    if (event.type === 'data' && event.data.messageType === MatchMessageType.ADD_BOT_TURN) {
+      return of(event).pipe(delay(BOT_TURN_DELAY_MS));
+    }
+
+    return of(event);
   }
 
   /**
@@ -240,13 +259,12 @@ export class MatchPageStore {
     const match = message.payload;
     const currentMatchState = this._state().match;
 
-    if (
-      currentMatchState.status === 'loaded' &&
-      currentMatchState.data.broadcastVersion >= match.broadcastVersion
-    ) {
+    // Ignore stale or duplicate match updates.
+    if (currentMatchState.status === 'loaded' && currentMatchState.data.broadcastVersion >= match.broadcastVersion) {
       return;
     }
 
+    // Track the match in recent history if it wasn't previously loaded.
     if (currentMatchState.status !== 'loaded') {
       this.recentMatchesRepository.addMatch(match.id);
     }
