@@ -34,11 +34,11 @@ export class ThemeToggle {
    * @returns Icon representing the alternative theme mode.
    */
   private getThemeModeIcon(themeMode: ThemeMode): string {
-    switch (themeMode.id) {
-      case ThemeMode.LIGHT.id:
+    switch (themeMode) {
+      case ThemeMode.LIGHT:
         return 'dark_mode';
 
-      case ThemeMode.DARK.id:
+      case ThemeMode.DARK:
         return 'light_mode';
     }
   }

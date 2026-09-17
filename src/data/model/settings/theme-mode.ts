@@ -1,27 +1,35 @@
-export const ThemeMode = {
-  LIGHT: {id: 'light', bodyClass: 'theme-mode-light',},
-  DARK: {id: 'dark', bodyClass: 'theme-mode-dark',},
-} as const;
-
-export type ThemeMode = typeof ThemeMode[keyof typeof ThemeMode];
+/**
+ * Available application theme modes.
+ */
+export enum ThemeMode {
+  LIGHT = 'light',
+  DARK = 'dark'
+}
 
 export const DEFAULT_THEME_MODE: ThemeMode = ThemeMode.LIGHT;
 
+export const THEME_MODE_BODY_CLASSES: Readonly<Record<ThemeMode, string>> =
+  Object.freeze({
+    [ThemeMode.LIGHT]: 'theme-mode-light',
+    [ThemeMode.DARK]: 'theme-mode-dark'
+  });
+
 /**
- * Resolves a theme mode from its ID.
+ * Checks whether a value is a supported theme mode.
  *
- * @param id - Theme mode ID to resolve.
- * @returns Matching theme mode, or the default theme mode when the ID is invalid.
+ * @param value - Value to check.
+ * @returns Whether the value is a supported theme mode.
  */
-export function themeModeFromId(id: string | null): ThemeMode {
-  switch (id) {
-    case ThemeMode.LIGHT.id:
-      return ThemeMode.LIGHT;
+export function isThemeMode(value: unknown): value is ThemeMode {
+  return value === ThemeMode.LIGHT || value === ThemeMode.DARK;
+}
 
-    case ThemeMode.DARK.id:
-      return ThemeMode.DARK;
-
-    default:
-      return DEFAULT_THEME_MODE;
-  }
+/**
+ * Gets the body class belonging to a theme mode.
+ *
+ * @param themeMode - Theme mode whose body class should be resolved.
+ * @returns Body class belonging to the theme mode.
+ */
+export function getThemeModeBodyClass(themeMode: ThemeMode): string {
+  return THEME_MODE_BODY_CLASSES[themeMode];
 }

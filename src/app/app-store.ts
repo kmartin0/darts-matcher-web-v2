@@ -1,6 +1,6 @@
 import {DOCUMENT, effect, inject, Injectable} from '@angular/core';
 import {SettingsRepository} from '../data/repository/settings-repository';
-import {ThemeMode} from '../data/model/settings/theme-mode';
+import {THEME_MODE_BODY_CLASSES, ThemeMode} from '../data/model/settings/theme-mode';
 
 /**
  * Application-level store that exposes global UI state and actions.
@@ -45,10 +45,7 @@ export class AppStore {
   private applyThemeMode(themeMode: ThemeMode): void {
     const bodyClasses = this.document.body.classList;
 
-    bodyClasses.remove(
-      ...Object.values(ThemeMode).map(mode => mode.bodyClass)
-    );
-
-    bodyClasses.add(themeMode.bodyClass);
+    bodyClasses.remove(...Object.values(THEME_MODE_BODY_CLASSES));
+    bodyClasses.add(THEME_MODE_BODY_CLASSES[themeMode]);
   }
 }

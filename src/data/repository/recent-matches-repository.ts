@@ -1,5 +1,6 @@
-import {Injectable, signal} from '@angular/core';
+import {DestroyRef, inject, Injectable, signal} from '@angular/core';
 import {isValidObjectId} from '../api/utils/object-id.util';
+import {tryParseJson} from '../../shared/utils/json.util';
 
 const RECENT_MATCHES_LOCAL_STORAGE_KEY = 'darts-matcher:recent-matches';
 const MAX_RECENT_MATCHES = 5;
@@ -7,12 +8,13 @@ const MAX_RECENT_MATCHES = 5;
 /**
  * Repository responsible for recently visited matches.
  *
- * Owns the reactive recent match ID state and synchronizes it with local storage.
+ * Owns the reactive recent match ID state and synchronizes it with local
+ * storage, including changes made in other tabs.
  */
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({providedIn: 'root'})
 export class RecentMatchesRepository {
+  private readonly destroyRef = inject(DestroyRef);
+
   private readonly _recentMatchIds = signal<string[]>([]);
 
   readonly recentMatchIds = this._recentMatchIds.asReadonly();
@@ -54,21 +56,26 @@ export class RecentMatchesRepository {
   }
 
   /**
-   * Registers the listener that synchronizes recent matches with local storage changes.
+   * Registers the listener that synchronizes recent matches across tabs.
    */
   private registerStorageEventListener(): void {
-    window.addEventListener('storage', event => {
+    const handleStorageEvent = (event: StorageEvent): void => {
       if (event.key === RECENT_MATCHES_LOCAL_STORAGE_KEY || event.key === null) {
         this.loadRecentMatchIds();
       }
-    });
+    };
+
+    window.addEventListener('storage', handleStorageEvent);
+
+    this.destroyRef.onDestroy(() => window.removeEventListener('storage', handleStorageEvent));
   }
 
   /**
    * Loads recently visited match IDs from local storage.
    *
    * Stored values are cleaned before being applied to the repository state.
-   * When cleaning changes the stored value, the cleaned IDs are written back to local storage.
+   * When cleaning changes the stored value, the cleaned IDs are persisted.
+   * Missing or unreadable values result in an empty in-memory list.
    */
   private loadRecentMatchIds(): void {
     try {
@@ -79,7 +86,7 @@ export class RecentMatchesRepository {
         return;
       }
 
-      const recentMatchIds = this.cleanRecentMatchIds(JSON.parse(storedRecentMatchIds));
+      const recentMatchIds = this.cleanRecentMatchIds(tryParseJson(storedRecentMatchIds));
 
       if (storedRecentMatchIds !== JSON.stringify(recentMatchIds)) {
         this.setRecentMatchIds(recentMatchIds);
@@ -88,14 +95,14 @@ export class RecentMatchesRepository {
 
       this._recentMatchIds.set(recentMatchIds);
     } catch {
-      this.setRecentMatchIds([]);
+      this._recentMatchIds.set([]);
     }
   }
 
   /**
    * Cleans recently visited match IDs.
    *
-   * Non-array values, invalid match IDs, and duplicate match IDs are deleted,
+   * Non-array values, invalid match IDs and duplicate match IDs are removed,
    * and the number of returned IDs is limited to the configured maximum.
    *
    * @param recentMatchIds - Value containing the recent match IDs to clean.
@@ -104,18 +111,17 @@ export class RecentMatchesRepository {
   private cleanRecentMatchIds(recentMatchIds: unknown): string[] {
     if (!Array.isArray(recentMatchIds)) return [];
 
-    const validMatchIds = recentMatchIds.filter((matchId): matchId is string =>
-      typeof matchId === 'string' && isValidObjectId(matchId)
+    const validMatchIds = recentMatchIds.filter(
+      (matchId): matchId is string => typeof matchId === 'string' && isValidObjectId(matchId)
     );
 
-    return [...new Set(validMatchIds)]
-      .slice(0, MAX_RECENT_MATCHES);
+    return [...new Set(validMatchIds)].slice(0, MAX_RECENT_MATCHES);
   }
 
   /**
-   * Updates the recent match IDs and synchronizes them with local storage.
+   * Updates the recent match IDs and attempts to persist them.
    *
-   * @param recentMatchIds - Match IDs to set.
+   * @param recentMatchIds - Match IDs to apply.
    */
   private setRecentMatchIds(recentMatchIds: string[]): void {
     this._recentMatchIds.set(recentMatchIds);

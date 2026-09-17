@@ -1,26 +1,30 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8"/>
   <title>Darts Matcher</title>
-  <base href="/" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <base href="/"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <link rel="icon" href="/darts.svg">
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css?family=Roboto:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link
+    href="https://fonts.googleapis.com/css?family=Roboto:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i&display=swap"
+    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
 </head>
 <body>
 <!--
   Apply the persisted theme before Angular boots to prevent a light-theme flash.
-  Keep the storage key and theme values in sync with SettingsRepository.
+  Keep the storage key in sync with SettingsRepository and the theme values and body classes in sync with theme-mode.ts.
 -->
 <script>
   (function () {
     try {
-      const mode = localStorage.getItem('darts-matcher:theme-mode');
-      document.body.classList.add(mode === 'dark' ? 'theme-mode-dark' : 'theme-mode-light');
+      const storedSettings = localStorage.getItem('darts-matcher:app-settings');
+      const settings = storedSettings === null ? null : JSON.parse(storedSettings);
+      const themeMode = settings?.themeMode;
+      document.body.classList.add(themeMode === 'dark' ? 'theme-mode-dark' : 'theme-mode-light');
     } catch {
       document.body.classList.add('theme-mode-light');
     }

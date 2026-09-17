@@ -1,53 +1,100 @@
-import {computed, Injectable, signal} from '@angular/core';
-import {AppSettings} from '../model/settings/app-settings';
-import {ThemeMode, themeModeFromId} from '../model/settings/theme-mode';
+import {computed, DestroyRef, inject, Injectable, signal} from '@angular/core';
+import {AppSettings, DEFAULT_APP_SETTINGS, resolveAppSettings} from '../model/settings/app-settings';
+import {ThemeMode} from '../model/settings/theme-mode';
+import {tryParseJson} from '../../shared/utils/json.util';
 
-const THEME_MODE_LOCAL_STORAGE_KEY = 'darts-matcher:theme-mode';
+const APP_SETTINGS_LOCAL_STORAGE_KEY = 'darts-matcher:app-settings';
 
 /**
  * Repository responsible for application settings.
  *
- * Owns the reactive settings state and synchronizes persisted preferences with local storage.
+ * Owns the reactive settings state and synchronizes persisted preferences
+ * with local storage, including changes made in other tabs.
  */
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({providedIn: 'root'})
 export class SettingsRepository {
-  private readonly _settings = signal<AppSettings>({themeMode: this.readThemeMode()});
+  private readonly destroyRef = inject(DestroyRef);
+
+  private readonly _settings = signal<AppSettings>({...DEFAULT_APP_SETTINGS});
 
   readonly themeMode = computed<ThemeMode>(() => this._settings().themeMode);
 
+  constructor() {
+    this.loadSettings();
+    this.registerStorageEventListener();
+  }
+
   /**
-   * Updates the current theme mode and persists the selection.
+   * Updates the current theme mode and attempts to persist the settings.
+   *
+   * The selected theme remains active in the current tab if persistence fails.
    *
    * @param themeMode - Theme mode to use.
    */
   setThemeMode(themeMode: ThemeMode): void {
-    localStorage.setItem(THEME_MODE_LOCAL_STORAGE_KEY, themeMode.id);
-
-    this._settings.update(settings => ({
-      ...settings,
-      themeMode: themeMode,
-    }));
+    this.setSettings({...this._settings(), themeMode: themeMode});
   }
 
   /**
    * Toggles between light and dark theme mode.
    */
   toggleThemeMode(): void {
-    const next = this.themeMode() === ThemeMode.LIGHT
+    const nextThemeMode = this.themeMode() === ThemeMode.LIGHT
       ? ThemeMode.DARK
       : ThemeMode.LIGHT;
 
-    this.setThemeMode(next);
+    this.setThemeMode(nextThemeMode);
   }
 
   /**
-   * Reads the persisted theme mode from local storage, falling back to the default.
-   *
-   * @returns Persisted theme mode, or the default when none is stored.
+   * Registers the listener that synchronizes application settings across tabs.
    */
-  private readThemeMode(): ThemeMode {
-    return themeModeFromId(localStorage.getItem(THEME_MODE_LOCAL_STORAGE_KEY));
+  private registerStorageEventListener(): void {
+    const handleStorageEvent = (event: StorageEvent): void => {
+      if (event.key === APP_SETTINGS_LOCAL_STORAGE_KEY || event.key === null) {
+        this.loadSettings();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageEvent);
+
+    this.destroyRef.onDestroy(() => window.removeEventListener('storage', handleStorageEvent));
+  }
+
+  /**
+   * Loads the persisted application settings into the reactive state.
+   *
+   * Missing, invalid, or unreadable settings fall back to their defaults.
+   * Loading does not write settings back to local storage.
+   */
+  private loadSettings(): void {
+    let settings: AppSettings;
+
+    try {
+      const storedSettings = localStorage.getItem(APP_SETTINGS_LOCAL_STORAGE_KEY);
+
+      settings = storedSettings === null
+        ? {...DEFAULT_APP_SETTINGS}
+        : resolveAppSettings(tryParseJson(storedSettings));
+    } catch {
+      settings = {...DEFAULT_APP_SETTINGS};
+    }
+
+    this._settings.set(settings);
+  }
+
+  /**
+   * Updates the reactive settings and attempts to persist them.
+   *
+   * @param settings - Application settings to apply.
+   */
+  private setSettings(settings: AppSettings): void {
+    this._settings.set(settings);
+
+    try {
+      localStorage.setItem(APP_SETTINGS_LOCAL_STORAGE_KEY, JSON.stringify(settings));
+    } catch {
+      // Settings remain available for the current session.
+    }
   }
 }
