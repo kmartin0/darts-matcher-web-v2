@@ -1,6 +1,6 @@
 import {max, min, required, schema, SchemaPathTree} from '@angular/forms/signals';
-import {ValidationErrorKey, ValidationErrorMessageUtil} from '../../utils/error-message.util';
-import * as EditScoreFormDialogModel from './edit-score-form-dialog.model';
+import {ValidationErrorKey, ValidationErrorMessageUtil} from '../../../../shared/utils/error-message.util';
+import * as EditScoreFormDialogModel from './match-edit-score-form-dialog.model';
 
 const MIN_SCORE = 0;
 const MAX_SCORE = 180;

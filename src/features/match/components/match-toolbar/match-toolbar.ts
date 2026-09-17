@@ -33,6 +33,7 @@ export class MatchToolbar {
   readonly loading = input.required<boolean>();
   readonly error = input<string | null>(null);
 
+  readonly playerSettings = output<void>();
   readonly copyMatchLink = output<void>();
   readonly copyMatchId = output<void>();
   readonly repairMatch = output<void>();

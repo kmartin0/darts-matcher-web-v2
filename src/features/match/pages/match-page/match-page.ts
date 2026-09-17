@@ -12,6 +12,7 @@ import {MatchToolbar} from '../../components/match-toolbar/match-toolbar';
 import {MatchScoreTableEditTarget} from '../../components/match-score-table/match-score-table-edit-target';
 import {MatchTurnInputService} from '../../services/match-turn-input.service';
 import {MatchPageStore} from './match-page-store';
+import {MatchDialogService} from '../../services/match-dialog-service';
 
 @Component({
   selector: 'app-match-page',
@@ -29,6 +30,7 @@ import {MatchPageStore} from './match-page-store';
 export class MatchPage {
   private readonly store = inject(MatchPageStore);
   private readonly commonDialogService = inject(CommonDialogService);
+  private readonly matchDialogService = inject(MatchDialogService);
   private readonly matchTurnInputService = inject(MatchTurnInputService);
   private readonly clipboard = inject(Clipboard);
   private readonly snackBar = inject(MatSnackBar);
@@ -131,6 +133,26 @@ export class MatchPage {
         ? 'Match ID copied'
         : failedMessage
     );
+  }
+
+  /**
+   * Opens the local match settings dialog and forwards confirmed settings to the store.
+   */
+  protected async onOpenLocalMatchSettings(): Promise<void> {
+    const match = this.match();
+    const localSettingsState = this.uiState().localMatchSettings;
+
+    if (match === null || localSettingsState.status !== 'loaded') return;
+    if (localSettingsState.data.matchId !== match.id) return;
+
+    const dialogResult = await this.matchDialogService.openLocalMatchSettingsDialog({
+      localMatchSettings: localSettingsState.data,
+      players: match.players
+    });
+
+    if (dialogResult.status === 'dismissed') return;
+
+    this.store.saveLocalMatchSettings(dialogResult.value);
   }
 
   /**

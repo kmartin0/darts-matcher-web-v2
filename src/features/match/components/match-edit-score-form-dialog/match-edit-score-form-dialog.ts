@@ -10,16 +10,16 @@ import {
 } from '@angular/material/dialog';
 import {MatButton} from '@angular/material/button';
 import {MatFormField, MatInput, MatLabel} from '@angular/material/input';
-import {DialogResult} from '../../types/dialog-result';
-import {FormError} from '../form-error/form-error';
+import {DialogResult} from '../../../../shared/types/dialog-result';
+import {FormError} from '../../../../shared/components/form-error/form-error';
 
-import * as EditScoreFormDialogModel from './edit-score-form-dialog.model';
-import {EDIT_SCORE_FORM_DIALOG_SCHEMA} from './edit-score-form-dialog.schema';
-import {EditScoreFormDialogData} from './edit-score-form-dialog-data';
-import {shouldIgnoreKeyDown} from '../../utils/keyboard.util';
+import * as EditScoreFormDialogModel from './match-edit-score-form-dialog.model';
+import {EDIT_SCORE_FORM_DIALOG_SCHEMA} from './match-edit-score-form-dialog.schema';
+import {MatchEditScoreFormDialogData} from './match-edit-score-form-dialog-data';
+import {shouldIgnoreKeyDown} from '../../../../shared/utils/keyboard.util';
 
 @Component({
-  selector: 'app-edit-score-dialog',
+  selector: 'app-match-edit-score-dialog',
   imports: [
     FormField,
     MatDialogTitle,
@@ -32,12 +32,12 @@ import {shouldIgnoreKeyDown} from '../../utils/keyboard.util';
     FormError,
     MatDialogClose
   ],
-  templateUrl: './edit-score-form-dialog.html',
-  styleUrl: './edit-score-form-dialog.scss'
+  templateUrl: './match-edit-score-form-dialog.html',
+  styleUrl: './match-edit-score-form-dialog.scss'
 })
-export class EditScoreFormDialog {
-  private readonly dialogData = inject<EditScoreFormDialogData>(MAT_DIALOG_DATA);
-  private readonly dialogRef = inject<MatDialogRef<EditScoreFormDialog, DialogResult<number>>>(MatDialogRef);
+export class MatchEditScoreFormDialog {
+  private readonly dialogData = inject<MatchEditScoreFormDialogData>(MAT_DIALOG_DATA);
+  private readonly dialogRef = inject<MatDialogRef<MatchEditScoreFormDialog, DialogResult<number>>>(MatDialogRef);
 
   private readonly formModel = signal<EditScoreFormDialogModel.FormModel>(
     EditScoreFormDialogModel.createInitialFormModel(this.dialogData.currentScore)

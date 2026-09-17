@@ -6,5 +6,7 @@
     </mat-card-content>
   </mat-card>
 
-  <app-keypad (keyPress)="onKeyPress($event)"/>
+  <app-keypad
+    [enterEnabled]="scoreSubmissionEnabled()"
+    (keyPress)="onKeyPress($event)"/>
 </div>

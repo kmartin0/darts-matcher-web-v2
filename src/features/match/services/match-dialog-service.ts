@@ -1,13 +1,24 @@
 import {inject, Injectable} from '@angular/core';
-import {X01Checkout} from '../../data/model/x01/checkout/x01-checkout';
-import {EditScoreFormDialog} from '../components/edit-score-form-dialog/edit-score-form-dialog';
-import {EditScoreFormDialogData} from '../components/edit-score-form-dialog/edit-score-form-dialog-data';
-import {NumberSelectionFormDialog} from '../components/number-selection-form-dialog/number-selection-form-dialog';
+import {X01Checkout} from '../../../data/model/x01/checkout/x01-checkout';
+import {MatchEditScoreFormDialog} from '../components/match-edit-score-form-dialog/match-edit-score-form-dialog';
+import {
+  MatchEditScoreFormDialogData
+} from '../components/match-edit-score-form-dialog/match-edit-score-form-dialog-data';
+import {
+  NumberSelectionFormDialog
+} from '../../../shared/components/number-selection-form-dialog/number-selection-form-dialog';
 import {
   NumberSelectionFormDialogData
-} from '../components/number-selection-form-dialog/number-selection-form-dialog-data';
-import {DialogResult} from '../types/dialog-result';
-import {DialogManagerService} from './dialog-manager.service';
+} from '../../../shared/components/number-selection-form-dialog/number-selection-form-dialog-data';
+import {DialogResult} from '../../../shared/types/dialog-result';
+import {DialogManagerService} from '../../../shared/services/dialog-manager.service';
+import {
+  MatchLocalSettingsFormDialog
+} from '../components/match-local-settings-form-dialog/match-local-settings-form-dialog';
+import {
+  MatchLocalSettingsFormDialogData
+} from '../components/match-local-settings-form-dialog/match-local-settings-form-dialog-data';
+import {LocalMatchSettings} from '../../../data/model/settings/local-match-settings';
 
 @Injectable({providedIn: 'root'})
 export class MatchDialogService {
@@ -20,9 +31,9 @@ export class MatchDialogService {
    * @param stackable - Whether the dialog can be opened while another dialog is already open.
    * @returns Result of the edit score dialog.
    */
-  openEditScoreDialog(data: EditScoreFormDialogData, stackable: boolean = false): Promise<DialogResult<number>> {
-    return this.dialogManagerService.open<EditScoreFormDialog, EditScoreFormDialogData, number>(
-      EditScoreFormDialog,
+  openEditScoreDialog(data: MatchEditScoreFormDialogData, stackable: boolean = false): Promise<DialogResult<number>> {
+    return this.dialogManagerService.open<MatchEditScoreFormDialog, MatchEditScoreFormDialogData, number>(
+      MatchEditScoreFormDialog,
       {data: data},
       stackable
     );
@@ -73,6 +84,21 @@ export class MatchDialogService {
 
     return this.dialogManagerService.open<NumberSelectionFormDialog, NumberSelectionFormDialogData, number>(
       NumberSelectionFormDialog,
+      {data: data},
+      stackable
+    );
+  }
+
+  /**
+   * Opens the local match settings dialog.
+   *
+   * @param data - Match players and current local settings used to initialize the form.
+   * @param stackable - Whether the dialog can open while another dialog is already open.
+   * @returns Result containing the confirmed local match settings, or a dismissal.
+   */
+  openLocalMatchSettingsDialog(data: MatchLocalSettingsFormDialogData, stackable: boolean = false): Promise<DialogResult<LocalMatchSettings>> {
+    return this.dialogManagerService.open<MatchLocalSettingsFormDialog, MatchLocalSettingsFormDialogData, LocalMatchSettings>(
+      MatchLocalSettingsFormDialog,
       {data: data},
       stackable
     );

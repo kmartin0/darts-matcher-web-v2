@@ -38,6 +38,14 @@
   <button
     mat-menu-item
     type="button"
+    (click)="playerSettings.emit()">
+    <mat-icon>account_circle</mat-icon>
+    <span>Player settings</span>
+  </button>
+
+  <button
+    mat-menu-item
+    type="button"
     (click)="copyMatchLink.emit()">
     <mat-icon>link</mat-icon>
     <span>Copy match link</span>

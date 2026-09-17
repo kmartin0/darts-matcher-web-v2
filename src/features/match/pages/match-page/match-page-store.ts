@@ -1,11 +1,29 @@
 import {DestroyRef, inject, Injectable, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute} from '@angular/router';
-import {catchError, concatMap, delay, EMPTY, map, Observable, of, switchMap, tap} from 'rxjs';
+import {
+  catchError,
+  concatMap,
+  defer,
+  delay,
+  EMPTY,
+  exhaustMap,
+  filter,
+  map,
+  Observable,
+  of,
+  switchMap,
+  tap
+} from 'rxjs';
 import {ALL_API_ERROR_CODES, ApiErrorCode} from '../../../../data/api/errors/api-error-code';
 import {isApiErrorResponse} from '../../../../data/api/errors/api-error-response';
 import {isValidObjectId} from '../../../../data/api/utils/object-id.util';
-import {DeleteMatchMessage, MatchMessageUnion, MatchUpdateMessage} from '../../../../data/api/ws/match-message';
+import {
+  DeleteMatchMessage,
+  isMatchUpdateMessage,
+  MatchMessageUnion,
+  MatchUpdateMessage
+} from '../../../../data/api/ws/match-message';
 import {MatchMessageType} from '../../../../data/api/ws/match-message-type';
 import {StreamEventType} from '../../../../data/api/ws/stream-event-type';
 import {X01Match} from '../../../../data/model/x01/match/x01-match';
@@ -18,6 +36,9 @@ import {mapToEditTurnErrorMessage} from '../../mappers/edit-turn-error.mapper';
 import {CreateTurnInput, EditTurnInput} from '../../model/turn-input';
 import {mapToCreateTurnRequestDto} from '../../mappers/create-turn-request.mapper';
 import {mapToCreateTurnErrorMessage} from '../../mappers/create-turn-error.mapper';
+import {LocalMatchSettingsRepository} from '../../../../data/repository/local-match-settings-repository';
+import {MatchPlayer} from '../../../../data/model/base-match/match-player';
+import {LocalMatchSettings} from '../../../../data/model/settings/local-match-settings';
 
 const BOT_TURN_DELAY_MS = 500;
 
@@ -25,6 +46,7 @@ const BOT_TURN_DELAY_MS = 500;
 export class MatchPageStore {
   private readonly matchRepository = inject(MatchRepository);
   private readonly recentMatchesRepository = inject(RecentMatchesRepository);
+  private readonly localMatchSettingsRepository = inject(LocalMatchSettingsRepository);
   private readonly checkoutRepository = inject(CheckoutRepository);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
@@ -35,6 +57,31 @@ export class MatchPageStore {
   constructor() {
     this.loadCheckouts();
     this.registerRouteParamsObserver();
+  }
+
+  /**
+   * Saves the local settings for the currently loaded match.
+   *
+   * Settings belonging to another match are ignored. Saved changes are received
+   * through the existing settings observation. Displays a toolbar error when saving fails.
+   *
+   * @param localMatchSettings - Local match settings to save.
+   */
+  saveLocalMatchSettings(localMatchSettings: LocalMatchSettings): void {
+    const matchState = this._state().match;
+
+    if (matchState.status !== 'loaded' || matchState.data.id !== localMatchSettings.matchId) {
+      return;
+    }
+
+    this.executeMatchCommand(
+      () => defer(() =>
+        this.localMatchSettingsRepository.saveMatchSettings(localMatchSettings)
+      ),
+      () => this.patchState({
+        toolbarError: 'Failed to save local match settings'
+      })
+    );
   }
 
   /**
@@ -151,10 +198,13 @@ export class MatchPageStore {
   }
 
   /**
-   * Registers the observer that handles route parameter changes.
+   * Observes the match identified by the current route parameter.
    *
-   * Invalid match IDs are represented as an error state. Using switchMap ensures
-   * the previous match observation is canceled when the route parameter changes.
+   * Invalid match IDs are represented as an error state. For a valid ID, the
+   * match stream is observed and its first match update starts the local settings
+   * observation. Later match updates do not restart that ongoing observation.
+   *
+   * Changing the route parameter cancels both observations and starts them for the newly selected match.
    */
   private registerRouteParamsObserver(): void {
     this.route.paramMap
@@ -166,7 +216,12 @@ export class MatchPageStore {
             return EMPTY;
           }
 
-          return this.observeMatch(matchId);
+          return this.observeMatch(matchId).pipe(
+            filter(event => event.type === 'data'),
+            map(event => event.data),
+            filter(isMatchUpdateMessage),
+            exhaustMap(message => this.observeLocalMatchSettings(message.payload.id, message.payload.players))
+          );
         }),
         takeUntilDestroyed(this.destroyRef),
       )
@@ -190,6 +245,32 @@ export class MatchPageStore {
         return EMPTY;
       }),
     );
+  }
+
+  /**
+   * Observes the local settings for a match and updates their load state.
+   *
+   * The observation remains active so changes made in this or another tab are
+   * reflected in the page state.
+   *
+   * @param matchId - ID of the match whose local settings should be observed.
+   * @param players - Players used to initialize and validate the settings.
+   * @returns Observable emitting the current local match settings.
+   */
+  private observeLocalMatchSettings(matchId: string, players: readonly MatchPlayer[]): Observable<LocalMatchSettings> {
+    this.patchState({localMatchSettings: {status: 'loading'}});
+
+    return this.localMatchSettingsRepository
+      .observeMatchSettings(matchId, players)
+      .pipe(
+        tap(localMatchSettings => this.patchState(
+          {localMatchSettings: {status: 'loaded', data: localMatchSettings}}
+        )),
+        catchError(() => {
+          this.patchState({localMatchSettings: {status: 'error'}, toolbarError: 'Failed to load local match settings'});
+          return EMPTY;
+        })
+      );
   }
 
   /**
@@ -231,20 +312,12 @@ export class MatchPageStore {
    * @param message - Match message to handle.
    */
   private handleMatchMessage(message: MatchMessageUnion): void {
-    switch (message.messageType) {
-      case MatchMessageType.PROCESS_MATCH:
-      case MatchMessageType.ADD_HUMAN_TURN:
-      case MatchMessageType.ADD_BOT_TURN:
-      case MatchMessageType.EDIT_TURN:
-      case MatchMessageType.DELETE_LAST_TURN:
-      case MatchMessageType.RESET_MATCH:
-        this.handleMatchUpdate(message);
-        break;
-
-      case MatchMessageType.DELETE_MATCH:
-        this.handleDeleteMatchMessage(message);
-        break;
+    if (isMatchUpdateMessage(message)) {
+      this.handleMatchUpdate(message);
+      return;
     }
+
+    this.handleDeleteMatchMessage(message);
   }
 
   /**

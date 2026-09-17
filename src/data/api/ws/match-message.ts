@@ -17,12 +17,7 @@ export type ResetMatchMessage = WebSocketMessage<MatchMessageType.RESET_MATCH, X
 export type DeleteMatchMessage = WebSocketMessage<MatchMessageType.DELETE_MATCH, string>;
 
 export type MatchMessageUnion =
-  | ProcessMatchMessage
-  | AddHumanTurnMessage
-  | AddBotTurnMessage
-  | EditTurnMessage
-  | DeleteLastTurnMessage
-  | ResetMatchMessage
+  | MatchUpdateMessage
   | DeleteMatchMessage;
 
 export type MatchUpdateMessage =
@@ -32,3 +27,24 @@ export type MatchUpdateMessage =
   | EditTurnMessage
   | DeleteLastTurnMessage
   | ResetMatchMessage;
+
+/**
+ * Checks whether a match message contains an updated match.
+ *
+ * @param message - Match message to check.
+ * @returns Whether the message contains an updated match.
+ */
+export function isMatchUpdateMessage(message: MatchMessageUnion): message is MatchUpdateMessage {
+  switch (message.messageType) {
+    case MatchMessageType.PROCESS_MATCH:
+    case MatchMessageType.ADD_HUMAN_TURN:
+    case MatchMessageType.ADD_BOT_TURN:
+    case MatchMessageType.EDIT_TURN:
+    case MatchMessageType.DELETE_LAST_TURN:
+    case MatchMessageType.RESET_MATCH:
+      return true;
+
+    default:
+      return false;
+  }
+}

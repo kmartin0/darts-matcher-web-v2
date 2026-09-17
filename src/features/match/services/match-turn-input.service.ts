@@ -5,7 +5,7 @@ import {getLastTurnForPlayerInLeg, isLastRoundForPlayerInLeg, X01Leg} from '../.
 import {getLegInMatch, X01Match} from '../../../data/model/x01/match/x01-match';
 import {isMatchProgressInPlay} from '../../../data/model/x01/match/x01-match-progress';
 import {X01Turn} from '../../../data/model/x01/round/x01-turn';
-import {MatchDialogService} from '../../../shared/services/match-dialog-service';
+import {MatchDialogService} from './match-dialog-service';
 import {DialogResult} from '../../../shared/types/dialog-result';
 import {MatchScoreTableEditTarget} from '../components/match-score-table/match-score-table-edit-target';
 import {CreateTurnInput, EditTurnInput, TurnInput} from '../model/turn-input';

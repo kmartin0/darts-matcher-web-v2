@@ -1,0 +1,23 @@
+<form class="dialog-container" (submit)="onSubmit(); $event.preventDefault()">
+
+  <div class="header">
+    <h2 mat-dialog-title class="title">Settings</h2>
+  </div>
+
+  <mat-dialog-content class="content">
+    <h3 class="subtitle">Who are you scoring for?</h3>
+
+    <div class="player-options">
+      @for (player of dialogData.players; track player.playerId; let index = $index) {
+        <mat-checkbox class="player-option" [formField]="matchLocalSettingsForm.playerSelections[index].selected">
+          {{ player.playerName }}
+        </mat-checkbox>
+      }
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="actions" align="end">
+    <button type="button" mat-button [mat-dialog-close]="dismissedResult"> Cancel</button>
+    <button type="submit" mat-button cdkFocusInitial> Ok</button>
+  </mat-dialog-actions>
+</form>

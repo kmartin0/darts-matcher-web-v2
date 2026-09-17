@@ -1,18 +1,11 @@
 import {isWinOrDrawResult} from '../../../../data/model/base-match/result-type';
 import {isCheckoutPossible, X01Checkout, X01CheckoutsMap} from '../../../../data/model/x01/checkout/x01-checkout';
-import {
-  doesPlayerStartLeg,
-  getDartsUsedForPlayerInRound,
-  X01Leg
-} from '../../../../data/model/x01/leg/x01-leg';
+import {doesPlayerStartLeg, getDartsUsedForPlayerInRound, X01Leg} from '../../../../data/model/x01/leg/x01-leg';
 import {isLastLegInMatch, X01Match} from '../../../../data/model/x01/match/x01-match';
 import {X01MatchPlayer} from '../../../../data/model/x01/match/x01-match-player';
 import {X01BestOfType} from '../../../../data/model/x01/rules/x01-best-of-type';
 import {isLastLegInSet, X01Set} from '../../../../data/model/x01/set/x01-set';
-import {
-  calculateX01Average,
-  isFirstNineRound
-} from '../../../../data/model/x01/statistics/x01-average-statistics';
+import {calculateX01Average, isFirstNineRound} from '../../../../data/model/x01/statistics/x01-average-statistics';
 import {isCurrentLegSelected, isLegSelected, LegSelection} from '../match-board/leg-selection';
 import {MatchPlayerCardData} from '../match-player-card/match-player-card-data';
 

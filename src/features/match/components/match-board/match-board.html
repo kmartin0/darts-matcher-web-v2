@@ -27,6 +27,8 @@
     [contrast]="true"/>
 
   @if (isScoreInputVisible()) {
-    <app-match-score-input (submitScore)="submitScore.emit($event)"/>
+    <app-match-score-input
+      [scoreSubmissionEnabled]="scoreSubmissionEnabled()"
+      (submitScore)="submitScore.emit($event)"/>
   }
 </div>

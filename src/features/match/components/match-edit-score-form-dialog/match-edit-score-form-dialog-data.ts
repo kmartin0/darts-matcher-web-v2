@@ -1,4 +1,4 @@
-export interface EditScoreFormDialogData {
+export interface MatchEditScoreFormDialogData {
   playerName: string;
   setNumber: number;
   legNumber: number;

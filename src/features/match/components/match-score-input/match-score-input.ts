@@ -1,4 +1,4 @@
-import {Component, HostListener, output, signal} from '@angular/core';
+import {Component, HostListener, input, output, signal} from '@angular/core';
 import {MatCard, MatCardContent} from '@angular/material/card';
 import {Keypad, KeypadButton} from '../../../../shared/components/keypad/keypad';
 
@@ -13,6 +13,8 @@ import {Keypad, KeypadButton} from '../../../../shared/components/keypad/keypad'
   styleUrl: './match-score-input.scss'
 })
 export class MatchScoreInput {
+  readonly scoreSubmissionEnabled = input.required<boolean>();
+
   readonly submitScore = output<number>();
 
   protected readonly score = signal<number | null>(null);

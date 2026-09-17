@@ -1,5 +1,6 @@
 @let state = uiState();
 @let matchLoadState = state.match;
+@let localMatchSettingsLoadState = state.localMatchSettings;
 @let checkoutsLoadState = state.checkouts;
 
 <app-match-toolbar
@@ -10,7 +11,8 @@
   (resetMatch)="onResetMatch()"
   (deleteMatch)="onDeleteMatch()"
   (copyMatchId)="onCopyMatchId()"
-  (copyMatchLink)="onCopyMatchLink()"/>
+  (copyMatchLink)="onCopyMatchLink()"
+  (playerSettings)="onOpenLocalMatchSettings()"/>
 
 <div class="match-page-content">
   @switch (matchLoadState.status) {
@@ -22,9 +24,10 @@
       <app-page-error message="The match could not be found"/>
     }
     @case ('loaded') {
-      @if (checkoutsLoadState.status === 'loaded') {
+      @if (localMatchSettingsLoadState.status === 'loaded' && checkoutsLoadState.status === 'loaded') {
         <app-match-board
           [match]="matchLoadState.data"
+          [localMatchSettings]="localMatchSettingsLoadState.data"
           [checkouts]="checkoutsLoadState.data"
           [scoreInputError]="state.scoreInputError"
           (deleteLastTurn)="onDeleteLastTurn()"
