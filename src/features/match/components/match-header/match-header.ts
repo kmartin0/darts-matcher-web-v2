@@ -1,12 +1,12 @@
 import {Component, input} from '@angular/core';
 import {X01Match} from '../../../../data/model/x01/match/x01-match';
-import {MatchHeaderPipe} from './pipes/match-header.pipe';
+import {MatchFormatSummaryPipe} from './pipes/match-format-summary.pipe';
 
 @Component({
   selector: 'app-match-header',
   templateUrl: './match-header.html',
   imports: [
-    MatchHeaderPipe
+    MatchFormatSummaryPipe
   ],
   styleUrl: './match-header.scss'
 })

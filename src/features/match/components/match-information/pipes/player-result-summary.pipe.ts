@@ -5,22 +5,25 @@ import {X01BestOfType} from '../../../../../data/model/x01/rules/x01-best-of-typ
 import {X01StandingsEntry} from '../../../../../data/model/x01/standings/x01-standings-entry';
 
 /**
- * Formats a player's result and standing for Match Information.
+ * Formats the player result summary displayed in Match Information.
  */
-@Pipe({name: 'matchInformationPlayerResult'})
-export class MatchInformationPlayerResultPipe implements PipeTransform {
+@Pipe({
+  name: 'playerResultSummary'
+})
+export class PlayerResultSummaryPipe implements PipeTransform {
+
   /**
-   * Formats the complete value of a player's result row.
+   * Formats a player's recorded result together with their standing.
    *
-   * Examples: '2 (1)' while playing a set-based match, or 'WIN - 2'
-   * after the match concludes. Missing standings are omitted; a dash is
-   * displayed when neither a result nor a standing is available.
+   * Examples: `2 (1)` while playing a set-based match or `WIN - 2`
+   * after the match concludes. Missing standings are omitted. A dash is
+   * returned when neither a result nor a standing is available.
    *
    * @param player - Player whose recorded result should be displayed.
    * @param standing - Player's current match standing, when available.
    * @param bestOfType - Whether the match is decided by sets or legs.
    * @param matchStatus - Current match status.
-   * @returns Formatted player result and standing.
+   * @returns Formatted player result summary.
    */
   transform(
     player: MatchPlayer,

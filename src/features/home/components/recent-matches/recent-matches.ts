@@ -8,9 +8,9 @@ import {MatTooltip} from '@angular/material/tooltip';
 import {X01Match} from '../../../../data/model/x01/match/x01-match';
 import {ErrorMessage} from '../../../../shared/components/error-message/error-message';
 import {LoadState} from '../../../../shared/types/load-state';
-import {BestOfLegsRulePipe} from './pipes/best-of-legs-rule.pipe';
-import {BestOfSetsRulePipe} from './pipes/best-of-sets-rule.pipe';
-import {ClearByTwoFinalSetRulePipe} from './pipes/clear-by-two-final-set-rule.pipe';
+import {BestOfLegsSummaryPipe} from './pipes/best-of-legs-summary.pipe';
+import {BestOfSetsSummaryPipe} from './pipes/best-of-sets-summary.pipe';
+import {FinalSetClearByTwoSummaryPipe} from './pipes/final-set-clear-by-two-summary.pipe';
 import {EpochSecondsToDatePipe} from '../../../../shared/pipes/epoch-seconds-to-date.pipe';
 import {ScorelinePipe} from './pipes/scoreline.pipe';
 
@@ -26,10 +26,10 @@ import {ScorelinePipe} from './pipes/scoreline.pipe';
     MatTooltip,
     ErrorMessage,
     ScorelinePipe,
-    BestOfLegsRulePipe,
-    BestOfSetsRulePipe,
-    ClearByTwoFinalSetRulePipe,
     EpochSecondsToDatePipe,
+    BestOfSetsSummaryPipe,
+    BestOfLegsSummaryPipe,
+    FinalSetClearByTwoSummaryPipe,
   ],
   templateUrl: './recent-matches.html',
   styleUrl: './recent-matches.scss',

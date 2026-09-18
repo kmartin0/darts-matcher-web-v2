@@ -4,7 +4,7 @@ import {getAreaPrefix} from '../../../../../data/model/dartboard/dartboard-secti
 import {DARTBOARD_SECTION_TO_NUMBER} from '../../../../../data/model/dartboard/dartboard-section';
 
 /**
- * Formats an X01 checkout suggestion for display.
+ * Formats the checkout suggestion displayed in the Match Player Card.
  */
 @Pipe({
   name: 'suggestedCheckout'
@@ -12,10 +12,13 @@ import {DARTBOARD_SECTION_TO_NUMBER} from '../../../../../data/model/dartboard/d
 export class SuggestedCheckoutPipe implements PipeTransform {
 
   /**
-   * Formats the suggested dart sequence of a checkout.
+   * Formats the suggested darts using conventional board notation.
+   *
+   * Example: `T20, T20, D20`.
+   * Returns an empty string when no checkout is available.
    *
    * @param checkout - Checkout suggestion to format.
-   * @returns Formatted checkout suggestion, or an empty string when none is available.
+   * @returns Formatted suggested dart sequence, or an empty string when unavailable.
    */
   transform(checkout: X01Checkout | null): string {
     if (checkout === null) {

@@ -4,36 +4,40 @@ import {X01BestOfType} from '../../../../../data/model/x01/rules/x01-best-of-typ
 import {X01MatchSettings} from '../../../../../data/model/x01/match/x01-match-settings';
 import {formatCount} from '../../../../../shared/utils/number.util';
 
-export interface MatchHeaderPipeData {
+export interface MatchFormatSummaryPipeData {
   matchSettings: X01MatchSettings;
   matchType: X01Match['matchType'];
 }
 
 /**
- * Formats match information for display in the match header.
+ * Formats the match format summary displayed in the Match Header.
  */
 @Pipe({
-  name: 'matchHeader'
+  name: 'matchFormatSummary'
 })
-export class MatchHeaderPipe implements PipeTransform {
+export class MatchFormatSummaryPipe implements PipeTransform {
 
   /**
-   * Formats match information as a user-friendly match header.
+   * Formats the best-of configuration, clear-by-two state, match type, and starting score.
    *
-   * @param data - Match header data to format.
-   * @returns Formatted match header.
+   * Examples:
+   * `Best of 5 legs | X01 (501)`
+   * `Best of 3 sets (BO5) | Clear by two | X01 (501)`
+   *
+   * @param data - Match settings and match type to format.
+   * @returns Formatted match format summary.
    */
-  transform(data: MatchHeaderPipeData): string {
+  transform(data: MatchFormatSummaryPipeData): string {
     const matchSettings = data.matchSettings;
-    const headerParts = [this.getBestOf(matchSettings)];
+    const summaryParts = [this.getBestOf(matchSettings)];
 
     if (this.hasClearByTwo(matchSettings)) {
-      headerParts.push('Clear by two');
+      summaryParts.push('Clear by two');
     }
 
-    headerParts.push(`${data.matchType} (${matchSettings.x01})`);
+    summaryParts.push(`${data.matchType} (${matchSettings.x01})`);
 
-    return headerParts.join(' | ');
+    return summaryParts.join(' | ');
   }
 
   /**

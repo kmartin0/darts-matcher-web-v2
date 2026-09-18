@@ -1,25 +1,25 @@
 import {Component, computed, input} from '@angular/core';
 import {MatCard, MatCardContent} from '@angular/material/card';
 import {X01Match} from '../../../../data/model/x01/match/x01-match';
-import {MatchInformationPlayerResultPipe} from './pipes/match-information-player-result.pipe';
+import {PlayerResultSummaryPipe} from './pipes/player-result-summary.pipe';
 import {X01BestOfType} from '../../../../data/model/x01/rules/x01-best-of-type';
-import {MatchInformationBestOfTypePipe} from './pipes/match-information-best-of-type.pipe';
-import {MatchInformationClearByTwoRulePipe} from './pipes/match-information-clear-by-two-rule.pipe';
+import {BestOfTypeLabelPipe} from './pipes/best-of-type-label.pipe';
+import {ClearByTwoRuleSummaryPipe} from './pipes/clear-by-two-rule-summary.pipe';
 import {interval, map} from 'rxjs';
 import {toSignal} from '@angular/core/rxjs-interop';
-import {MatchInformationDurationPipe} from './pipes/match-information-duration.pipe';
-import {MatchInformationDatePipe} from './pipes/match-information-date.pipe';
+import {MatchDurationPipe} from './pipes/match-duration.pipe';
+import {MatchDateTimePipe} from './pipes/match-date-time.pipe';
 
 @Component({
   selector: 'app-match-information',
   imports: [
     MatCard,
     MatCardContent,
-    MatchInformationPlayerResultPipe,
-    MatchInformationBestOfTypePipe,
-    MatchInformationClearByTwoRulePipe,
-    MatchInformationDurationPipe,
-    MatchInformationDatePipe
+    PlayerResultSummaryPipe,
+    BestOfTypeLabelPipe,
+    ClearByTwoRuleSummaryPipe,
+    MatchDateTimePipe,
+    MatchDurationPipe
   ],
   templateUrl: './match-information.html',
   styleUrl: './match-information.scss'

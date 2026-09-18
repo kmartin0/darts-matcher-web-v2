@@ -12,18 +12,21 @@ export interface ScorelinePipeData {
   };
 }
 
+/**
+ * Formats the match scoreline displayed by Recent Matches.
+ */
 @Pipe({
   name: 'scoreline'
 })
 export class ScorelinePipe implements PipeTransform {
 
   /**
-   * Formats the current match scoreline.
+   * Formats each player's sets or legs won according to the best-of type.
    *
-   * The score is based on sets or legs won, depending on the match best-of type.
-   * Example: "John [2] vs Jane [1]".
+   * Example: `John [2] vs Jane [1]`.
+   * A player without a standing is displayed with a score of zero.
    *
-   * @param data - Match data required to format the scoreline.
+   * @param data - Players, standings, and best-of type to format.
    * @returns Formatted match scoreline.
    */
   transform(data: ScorelinePipeData): string {

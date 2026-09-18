@@ -2,15 +2,20 @@ import {Pipe, PipeTransform} from '@angular/core';
 import {formatCount} from '../../../../../shared/utils/number.util';
 
 /**
- * Formats a match duration for Match Information.
+ * Formats the match duration displayed in Match Information.
  */
-@Pipe({name: 'matchInformationDuration'})
-export class MatchInformationDurationPipe implements PipeTransform {
+@Pipe({
+  name: 'matchDuration'
+})
+export class MatchDurationPipe implements PipeTransform {
+
   /**
-   * Formats a duration in seconds as minutes or hours and minutes.
+   * Formats a duration in seconds as minutes or as hours and minutes.
+   *
+   * Incomplete minutes are discarded. Examples: `45 minutes` and `1h 15m`.
    *
    * @param durationInSeconds - Duration to format in seconds.
-   * @returns Formatted duration such as `45 minutes` or `1h 15m`.
+   * @returns Formatted match duration.
    */
   transform(durationInSeconds: number): string {
     const durationInMinutes = Math.floor(durationInSeconds / 60);

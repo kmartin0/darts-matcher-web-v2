@@ -1,7 +1,7 @@
 import {Component, input} from '@angular/core';
 import {MatCard} from '@angular/material/card';
 import {MatchPlayerCardData} from './match-player-card-data';
-import {PlayerScorePipe} from './pipes/player-score.pipe';
+import {PlayerStandingPipe} from './pipes/player-standing.pipe';
 import {SuggestedCheckoutPipe} from './pipes/suggested-checkout.pipe';
 
 @Component({
@@ -10,8 +10,8 @@ import {SuggestedCheckoutPipe} from './pipes/suggested-checkout.pipe';
   styleUrl: './match-player-card.scss',
   imports: [
     MatCard,
-    PlayerScorePipe,
-    SuggestedCheckoutPipe
+    SuggestedCheckoutPipe,
+    PlayerStandingPipe
   ]
 })
 export class MatchPlayerCard {

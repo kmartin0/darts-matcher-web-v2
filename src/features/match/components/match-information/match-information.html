@@ -19,7 +19,7 @@
             <span class="information-row-value">
               {{
                 player
-                  | matchInformationPlayerResult:
+                  | playerResultSummary:
                   currentMatch.standings[player.playerId]:
                   bestOf.bestOfType:
                   currentMatch.matchStatus
@@ -50,9 +50,7 @@
         <!-- Goal -->
         <div class="information-row">
           <span class="information-row-label">Goal:</span>
-          <span class="information-row-value">
-            Best of - {{ bestOf.bestOfType | matchInformationBestOfType }}
-          </span>
+          <span class="information-row-value">Best of - {{ bestOf.bestOfType | bestOfTypeLabel }}</span>
         </div>
 
         <!-- Sets -->
@@ -73,41 +71,28 @@
         @if (isBestOfSets()) {
           <div class="information-row">
             <span class="information-row-label">Clear by two sets:</span>
-            <span class="information-row-value">
-              {{ bestOf.clearByTwoSetsRule | matchInformationClearByTwoRule }}
-            </span>
+            <span class="information-row-value">{{ bestOf.clearByTwoSetsRule | clearByTwoRuleSummary }}</span>
           </div>
         }
 
         <!-- Clear by two legs -->
         <div class="information-row">
           <span class="information-row-label">Clear by two legs:</span>
-          <span class="information-row-value">
-            {{ bestOf.clearByTwoLegsRule | matchInformationClearByTwoRule }}
-          </span>
+          <span class="information-row-value">{{ bestOf.clearByTwoLegsRule | clearByTwoRuleSummary }}</span>
         </div>
 
         <!-- Clear by two legs in final set -->
         @if (isBestOfSets()) {
           <div class="information-row">
-            <span class="information-row-label">
-              Clear by two legs in final set:
-            </span>
-            <span class="information-row-value">
-              {{
-                bestOf.clearByTwoLegsInFinalSetRule
-                  | matchInformationClearByTwoRule
-              }}
-            </span>
+            <span class="information-row-label">Clear by two legs in final set:</span>
+            <span class="information-row-value">{{ bestOf.clearByTwoLegsInFinalSetRule| clearByTwoRuleSummary }}</span>
           </div>
         }
 
         <!-- Track doubles -->
         <div class="information-row">
           <span class="information-row-label">Track doubles:</span>
-          <span class="information-row-value">
-            {{ matchSettings.trackDoubles ? 'Yes' : 'No' }}
-          </span>
+          <span class="information-row-value">{{ matchSettings.trackDoubles ? 'Yes' : 'No' }}</span>
         </div>
       </div>
     </section>
@@ -120,25 +105,19 @@
         <!-- Start date -->
         <div class="information-row">
           <span class="information-row-label">Start:</span>
-          <span class="information-row-value">
-            {{ currentMatch.startDate | matchInformationDate }}
-          </span>
+          <span class="information-row-value">{{ currentMatch.startDate | matchDateTime }}</span>
         </div>
 
         <!-- End date -->
         <div class="information-row">
           <span class="information-row-label">End:</span>
-          <span class="information-row-value">
-            {{ currentMatch.endDate | matchInformationDate }}
-          </span>
+          <span class="information-row-value">{{ currentMatch.endDate | matchDateTime }}</span>
         </div>
 
         <!-- Match duration -->
         <div class="information-row">
           <span class="information-row-label">Match time:</span>
-          <span class="information-row-value">
-            {{ matchDurationInSeconds() | matchInformationDuration }}
-          </span>
+          <span class="information-row-value">{{ matchDurationInSeconds() | matchDuration }}</span>
         </div>
       </div>
     </section>
