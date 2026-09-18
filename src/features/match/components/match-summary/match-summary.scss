@@ -1,0 +1,21 @@
+:host {
+  display: block;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+.tab-group {
+  height: 100%;
+  min-height: 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+.tab-content-container {
+  box-sizing: border-box;
+  height: 100%;
+  padding: 8px;
+  overflow-y: auto;
+}

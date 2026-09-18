@@ -28,6 +28,7 @@
     aria-label="More options"
     matTooltip="More options"
     [matMenuTriggerFor]="menu"
+    (menuOpened)="onMenuOpened()"
     [disabled]="!menuEnabled()">
     <mat-icon>more_vert</mat-icon>
   </button>
@@ -35,6 +36,27 @@
 
 <!-- More options menu -->
 <mat-menu #menu="matMenu">
+  @switch (displayedMatchView()) {
+    @case ('board') {
+      <button
+        mat-menu-item
+        type="button"
+        (click)="toggleMatchView.emit()">
+        <mat-icon>analytics</mat-icon>
+        <span>Match summary</span>
+      </button>
+    }
+    @case ('summary') {
+      <button
+        mat-menu-item
+        type="button"
+        (click)="toggleMatchView.emit()">
+        <mat-icon>scoreboard</mat-icon>
+        <span>Match board</span>
+      </button>
+    }
+  }
+
   <button
     mat-menu-item
     type="button"

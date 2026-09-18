@@ -1,5 +1,5 @@
 import {Pipe, PipeTransform} from '@angular/core';
-import {epochSecondsToDate} from '../../../../../shared/utils/number.util';
+import {epochSecondsToDate} from '../utils/number.util';
 
 @Pipe({
   name: 'epochSecondsToDate'

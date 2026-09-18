@@ -7,6 +7,8 @@
   [menuEnabled]="matchLoadState.status === 'loaded'"
   [error]="state.toolbarError"
   [loading]="toolbarLoading()"
+  [matchView]="matchView()"
+  (toggleMatchView)="onToggleMatchView()"
   (repairMatch)="onRepairMatch()"
   (resetMatch)="onResetMatch()"
   (deleteMatch)="onDeleteMatch()"
@@ -25,14 +27,22 @@
     }
     @case ('loaded') {
       @if (localMatchSettingsLoadState.status === 'loaded' && checkoutsLoadState.status === 'loaded') {
-        <app-match-board
-          [match]="matchLoadState.data"
-          [localMatchSettings]="localMatchSettingsLoadState.data"
-          [checkouts]="checkoutsLoadState.data"
-          [scoreInputError]="state.scoreInputError"
-          (deleteLastTurn)="onDeleteLastTurn()"
-          (editTurn)="onEditTurn($event)"
-          (submitScore)="onSubmitScore($event)"/>
+        @switch (matchView()) {
+          @case ('board') {
+            <app-match-board
+              [match]="matchLoadState.data"
+              [localMatchSettings]="localMatchSettingsLoadState.data"
+              [checkouts]="checkoutsLoadState.data"
+              [scoreInputError]="state.scoreInputError"
+              (deleteLastTurn)="onDeleteLastTurn()"
+              (editTurn)="onEditTurn($event)"
+              (submitScore)="onSubmitScore($event)"/>
+          }
+          @case ('summary') {
+            <app-match-summary [match]="matchLoadState.data"/>
+          }
+        }
+
       }
     }
     @case ('deleted') {

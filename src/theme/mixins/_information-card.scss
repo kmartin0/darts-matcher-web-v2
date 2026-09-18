@@ -1,0 +1,96 @@
+@use "devices";
+
+// Shared card, section and label-value styling for information-style views.
+@mixin layout {
+  .information-card {
+    width: 100%;
+    min-width: 0;
+    background-color: var(--mat-sys-surface-container);
+    color: var(--mat-sys-on-surface);
+  }
+
+  .information-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .information-card-title {
+    margin: 0;
+    padding: 16px;
+    overflow-wrap: anywhere;
+    text-align: center;
+    font: var(--mat-sys-headline-small);
+    font-weight: 500;
+    background-color: var(--mat-sys-surface-container-highest);
+    border-radius: var(--mat-sys-corner-extra-small);
+  }
+
+  .information-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .information-section-title {
+    margin: 0;
+    padding: 4px;
+    overflow-wrap: anywhere;
+    text-align: center;
+    font: var(--mat-sys-title-large);
+    font-weight: 500;
+    background-color: var(--mat-sys-surface-container-highest);
+    border-radius: var(--mat-sys-corner-extra-small);
+  }
+
+  .information-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0;
+  }
+
+  .information-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: baseline;
+    gap: 12px;
+    padding-inline: 8px;
+  }
+
+  .information-row-label,
+  .information-row-value {
+    min-width: 0;
+    margin: 0;
+    overflow-wrap: anywhere;
+    font: var(--mat-sys-title-medium);
+  }
+
+  .information-row-label {
+    font-weight: 400;
+    text-align: start;
+  }
+
+  .information-row-value {
+    font-weight: 500;
+    text-align: end;
+  }
+
+  @include devices.device(phone, phablet) {
+    .information-card-content {
+      gap: 12px;
+    }
+
+    .information-card-title {
+      padding: 8px;
+      font: var(--mat-sys-title-large);
+      font-weight: 500;
+    }
+
+    .information-section-title {
+      font: var(--mat-sys-title-medium);
+      font-weight: 500;
+    }
+  }
+}

@@ -11,7 +11,7 @@ import {LoadState} from '../../../../shared/types/load-state';
 import {BestOfLegsRulePipe} from './pipes/best-of-legs-rule.pipe';
 import {BestOfSetsRulePipe} from './pipes/best-of-sets-rule.pipe';
 import {ClearByTwoFinalSetRulePipe} from './pipes/clear-by-two-final-set-rule.pipe';
-import {EpochSecondsToDatePipe} from './pipes/epoch-seconds-to-date.pipe';
+import {EpochSecondsToDatePipe} from '../../../../shared/pipes/epoch-seconds-to-date.pipe';
 import {ScorelinePipe} from './pipes/scoreline.pipe';
 
 @Component({

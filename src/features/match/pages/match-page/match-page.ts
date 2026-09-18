@@ -1,4 +1,4 @@
-import {Component, computed, inject, viewChild} from '@angular/core';
+import {Component, computed, inject, signal, viewChild} from '@angular/core';
 import {Clipboard} from '@angular/cdk/clipboard';
 import {MatButton} from '@angular/material/button';
 import {MatSnackBar} from '@angular/material/snack-bar';
@@ -13,6 +13,8 @@ import {MatchScoreTableEditTarget} from '../../components/match-score-table/matc
 import {MatchTurnInputService} from '../../services/match-turn-input.service';
 import {MatchPageStore} from './match-page-store';
 import {MatchDialogService} from '../../services/match-dialog-service';
+import {MatchView} from '../../model/match-view';
+import {MatchSummary} from '../../components/match-summary/match-summary';
 
 @Component({
   selector: 'app-match-page',
@@ -21,7 +23,8 @@ import {MatchDialogService} from '../../services/match-dialog-service';
     MatchToolbar,
     MatchBoard,
     MatButton,
-    RouterLink
+    RouterLink,
+    MatchSummary
   ],
   providers: [MatchPageStore],
   templateUrl: './match-page.html',
@@ -34,6 +37,8 @@ export class MatchPage {
   private readonly matchTurnInputService = inject(MatchTurnInputService);
   private readonly clipboard = inject(Clipboard);
   private readonly snackBar = inject(MatSnackBar);
+
+  protected readonly matchView = signal<MatchView>('board');
 
   private readonly matchBoard = viewChild(MatchBoard);
 
@@ -60,6 +65,21 @@ export class MatchPage {
 
     return isMatchLoading || isWaitingForStream;
   });
+
+  /**
+   * Toggles the match page between the board and summary views.
+   */
+  protected onToggleMatchView(): void {
+    this.matchView.update(view => {
+      switch (view) {
+        case 'board':
+          return 'summary';
+
+        case 'summary':
+          return 'board';
+      }
+    });
+  }
 
   /**
    * Repairs the current match.

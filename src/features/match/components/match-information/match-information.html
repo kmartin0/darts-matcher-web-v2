@@ -1,0 +1,171 @@
+@let currentMatch = match();
+@let matchSettings = currentMatch.matchSettings;
+@let bestOf = matchSettings.bestOf;
+
+<mat-card class="information-card">
+  <mat-card-content class="information-card-content">
+    <!-- Match information card title -->
+    <h2 class="information-card-title">Match Information</h2>
+
+    <!-- Result section -->
+    <section class="information-section">
+      <h3 class="information-section-title">Result</h3>
+
+      <div class="information-rows">
+        <!-- Player results -->
+        @for (player of currentMatch.players; track player.playerId) {
+          <div class="information-row">
+            <span class="information-row-label">{{ player.playerName }}:</span>
+            <span class="information-row-value">
+              {{
+                player
+                  | matchInformationPlayerResult:
+                  currentMatch.standings[player.playerId]:
+                  bestOf.bestOfType:
+                  currentMatch.matchStatus
+              }}
+            </span>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Rules section -->
+    <section class="information-section">
+      <h3 class="information-section-title">Rules</h3>
+
+      <div class="information-rows">
+        <!-- X01 -->
+        <div class="information-row">
+          <span class="information-row-label">X01:</span>
+          <span class="information-row-value">{{ matchSettings.x01 }}</span>
+        </div>
+
+        <!-- Format -->
+        <div class="information-row">
+          <span class="information-row-label">Format:</span>
+          <span class="information-row-value">SIDO</span>
+        </div>
+
+        <!-- Goal -->
+        <div class="information-row">
+          <span class="information-row-label">Goal:</span>
+          <span class="information-row-value">
+            Best of - {{ bestOf.bestOfType | matchInformationBestOfType }}
+          </span>
+        </div>
+
+        <!-- Sets -->
+        @if (isBestOfSets()) {
+          <div class="information-row">
+            <span class="information-row-label">Sets:</span>
+            <span class="information-row-value">{{ bestOf.sets }}</span>
+          </div>
+        }
+
+        <!-- Legs -->
+        <div class="information-row">
+          <span class="information-row-label">Legs:</span>
+          <span class="information-row-value">{{ bestOf.legs }}</span>
+        </div>
+
+        <!-- Clear by two sets -->
+        @if (isBestOfSets()) {
+          <div class="information-row">
+            <span class="information-row-label">Clear by two sets:</span>
+            <span class="information-row-value">
+              {{ bestOf.clearByTwoSetsRule | matchInformationClearByTwoRule }}
+            </span>
+          </div>
+        }
+
+        <!-- Clear by two legs -->
+        <div class="information-row">
+          <span class="information-row-label">Clear by two legs:</span>
+          <span class="information-row-value">
+            {{ bestOf.clearByTwoLegsRule | matchInformationClearByTwoRule }}
+          </span>
+        </div>
+
+        <!-- Clear by two legs in final set -->
+        @if (isBestOfSets()) {
+          <div class="information-row">
+            <span class="information-row-label">
+              Clear by two legs in final set:
+            </span>
+            <span class="information-row-value">
+              {{
+                bestOf.clearByTwoLegsInFinalSetRule
+                  | matchInformationClearByTwoRule
+              }}
+            </span>
+          </div>
+        }
+
+        <!-- Track doubles -->
+        <div class="information-row">
+          <span class="information-row-label">Track doubles:</span>
+          <span class="information-row-value">
+            {{ matchSettings.trackDoubles ? 'Yes' : 'No' }}
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Date section -->
+    <section class="information-section">
+      <h3 class="information-section-title">Date</h3>
+
+      <div class="information-rows">
+        <!-- Start date -->
+        <div class="information-row">
+          <span class="information-row-label">Start:</span>
+          <span class="information-row-value">
+            {{ currentMatch.startDate | matchInformationDate }}
+          </span>
+        </div>
+
+        <!-- End date -->
+        <div class="information-row">
+          <span class="information-row-label">End:</span>
+          <span class="information-row-value">
+            {{ currentMatch.endDate | matchInformationDate }}
+          </span>
+        </div>
+
+        <!-- Match duration -->
+        <div class="information-row">
+          <span class="information-row-label">Match time:</span>
+          <span class="information-row-value">
+            {{ matchDurationInSeconds() | matchInformationDuration }}
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Trivia section -->
+    <section class="information-section">
+      <h3 class="information-section-title">Trivia</h3>
+
+      <div class="information-rows">
+        <!-- Sets played -->
+        <div class="information-row">
+          <span class="information-row-label">Sets played:</span>
+          <span class="information-row-value">{{ setsPlayed() }}</span>
+        </div>
+
+        <!-- Legs played -->
+        <div class="information-row">
+          <span class="information-row-label">Legs played:</span>
+          <span class="information-row-value">{{ legsPlayed() }}</span>
+        </div>
+
+        <!-- Match ID -->
+        <div class="information-row">
+          <span class="information-row-label">Match ID:</span>
+          <span class="information-row-value">{{ currentMatch.id }}</span>
+        </div>
+      </div>
+    </section>
+  </mat-card-content>
+</mat-card>

@@ -1,0 +1,14 @@
+@use "mixins/information-card";
+
+@include information-card.layout;
+
+:host {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  min-width: 0;
+}
+
+.information-card {
+  max-width: 650px;
+}
