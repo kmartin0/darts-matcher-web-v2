@@ -1,0 +1,158 @@
+@for (player of match().players; track player.playerId) {
+  @let statistics = player.statistics;
+  @let resultStatistics = statistics.resultStatistics;
+  @let scoreStatistics = statistics.scoreStatistics;
+  @let averageStatistics = statistics.averageStats;
+  @let checkoutStatistics = statistics.checkoutStats;
+
+  <mat-card class="information-card">
+    <mat-card-content class="information-card-content">
+      <!-- Match player statistics title -->
+      <h2 class="information-card-title">{{ player.playerName }}</h2>
+
+      <!-- Result section -->
+      <section class="information-section">
+        <h3 class="information-section-title">Result</h3>
+
+        <div class="information-rows">
+          <!-- Sets -->
+          @if (isBestOfSets()) {
+            <div class="information-row">
+              <span class="information-row-label">Sets:</span>
+              <span class="information-row-value">{{ resultStatistics.setsWon }}</span>
+            </div>
+          }
+
+          <!-- Legs -->
+          <div class="information-row">
+            <span class="information-row-label">Legs:</span>
+            <span class="information-row-value">{{ resultStatistics.legsWon }}</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Score section -->
+      <section class="information-section">
+        <h3 class="information-section-title">Score</h3>
+
+        <div class="information-rows">
+          <!-- 40+ -->
+          <div class="information-row">
+            <span class="information-row-label">40+:</span>
+            <span class="information-row-value">{{ scoreStatistics.fortyPlus }}</span>
+          </div>
+
+          <!-- 60+ -->
+          <div class="information-row">
+            <span class="information-row-label">60+:</span>
+            <span class="information-row-value">{{ scoreStatistics.sixtyPlus }}</span>
+          </div>
+
+          <!-- 80+ -->
+          <div class="information-row">
+            <span class="information-row-label">80+:</span>
+            <span class="information-row-value">{{ scoreStatistics.eightyPlus }}</span>
+          </div>
+
+          <!-- 100+ -->
+          <div class="information-row">
+            <span class="information-row-label">100+:</span>
+            <span class="information-row-value">{{ scoreStatistics.tonPlus }}</span>
+          </div>
+
+          <!-- 140+ -->
+          <div class="information-row">
+            <span class="information-row-label">140+:</span>
+            <span class="information-row-value">{{ scoreStatistics.tonFortyPlus }}</span>
+          </div>
+
+          <!-- 180 -->
+          <div class="information-row">
+            <span class="information-row-label">180:</span>
+            <span class="information-row-value">{{ scoreStatistics.tonEighty }}</span>
+          </div>
+
+          <!-- Points thrown -->
+          <div class="information-row">
+            <span class="information-row-label">Points thrown:</span>
+            <span class="information-row-value">{{ averageStatistics.pointsThrown }}</span>
+          </div>
+
+          <!-- Darts thrown -->
+          <div class="information-row">
+            <span class="information-row-label">Darts thrown:</span>
+            <span class="information-row-value">{{ averageStatistics.dartsThrown }}</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Average section -->
+      <section class="information-section">
+        <h3 class="information-section-title">Average</h3>
+
+        <div class="information-rows">
+          <!-- 3-dart -->
+          <div class="information-row">
+            <span class="information-row-label">3-Dart:</span>
+            <span class="information-row-value">{{ averageStatistics.average ?? '-' }}</span>
+          </div>
+
+          <!-- First-9 -->
+          <div class="information-row">
+            <span class="information-row-label">First-9:</span>
+            <span class="information-row-value">{{ averageStatistics.averageFirstNine ?? '-' }}</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Checkout section -->
+      <section class="information-section">
+        <h3 class="information-section-title">Checkout</h3>
+
+        <div class="information-rows">
+          <!-- Highest -->
+          <div class="information-row">
+            <span class="information-row-label">Highest:</span>
+            <span class="information-row-value">
+              {{ checkoutStatistics.checkoutHighest ?? '-' }}
+            </span>
+          </div>
+
+          <!-- 100+ -->
+          <div class="information-row">
+            <span class="information-row-label">100+:</span>
+            <span class="information-row-value">
+              {{ checkoutStatistics.checkoutTonPlus }}
+            </span>
+          </div>
+
+          <!-- Doubles hit -->
+          <div class="information-row">
+            <span class="information-row-label">Doubles hit:</span>
+            <span class="information-row-value">
+              {{ checkoutStatistics.checkoutsHit }}
+            </span>
+          </div>
+
+          @if (isTrackDoubles()) {
+            @let checkoutPercentage = checkoutStatistics.checkoutPercentage;
+
+            <!-- Doubles missed -->
+            <div class="information-row">
+              <span class="information-row-label">Doubles missed:</span>
+              <span class="information-row-value">{{ checkoutStatistics.checkoutsMissed ?? '-' }}</span>
+            </div>
+
+            <!-- Doubles percentage -->
+            <div class="information-row">
+              <span class="information-row-label">Doubles percentage:</span>
+              <span class="information-row-value">
+                {{ checkoutPercentage === null ? '-' : checkoutPercentage + '%' }}
+              </span>
+            </div>
+          }
+        </div>
+      </section>
+    </mat-card-content>
+  </mat-card>
+}

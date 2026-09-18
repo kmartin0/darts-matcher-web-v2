@@ -1,10 +1,28 @@
 @use "devices";
 
-// Shared card, section and label-value styling for information-style views.
+/**
+ * Standard container layout for information cards.
+ */
+@mixin container {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  padding: 12px;
+  box-sizing: border-box;
+  justify-content: safe center;
+  gap: 8px;
+  overflow-x: auto;
+}
+
+/**
+ * Shared card, section, and label-value styling.
+ */
 @mixin layout {
   .information-card {
+    flex: 1 0 max-content;
     width: 100%;
-    min-width: 0;
+    min-width: 150px;
+    max-width: 650px;
     background-color: var(--mat-sys-surface-container);
     color: var(--mat-sys-on-surface);
   }
@@ -16,9 +34,12 @@
   }
 
   .information-card-title {
+    min-width: 0;
     margin: 0;
     padding: 16px;
-    overflow-wrap: anywhere;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
     text-align: center;
     font: var(--mat-sys-headline-small);
     font-weight: 500;
@@ -53,7 +74,7 @@
 
   .information-row {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: auto minmax(0, 1fr);
     align-items: baseline;
     gap: 12px;
     padding-inline: 8px;
