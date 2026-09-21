@@ -16,15 +16,13 @@
         @for (player of currentMatch.players; track player.playerId) {
           <div class="information-row">
             <span class="information-row-label">{{ player.playerName }}:</span>
-            <span class="information-row-value">
-              {{
+            <span class="information-row-value">{{
                 player
-                  | playerResultSummary:
-                  currentMatch.standings[player.playerId]:
-                  bestOf.bestOfType:
-                  currentMatch.matchStatus
-              }}
-            </span>
+                  | playerResultSummary
+                  : currentMatch.standings[player.playerId]
+                    : bestOf.bestOfType
+                    : currentMatch.matchStatus
+              }}</span>
           </div>
         }
       </div>

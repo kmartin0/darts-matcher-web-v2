@@ -108,9 +108,7 @@
   </div>
 
   <!-- Section - Track checkout percentage -->
-  <mat-checkbox [formField]="matchForm.trackDoubles">
-    Track checkout percentage
-  </mat-checkbox>
+  <mat-checkbox [formField]="matchForm.trackDoubles">Track checkout percentage</mat-checkbox>
 
   <!-- Section - Players -->
   <div
@@ -135,13 +133,13 @@
 
                   <mat-radio-button
                     [value]="PlayerType.HUMAN">
-                    Human
+                    <ng-container>Human</ng-container>
                   </mat-radio-button>
 
                   <mat-radio-button
                     [value]="PlayerType.DART_BOT"
                     [disabled]="hasBotPlayer() && player.playerType().value() === PlayerType.HUMAN">
-                    Bot
+                    <ng-container>Bot</ng-container>
                   </mat-radio-button>
                 </mat-radio-group>
 

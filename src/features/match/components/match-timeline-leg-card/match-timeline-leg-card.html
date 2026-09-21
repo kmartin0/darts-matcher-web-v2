@@ -19,10 +19,8 @@
         <span class="label">Winner</span>
 
         <span class="value">
-          @if (winnerInitials() !== null && checkoutScore() !== null) {
-            <span>{{ winnerInitials() }}</span>
-            <span>&nbsp;</span>
-            <span>({{ checkoutScore() }})</span>
+          @if (winnerInitials() !== null && card.checkoutScore !== null) {
+            <span>{{ winnerInitials() }} ({{ card.checkoutScore }})</span>
           } @else {
             <span>-</span>
           }
@@ -56,9 +54,9 @@
 
         <td mat-cell *matCellDef="let row">
           @if (card.bestOfType === X01BestOfType.LEGS) {
-            {{ row.legsWonInSet }}
+            <ng-container>{{ row.legsWonInSet }}</ng-container>
           } @else {
-            {{ row.setsWon }} ({{ row.legsWonInSet }})
+            <ng-container>{{ row.setsWon }} ({{ row.legsWonInSet }})</ng-container>
           }
         </td>
       </ng-container>
@@ -86,7 +84,10 @@
         <th mat-header-cell *matHeaderCellDef>Checkout</th>
 
         <td mat-cell *matCellDef="let row">
-          {{ row.winsLeg ? 1 : 0 }}/{{ row.doublesMissed }}
+          @let doublesHit = row.winsLeg ? 1 : 0;
+          @let doublesAttempted = doublesHit + (row.doublesMissed ?? 0);
+
+          <ng-container>{{ doublesHit }}/{{ doublesAttempted }}</ng-container>
         </td>
       </ng-container>
 

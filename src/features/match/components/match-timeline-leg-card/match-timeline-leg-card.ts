@@ -13,10 +13,11 @@ import {
   MatRowDef,
   MatTable
 } from '@angular/material/table';
-import {getDartsUsedForPlayerInRound, getLastTurnForPlayerInLeg, X01Leg} from '../../../../data/model/x01/leg/x01-leg';
 import {X01BestOfType} from '../../../../data/model/x01/rules/x01-best-of-type';
-import {calculateX01Average} from '../../../../data/model/x01/statistics/x01-average-statistics';
-import {MatchTimelineLegCardData, MatchTimelineLegCardPlayerData} from './match-timeline-leg-card-data';
+import {
+  MatchTimelineLegCardData,
+  MatchTimelineLegCardPlayerData
+} from './match-timeline-leg-card-data';
 
 interface MatchTimelineLegCardRow {
   playerId: string;
@@ -28,13 +29,6 @@ interface MatchTimelineLegCardRow {
   setsWon: number;
   legsWonInSet: number;
 
-  dartsUsed: number;
-  average: number | null;
-  remaining: number;
-  doublesMissed: number;
-}
-
-interface PlayerLegValues {
   dartsUsed: number;
   average: number | null;
   remaining: number;
@@ -78,10 +72,6 @@ export class MatchTimelineLegCard {
     this.getWinnerInitials(this.data())
   );
 
-  protected readonly checkoutScore = computed<number | null>(() =>
-    this.getCheckoutScore(this.data().leg)
-  );
-
   protected readonly rows = computed<MatchTimelineLegCardRow[]>(() =>
     this.createRows(this.data())
   );
@@ -122,7 +112,7 @@ export class MatchTimelineLegCard {
    */
   private getStarterInitials(data: MatchTimelineLegCardData): string | null {
     return data.players.find(
-      player => player.playerId === data.leg.throwsFirst
+      player => player.playerId === data.throwsFirst
     )?.initials ?? null;
   }
 
@@ -130,26 +120,12 @@ export class MatchTimelineLegCard {
    * Gets the initials of the player who wins the leg.
    *
    * @param data - Timeline leg-card data.
-   * @returns Winner initials, or null while there is no winner.
+   * @returns Winner initials, or null when no matching winner is available.
    */
   private getWinnerInitials(data: MatchTimelineLegCardData): string | null {
     return data.players.find(
-      player => player.playerId === data.leg.winner
+      player => player.playerId === data.winner
     )?.initials ?? null;
-  }
-
-  /**
-   * Gets the checkout score of the leg winner.
-   *
-   * @param leg - Leg containing the winner's turns.
-   * @returns Checkout score, or null while there is no winner.
-   */
-  private getCheckoutScore(leg: X01Leg): number | null {
-    if (leg.winner === null) {
-      return null;
-    }
-
-    return getLastTurnForPlayerInLeg(leg, leg.winner)?.score ?? null;
   }
 
   /**
@@ -163,69 +139,30 @@ export class MatchTimelineLegCard {
   }
 
   /**
-   * Creates the table row for a player.
+   * Creates a table row from the player's resolved values.
    *
    * @param data - Timeline leg-card data.
-   * @param player - Player and standing through the displayed leg.
+   * @param player - Player identity, standing, and leg statistics.
    * @returns Table row for the player.
    */
-  private createRow(data: MatchTimelineLegCardData, player: MatchTimelineLegCardPlayerData): MatchTimelineLegCardRow {
-    const leg = data.leg;
-    const legValues = this.resolvePlayerLegValues(leg, player.playerId, data.x01);
-
+  private createRow(
+    data: MatchTimelineLegCardData,
+    player: MatchTimelineLegCardPlayerData
+  ): MatchTimelineLegCardRow {
     return {
       playerId: player.playerId,
       initials: player.initials,
 
-      startsLeg: leg.throwsFirst === player.playerId,
-      winsLeg: leg.winner === player.playerId,
+      startsLeg: data.throwsFirst === player.playerId,
+      winsLeg: data.winner === player.playerId,
 
       setsWon: player.standing.setsWon,
       legsWonInSet: player.standing.legsWonInCurrentSet,
 
-      dartsUsed: legValues.dartsUsed,
-      average: legValues.average,
-      remaining: legValues.remaining,
-      doublesMissed: legValues.doublesMissed
-    };
-  }
-
-  /**
-   * Resolves a player's statistics within the displayed leg.
-   *
-   * The checkout turn uses `checkoutDartsUsed` number of darts.
-   * A player without a turn has x01 for remaining and has no average.
-   *
-   * @param leg - Leg containing the player's turns.
-   * @param playerId - ID of the player to resolve.
-   * @param x01 - Starting score of the leg.
-   * @returns Player values calculated from the leg.
-   */
-  private resolvePlayerLegValues(leg: X01Leg, playerId: string, x01: number): PlayerLegValues {
-    let pointsThrown = 0;
-    let dartsUsed = 0;
-    let doublesMissed = 0;
-
-    // Accumulate the player's leg values from each turn.
-    for (const roundEntry of leg.rounds) {
-      const turn = roundEntry.round.turns[playerId];
-
-      if (turn === undefined) {
-        continue;
-      }
-
-      pointsThrown += turn.score;
-      dartsUsed += getDartsUsedForPlayerInRound(leg, roundEntry, playerId);
-      doublesMissed += turn.doublesMissed ?? 0;
-    }
-
-    const lastTurn = getLastTurnForPlayerInLeg(leg, playerId);
-
-    return {
-      dartsUsed: dartsUsed,
-      average: calculateX01Average(pointsThrown, dartsUsed),
-      remaining: lastTurn?.remaining ?? x01,
-      doublesMissed: doublesMissed
+      dartsUsed: player.dartsUsed,
+      average: player.average,
+      remaining: player.remaining,
+      doublesMissed: player.doublesMissed
     };
   }
 }

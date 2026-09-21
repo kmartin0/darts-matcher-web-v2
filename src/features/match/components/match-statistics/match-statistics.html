@@ -113,42 +113,41 @@
           <!-- Highest -->
           <div class="information-row">
             <span class="information-row-label">Highest:</span>
-            <span class="information-row-value">
-              {{ checkoutStatistics.checkoutHighest ?? '-' }}
-            </span>
+            <span class="information-row-value">{{
+                checkoutStatistics.checkoutHighest ?? '-'
+              }}</span>
           </div>
 
           <!-- 100+ -->
           <div class="information-row">
             <span class="information-row-label">100+:</span>
-            <span class="information-row-value">
-              {{ checkoutStatistics.checkoutTonPlus }}
-            </span>
+            <span class="information-row-value">{{
+                checkoutStatistics.checkoutTonPlus
+              }}</span>
           </div>
 
           <!-- Doubles hit -->
           <div class="information-row">
             <span class="information-row-label">Doubles hit:</span>
-            <span class="information-row-value">
-              {{ checkoutStatistics.checkoutsHit }}
-            </span>
+            <span class="information-row-value">{{ checkoutStatistics.checkoutsHit }}</span>
           </div>
 
           @if (isTrackDoubles()) {
             @let checkoutPercentage = checkoutStatistics.checkoutPercentage;
+            @let doublesAttempted = checkoutStatistics.checkoutsHit + (checkoutStatistics.checkoutsMissed ?? 0);
 
-            <!-- Doubles missed -->
+            <!-- Doubles attempted -->
             <div class="information-row">
-              <span class="information-row-label">Doubles missed:</span>
-              <span class="information-row-value">{{ checkoutStatistics.checkoutsMissed ?? '-' }}</span>
+              <span class="information-row-label">Doubles attempted:</span>
+              <span class="information-row-value">{{ doublesAttempted }}</span>
             </div>
 
             <!-- Doubles percentage -->
             <div class="information-row">
               <span class="information-row-label">Doubles percentage:</span>
-              <span class="information-row-value">
-                {{ checkoutPercentage === null ? '-' : checkoutPercentage + '%' }}
-              </span>
+              <span class="information-row-value">{{
+                  checkoutPercentage === null ? '-' : checkoutPercentage + '%'
+                }}</span>
             </div>
           }
         </div>

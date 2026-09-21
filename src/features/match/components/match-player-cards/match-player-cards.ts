@@ -5,6 +5,8 @@ import {LegSelection} from '../match-board/leg-selection';
 import {MatchPlayerCard} from '../match-player-card/match-player-card';
 import {MatchPlayerCardData} from '../match-player-card/match-player-card-data';
 import {resolveMatchPlayerCards} from './match-player-cards.resolver';
+import {X01MatchTimeline, X01MatchTimelineLegEntry} from '../../../../data/model/x01/timeline/x01-match-timeline';
+import {MatchTimelineBuilder} from '../../builders/match-timeline.builder';
 
 @Component({
   selector: 'app-match-player-cards',
@@ -19,11 +21,38 @@ export class MatchPlayerCards {
   readonly legSelection = input.required<LegSelection>();
   readonly checkouts = input.required<X01CheckoutsMap>();
 
+  private readonly timeline = computed<X01MatchTimeline>(() =>
+    MatchTimelineBuilder.build(this.match())
+  );
+
   protected readonly playerCards = computed<MatchPlayerCardData[]>(() =>
     resolveMatchPlayerCards(
       this.match(),
-      this.legSelection(),
+      this.legSelection().setEntry.setNumber,
+      this.getSelectedTimelineLegEntry(this.timeline(), this.legSelection()),
       this.checkouts()
     )
   );
+
+  /**
+   * Gets the timeline entry for the selected leg.
+   *
+   * @param timeline - Timeline built from the match.
+   * @param legSelection - Selected set and leg.
+   * @returns Timeline entry for the selected leg.
+   * @throws When the selected leg has no timeline entry.
+   */
+  private getSelectedTimelineLegEntry(timeline: X01MatchTimeline, legSelection: LegSelection): X01MatchTimelineLegEntry {
+    const setNumber = legSelection.setEntry.setNumber;
+    const legNumber = legSelection.legEntry.legNumber;
+    const timelineLegEntry = timeline.setEntries.get(setNumber)?.legEntries.get(legNumber);
+
+    if (timelineLegEntry === undefined) {
+      throw new Error(
+        `Missing timeline entry for set '${setNumber}', leg '${legNumber}'.`
+      );
+    }
+
+    return timelineLegEntry;
+  }
 }

@@ -15,9 +15,7 @@
         @for (match of state.data; track match.id) {
           <mat-expansion-panel [hideToggle]="true">
             <mat-expansion-panel-header>
-              <mat-panel-title>
-                {{ match.startDate | epochSecondsToDate | date:'MM/dd/yyyy' }}
-              </mat-panel-title>
+              <mat-panel-title>{{ match.startDate | epochSecondsToDate | date:'MM/dd/yyyy' }}</mat-panel-title>
 
               <mat-panel-description class="description-container">
                 <span class="scoreline">{{ match | scoreline }}</span>
@@ -49,9 +47,7 @@
                 <mat-list-item>{{ bestOfSets }}</mat-list-item>
               }
 
-              <mat-list-item>
-                {{ match.matchSettings.bestOf | bestOfLegsSummary }}
-              </mat-list-item>
+              <mat-list-item>{{ match.matchSettings.bestOf | bestOfLegsSummary }}</mat-list-item>
 
               @if (match.matchSettings.bestOf | finalSetClearByTwoSummary; as clearByTwoFinalSet) {
                 <mat-list-item>{{ clearByTwoFinalSet }}</mat-list-item>

@@ -53,15 +53,11 @@
               </span>
             }
 
-            <span>
-              @if (turn) {
-                {{ turn.score }}
-              }
-            </span>
+            <span>{{ turn?.score }}</span>
 
             <span>
               @if (turn) {
-                {{ turn.remaining }}
+                <ng-container>{{ turn.remaining }}</ng-container>
               } @else if (row.currentThrowerId === player.playerId) {
                 <mat-icon svgIcon="darts"></mat-icon>
               }

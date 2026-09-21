@@ -1,4 +1,3 @@
-import {X01Leg} from '../../../../data/model/x01/leg/x01-leg';
 import {X01BestOfType} from '../../../../data/model/x01/rules/x01-best-of-type';
 import {X01StandingsEntry} from '../../../../data/model/x01/standings/x01-standings-entry';
 
@@ -9,16 +8,18 @@ export interface MatchTimelineLegCardData {
   setNumber: number;
   legNumber: number;
 
-  x01: number;
   bestOfType: X01BestOfType;
   trackDoubles: boolean;
 
-  leg: X01Leg;
+  throwsFirst: string;
+  winner: string | null;
+  checkoutScore: number | null;
+
   players: MatchTimelineLegCardPlayerData[];
 }
 
 /**
- * Player identity and cumulative standing through the displayed leg.
+ * Player identity, standing through the displayed leg, and leg-scoped statistics.
  *
  * Leg wins are scoped to the set containing that leg.
  */
@@ -26,4 +27,9 @@ export interface MatchTimelineLegCardPlayerData {
   playerId: string;
   initials: string;
   standing: X01StandingsEntry;
+
+  dartsUsed: number;
+  average: number | null;
+  remaining: number;
+  doublesMissed: number;
 }
