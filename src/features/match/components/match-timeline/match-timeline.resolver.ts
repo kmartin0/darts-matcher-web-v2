@@ -7,6 +7,7 @@ import {
   MatchTimelineLegCardPlayerData
 } from '../match-timeline-leg-card/match-timeline-leg-card-data';
 import {MatchTimelineBuilder} from '../../builders/match-timeline.builder';
+import {getPlayerTag} from '../../../../data/model/base-match/match-player';
 
 /**
  * Resolves leg cards in recorded match order.
@@ -66,7 +67,7 @@ function resolveLegCardPlayers(
   players: readonly X01MatchPlayer[],
   legEntry: X01MatchTimelineLegEntry
 ): MatchTimelineLegCardPlayerData[] {
-  return players.map(player => {
+  return players.map((player, index) => {
     const timelinePlayerEntry = legEntry.players[player.playerId];
 
     if (timelinePlayerEntry === undefined) {
@@ -77,7 +78,7 @@ function resolveLegCardPlayers(
 
     return {
       playerId: player.playerId,
-      initials: player.initials,
+      playerTag: getPlayerTag(index + 1),
       standing: timelinePlayerEntry.standing,
 
       dartsUsed: legValues.dartsThrown,

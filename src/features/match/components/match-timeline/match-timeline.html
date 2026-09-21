@@ -5,7 +5,7 @@
     @for (player of match().players; track player.playerId) {
       <div class="name-container">
         <span class="name">{{ player.playerName }}</span>
-        <span class="initials">({{ player.initials }})</span>
+        <span class="initials">({{ ($index + 1) | playerTag }})</span>
       </div>
 
       @if (!$last) {

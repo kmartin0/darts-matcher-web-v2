@@ -25,7 +25,7 @@ export interface MatchTimelineLegCardData {
  */
 export interface MatchTimelineLegCardPlayerData {
   playerId: string;
-  initials: string;
+  playerTag: string;
   standing: X01StandingsEntry;
 
   dartsUsed: number;

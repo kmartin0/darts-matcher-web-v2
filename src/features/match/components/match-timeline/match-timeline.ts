@@ -3,11 +3,13 @@ import {X01Match} from '../../../../data/model/x01/match/x01-match';
 import {MatchTimelineLegCard} from '../match-timeline-leg-card/match-timeline-leg-card';
 import {resolveTimelineLegCards} from './match-timeline.resolver';
 import {MatchTimelineLegCardData} from '../match-timeline-leg-card/match-timeline-leg-card-data';
+import {PlayerTagPipe} from './pipes/player-tag.pipe';
 
 @Component({
   selector: 'app-match-timeline',
   imports: [
-    MatchTimelineLegCard
+    MatchTimelineLegCard,
+    PlayerTagPipe
   ],
   templateUrl: './match-timeline.html',
   styleUrl: './match-timeline.scss'

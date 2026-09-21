@@ -113,7 +113,7 @@ export class MatchTimelineLegCard {
   private getStarterInitials(data: MatchTimelineLegCardData): string | null {
     return data.players.find(
       player => player.playerId === data.throwsFirst
-    )?.initials ?? null;
+    )?.playerTag ?? null;
   }
 
   /**
@@ -125,7 +125,7 @@ export class MatchTimelineLegCard {
   private getWinnerInitials(data: MatchTimelineLegCardData): string | null {
     return data.players.find(
       player => player.playerId === data.winner
-    )?.initials ?? null;
+    )?.playerTag ?? null;
   }
 
   /**
@@ -151,7 +151,7 @@ export class MatchTimelineLegCard {
   ): MatchTimelineLegCardRow {
     return {
       playerId: player.playerId,
-      initials: player.initials,
+      initials: player.playerTag,
 
       startsLeg: data.throwsFirst === player.playerId,
       winsLeg: data.winner === player.playerId,
