@@ -3,6 +3,7 @@ import {MatTab, MatTabGroup} from '@angular/material/tabs';
 import {X01Match} from '../../../../data/model/x01/match/x01-match';
 import {MatchInformation} from '../match-information/match-information';
 import {MatchStatistics} from '../match-statistics/match-statistics';
+import {MatchTimeline} from '../match-timeline/match-timeline';
 
 @Component({
   selector: 'app-match-summary',
@@ -10,7 +11,8 @@ import {MatchStatistics} from '../match-statistics/match-statistics';
     MatTabGroup,
     MatTab,
     MatchInformation,
-    MatchStatistics
+    MatchStatistics,
+    MatchTimeline
   ],
   templateUrl: './match-summary.html',
   styleUrl: './match-summary.scss'

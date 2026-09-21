@@ -1,0 +1,99 @@
+@let card = data();
+
+<mat-card class="card">
+  <mat-card-content class="card-content-container">
+
+    <!-- Card header. -->
+    <div class="leg-info-container">
+      <div class="label-value-container">
+        <span class="label">Set {{ card.setNumber }}</span>
+        <span class="value">Leg {{ card.legNumber }}</span>
+      </div>
+
+      <div class="label-value-container">
+        <span class="label">Starter</span>
+        <span class="value">{{ starterInitials() }}</span>
+      </div>
+
+      <div class="label-value-container">
+        <span class="label">Winner</span>
+
+        <span class="value">
+          @if (winnerInitials() !== null && checkoutScore() !== null) {
+            <span>{{ winnerInitials() }}</span>
+            <span>&nbsp;</span>
+            <span>({{ checkoutScore() }})</span>
+          } @else {
+            <span>-</span>
+          }
+        </span>
+      </div>
+    </div>
+
+    <!-- Leg statistics per player. -->
+    <table mat-table class="leg-table" [dataSource]="rows()" [trackBy]="trackByPlayerId">
+
+      <!-- Player column. -->
+      <ng-container matColumnDef="player">
+        <th mat-header-cell *matHeaderCellDef aria-label="Player"></th>
+
+        <td mat-cell class="player-cell" *matCellDef="let row">
+          <span class="initials-cell">{{ row.initials }}</span>
+
+          @if (row.startsLeg) {
+            <mat-icon class="starter-icon" svgIcon="darts"></mat-icon>
+          }
+
+          @if (row.winsLeg) {
+            <mat-icon class="leg-winner-icon">trophy</mat-icon>
+          }
+        </td>
+      </ng-container>
+
+      <!-- Score column. -->
+      <ng-container matColumnDef="score">
+        <th mat-header-cell *matHeaderCellDef>Score</th>
+
+        <td mat-cell *matCellDef="let row">
+          @if (card.bestOfType === X01BestOfType.LEGS) {
+            {{ row.legsWonInSet }}
+          } @else {
+            {{ row.setsWon }} ({{ row.legsWonInSet }})
+          }
+        </td>
+      </ng-container>
+
+      <!-- Darts column. -->
+      <ng-container matColumnDef="darts">
+        <th mat-header-cell *matHeaderCellDef>Darts</th>
+        <td mat-cell *matCellDef="let row">{{ row.dartsUsed }}</td>
+      </ng-container>
+
+      <!-- Average column. -->
+      <ng-container matColumnDef="average">
+        <th mat-header-cell *matHeaderCellDef>Avg.</th>
+        <td mat-cell *matCellDef="let row">{{ row.average ?? '-' }}</td>
+      </ng-container>
+
+      <!-- Remaining score column. -->
+      <ng-container matColumnDef="remaining">
+        <th mat-header-cell *matHeaderCellDef>Left</th>
+        <td mat-cell *matCellDef="let row">{{ row.remaining }}</td>
+      </ng-container>
+
+      <!-- Checkout column. -->
+      <ng-container matColumnDef="checkout">
+        <th mat-header-cell *matHeaderCellDef>Checkout</th>
+
+        <td mat-cell *matCellDef="let row">
+          {{ row.winsLeg ? 1 : 0 }}/{{ row.doublesMissed }}
+        </td>
+      </ng-container>
+
+      <!-- Render table rows. -->
+      <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns()"></tr>
+    </table>
+
+  </mat-card-content>
+</mat-card>

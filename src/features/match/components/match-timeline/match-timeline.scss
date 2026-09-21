@@ -1,0 +1,96 @@
+@use "mixins/devices";
+
+$card-corner: var(--mat-sys-corner-medium);
+
+:host {
+  display: block;
+}
+
+.timeline-component-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  min-width: fit-content;
+  overflow-x: auto;
+}
+
+// Header section.
+.header-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 1ch;
+  margin-bottom: 16px;
+  background-color: var(--mat-sys-tertiary-container);
+  color: var(--mat-sys-on-tertiary-container);
+  font: var(--mat-sys-title-medium);
+  border-radius: $card-corner;
+  padding: 8px 16px;
+  justify-content: center;
+  width: fit-content;
+
+  .name-container {
+    display: flex;
+    gap: 0.5ch;
+  }
+
+  @include devices.device(phone, phablet) {
+    font: var(--mat-sys-title-small);
+  }
+}
+
+// Divider between cards.
+.divider {
+  width: 4px;
+  height: 40px;
+  background-color: var(--mat-sys-primary);
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 12px;
+    height: 12px;
+    background-color: var(--mat-sys-primary);
+    border-radius: 50%;
+  }
+
+  &.set-divider {
+    background-color: var(--mat-sys-secondary);
+
+    &::after {
+      border-radius: 0;
+      transform: translate(-50%, -50%) rotate(45deg);
+      background-color: var(--mat-sys-secondary);
+    }
+  }
+
+  @include devices.device(phone, phablet) {
+    width: 2px;
+    height: 30px;
+
+    &::after {
+      width: 8px;
+      height: 8px;
+    }
+  }
+}
+
+// Card container.
+app-match-timeline-leg-card {
+  width: 100%;
+  min-width: 300px;
+  max-width: 650px;
+
+  &:last-child {
+    padding-bottom: 2px;
+  }
+
+  @include devices.device(tablet) {
+    max-width: 550px;
+  }
+}

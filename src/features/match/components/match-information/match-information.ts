@@ -27,9 +27,6 @@ import {MatchDateTimePipe} from './pipes/match-date-time.pipe';
 export class MatchInformation {
   readonly match = input.required<X01Match>();
 
-  /**
-   * Whether the match is decided by sets.
-   */
   protected readonly isBestOfSets = computed<boolean>(() =>
     this.match().matchSettings.bestOf.bestOfType === X01BestOfType.SETS
   );
@@ -45,10 +42,10 @@ export class MatchInformation {
   );
 
   /**
-   * Match duration in seconds.
+   * Match duration in seconds, with a minimum of zero.
    *
-   * Calculates the duration through the recorded end timestamp when available,
-   * or through the current timestamp while the match is still in play.
+   * Uses the recorded end timestamp when available.
+   * Otherwise, uses the current timestamp, refreshed once per minute.
    */
   protected readonly matchDurationInSeconds = computed<number>(() => {
     const startTimestamp = this.match().startDate;
@@ -58,16 +55,10 @@ export class MatchInformation {
     return Math.max(0, durationEndTimestamp - startTimestamp);
   });
 
-  /**
-   * Number of completed sets in the match.
-   */
   protected readonly setsPlayed = computed<number>(() =>
     this.match().sets.filter(setEntry => setEntry.set.result !== null).length
   );
 
-  /**
-   * Number of completed legs across all sets in the match.
-   */
   protected readonly legsPlayed = computed<number>(() =>
     this.match().sets
       .flatMap(setEntry => setEntry.set.legs)

@@ -1,0 +1,30 @@
+@let data = timeline();
+
+<div class="timeline-component-container">
+  <div class="header-container">
+    @for (player of data.players; track player.playerId) {
+      <div class="name-container">
+        <span class="name">{{ player.name }}</span>
+        <span class="initials">({{ player.initials }})</span>
+      </div>
+
+      @if (!$last) {
+        <div class="name-container">
+          <span class="name">vs</span>
+        </div>
+      }
+    }
+  </div>
+
+  @for (card of data.legCards; track card.setNumber + ':' + card.legNumber; let index = $index; let isLast = $last) {
+    <app-match-timeline-leg-card [data]="card"/>
+
+    @if (!isLast) {
+      <div
+        class="divider"
+        [class.set-divider]="card.setNumber !== data.legCards[index + 1].setNumber"
+        aria-hidden="true">
+      </div>
+    }
+  }
+</div>

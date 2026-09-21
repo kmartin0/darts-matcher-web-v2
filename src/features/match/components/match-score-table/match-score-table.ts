@@ -25,10 +25,9 @@ import {
   MatTable
 } from '@angular/material/table';
 import {
+  getDartsThrownThroughRound,
   getFirstRoundInLeg,
-  getLastRoundInLeg,
-  isLastRoundInLeg,
-  isLegFinished
+  getLastRoundInLeg
 } from '../../../../data/model/x01/leg/x01-leg';
 import {X01Match} from '../../../../data/model/x01/match/x01-match';
 import {X01MatchPlayer} from '../../../../data/model/x01/match/x01-match-player';
@@ -40,6 +39,7 @@ import {
 } from '../match-board/leg-selection';
 import {MatchScoreTableEditTarget} from './match-score-table-edit-target';
 import {MatchScoreTableRow} from './match-score-table-row';
+import {X01LegRoundEntry} from '../../../../data/model/x01/round/x01-leg-round-entry';
 
 interface MatchScoreTableScrollTarget {
   setNumber: number;
@@ -148,11 +148,7 @@ export class MatchScoreTable {
     const playerIds = match.players.map(player => player.playerId);
     const half = Math.floor(playerIds.length / 2);
 
-    return [
-      ...playerIds.slice(0, half),
-      ROUND_COLUMN_ID,
-      ...playerIds.slice(half)
-    ];
+    return [...playerIds.slice(0, half), ROUND_COLUMN_ID, ...playerIds.slice(half)];
   }
 
   /**
@@ -163,24 +159,30 @@ export class MatchScoreTable {
    * @returns Score table rows for the selected leg.
    */
   private createRows(match: X01Match, legSelection: LegSelection): MatchScoreTableRow[] {
+    return legSelection.legEntry.leg.rounds.map(roundEntry =>
+      this.createRow(match, legSelection, roundEntry)
+    );
+  }
+
+  /**
+   * Creates a score table row for a round.
+   *
+   * @param match - Match containing the current match progress.
+   * @param legSelection - Selected leg containing the round.
+   * @param roundEntry - Round to create the row for.
+   * @returns Score table row for the round.
+   */
+  private createRow(match: X01Match, legSelection: LegSelection, roundEntry: X01LegRoundEntry): MatchScoreTableRow {
     const leg = legSelection.legEntry.leg;
-    let dartsThrown = 0;
+    const isCurrentRound = this.isCurrentRound(match, legSelection, roundEntry.roundNumber);
+    const dartsThrown = getDartsThrownThroughRound(leg, roundEntry.roundNumber);
 
-    // Map the leg rounds to score table rows.
-    return leg.rounds.map(roundEntry => {
-      const isCheckoutRound = isLastRoundInLeg(leg, roundEntry.roundNumber) && isLegFinished(leg);
-      const isCurrentRound = this.isCurrentRound(match, legSelection, roundEntry.roundNumber);
-
-      // Add the actual checkout darts for the final round; otherwise count all three darts.
-      dartsThrown += isCheckoutRound ? leg.checkoutDartsUsed : 3;
-
-      return {
-        roundNumber: roundEntry.roundNumber,
-        dartsThrown: dartsThrown,
-        turns: roundEntry.round.turns,
-        currentThrowerId: isCurrentRound ? match.matchProgress.currentThrower : null
-      };
-    });
+    return {
+      roundNumber: roundEntry.roundNumber,
+      dartsThrown: dartsThrown,
+      turns: roundEntry.round.turns,
+      currentThrowerId: isCurrentRound ? match.matchProgress.currentThrower : null
+    };
   }
 
   /**

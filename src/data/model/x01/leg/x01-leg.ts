@@ -113,6 +113,17 @@ export function isLegFinished(leg: X01Leg): leg is X01FinishedLeg {
 }
 
 /**
+ * Checks whether a round is the checkout round of a finished leg.
+ *
+ * @param leg - Leg containing the round.
+ * @param roundNumber - Number of the round to check.
+ * @returns Whether the round is the checkout round.
+ */
+export function isCheckoutRound(leg: X01Leg, roundNumber: number): leg is X01FinishedLeg {
+  return (isLastRoundInLeg(leg, roundNumber) && isLegFinished(leg));
+}
+
+/**
  * Gets the number of darts used by a player in a round.
  *
  * Normal turns count as three darts. If the turn is the checkout turn, the
@@ -130,9 +141,28 @@ export function getDartsUsedForPlayerInRound(leg: X01Leg, roundEntry: X01LegRoun
     return 0;
   }
 
-  if (isLastRoundInLeg(leg, roundEntry.roundNumber) && isLegFinished(leg) && leg.winner === playerId) {
+  if (isCheckoutRound(leg, roundEntry.roundNumber) && leg.winner === playerId) {
     return leg.checkoutDartsUsed;
   }
 
   return 3;
+}
+
+/**
+ * Gets the cumulative number of darts through a round.
+ *
+ * Counts three darts per round, using the recorded darts for the checkout round.
+ *
+ * @param leg - Leg containing the round.
+ * @param roundNumber - One-based round number through which to count.
+ * @returns Cumulative number of darts through the round.
+ */
+export function getDartsThrownThroughRound(leg: X01Leg, roundNumber: number): number {
+  let dartsThrown = roundNumber * 3;
+
+  if (isCheckoutRound(leg, roundNumber)) {
+    dartsThrown = dartsThrown - 3 + leg.checkoutDartsUsed;
+  }
+
+  return dartsThrown;
 }
