@@ -1,4 +1,4 @@
-import {Component, computed, input} from '@angular/core';
+import {Component, computed, ElementRef, input, viewChildren} from '@angular/core';
 import {X01CheckoutsMap} from '../../../../data/model/x01/checkout/x01-checkout';
 import {X01Match} from '../../../../data/model/x01/match/x01-match';
 import {LegSelection} from '../match-board/leg-selection';
@@ -21,6 +21,11 @@ export class MatchPlayerCards {
   readonly legSelection = input.required<LegSelection>();
   readonly checkouts = input.required<X01CheckoutsMap>();
 
+  private readonly playerCardElements = viewChildren(
+    'playerCardElement',
+    {read: ElementRef<HTMLElement>}
+  );
+
   private readonly timeline = computed<X01MatchTimeline>(() =>
     MatchTimelineBuilder.build(this.match())
   );
@@ -33,6 +38,21 @@ export class MatchPlayerCards {
       this.checkouts()
     )
   );
+
+  /**
+   * Gets the rendered card for the current thrower.
+   *
+   * @returns Current thrower's card element, or null when none is displayed.
+   */
+  getCurrentThrowerElement(): HTMLElement | null {
+    const index = this.playerCards().findIndex(
+      playerCard => playerCard.isCurrentThrower
+    );
+
+    return index === -1
+      ? null
+      : this.playerCardElements().at(index)?.nativeElement ?? null;
+  }
 
   /**
    * Gets the timeline entry for the selected leg.

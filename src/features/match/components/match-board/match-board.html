@@ -1,6 +1,6 @@
 <div
   class="match-board" [class.score-input-visible]="isScoreInputVisible()">
-  <div class="match-board-content">
+  <div #boardContent class="match-board-content">
     <app-match-header [match]="match()"/>
 
     <app-match-player-cards

@@ -1,4 +1,14 @@
-import {Component, computed, input, linkedSignal, output, signal, viewChild} from '@angular/core';
+import {
+  afterRenderEffect,
+  Component,
+  computed,
+  ElementRef,
+  input,
+  linkedSignal,
+  output,
+  signal,
+  viewChild
+} from '@angular/core';
 import {MatchStatus} from '../../../../data/model/base-match/match-status';
 import {LocalMatchSettings} from '../../../../data/model/settings/local-match-settings';
 import {X01CheckoutsMap} from '../../../../data/model/x01/checkout/x01-checkout';
@@ -39,6 +49,8 @@ export class MatchBoard {
 
   // View queries.
   private readonly scoreInput = viewChild(MatchScoreInput);
+  private readonly boardContent = viewChild.required<ElementRef<HTMLElement>>('boardContent');
+  private readonly playerCards = viewChild.required(MatchPlayerCards);
 
   // Local state.
   protected readonly isEditMode = signal<boolean>(false);
@@ -63,6 +75,10 @@ export class MatchBoard {
     return currentThrowerId !== null &&
       this.localMatchSettings().scoreForPlayerIds.includes(currentThrowerId);
   });
+
+  constructor() {
+    this.registerCurrentThrowerAutoScroll();
+  }
 
   /**
    * Clears the currently entered score.
@@ -163,6 +179,48 @@ export class MatchBoard {
     return {
       setEntry: setEntry,
       legEntry: legEntry
+    };
+  }
+
+  /**
+   * Registers horizontal scrolling to reveal the current thrower after rendering.
+   */
+  private registerCurrentThrowerAutoScroll(): void {
+    afterRenderEffect({
+      earlyRead: () => this.getCurrentThrowerScrollTarget(),
+
+      write: target => {
+        const scrollTarget = target();
+
+        if (scrollTarget === null) {
+          return;
+        }
+
+        this.boardContent().nativeElement.scrollTo({left: scrollTarget.left, behavior: 'smooth'});
+      }
+    });
+  }
+
+  /**
+   * Gets the horizontal position that aligns the current thrower's card
+   * with the left edge of the board content.
+   *
+   * @returns Scroll target, or null when no current thrower is displayed.
+   */
+  private getCurrentThrowerScrollTarget(): {left: number} | null {
+    const card = this.playerCards().getCurrentThrowerElement();
+
+    if (card === null) {
+      return null;
+    }
+
+    const container = this.boardContent().nativeElement;
+    const containerBounds = container.getBoundingClientRect();
+    const cardBounds = card.getBoundingClientRect();
+    const viewportLeft = containerBounds.left + container.clientLeft;
+
+    return {
+      left: container.scrollLeft + cardBounds.left - viewportLeft
     };
   }
 }
