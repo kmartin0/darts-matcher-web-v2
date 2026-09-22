@@ -1,0 +1,11 @@
+services:
+  darts-matcher-web:
+    image: darts-matcher-web
+    container_name: darts-matcher-web
+    build:
+      context: .
+      args:
+        - PROFILE=dev # Accepts dev, prod-pi
+    restart: unless-stopped
+    ports:
+      - "4200:80"

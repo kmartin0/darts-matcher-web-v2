@@ -1,0 +1,25 @@
+# Node.js modules
+node_modules/
+
+# Angular build output and cache
+dist/
+.angular/
+
+# IDE and editor files
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Git related files
+.git/
+.gitignore
+
+# Test-related files
+coverage/
+tsconfig.spec.json
+
+# Other common exclusions that are not part of the deployable app
+README.md
+*.log
