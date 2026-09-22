@@ -25,12 +25,12 @@ import {
   MatchUpdateMessage
 } from '../../../../data/api/ws/match-message';
 import {MatchMessageType} from '../../../../data/api/ws/match-message-type';
-import {StreamEventType} from '../../../../data/api/ws/stream-event-type';
+import {StreamConnectionState, StreamEventType} from '../../../../data/api/ws/stream-event-type';
 import {X01Match} from '../../../../data/model/x01/match/x01-match';
 import {CheckoutRepository} from '../../../../data/repository/checkout-repository';
 import {MatchRepository} from '../../../../data/repository/match-repository';
 import {RecentMatchesRepository} from '../../../../data/repository/recent-matches-repository';
-import {INITIAL_MATCH_PAGE_STATE, MatchPageState} from './match-page-state';
+import {INITIAL_MATCH_PAGE_STATE, MatchPageState, MatchToolbarErrorSource} from './match-page-state';
 import {mapToEditTurnRequestDto} from '../../mappers/edit-turn-request.mapper';
 import {mapToEditTurnErrorMessage} from '../../mappers/edit-turn-error.mapper';
 import {CreateTurnInput, EditTurnInput} from '../../model/turn-input';
@@ -75,12 +75,9 @@ export class MatchPageStore {
     }
 
     this.executeMatchCommand(
-      () => defer(() =>
-        this.localMatchSettingsRepository.saveMatchSettings(localMatchSettings)
-      ),
-      () => this.patchState({
-        toolbarError: 'Failed to save local match settings'
-      })
+      () => defer(() => this.localMatchSettingsRepository.saveMatchSettings(localMatchSettings)),
+      () => this.clearToolbarError('saveLocalMatchSettings'),
+      () => this.setToolbarError('saveLocalMatchSettings', 'Failed to save local match settings')
     );
   }
 
@@ -93,7 +90,8 @@ export class MatchPageStore {
   repairMatch(): void {
     this.executeMatchCommand(
       match => this.matchRepository.reprocessMatch(match.id, ALL_API_ERROR_CODES),
-      () => this.patchState({toolbarError: 'Failed to repair match'})
+      () => this.clearToolbarError('repairMatch'),
+      () => this.setToolbarError('repairMatch', 'Failed to repair match')
     );
   }
 
@@ -106,7 +104,8 @@ export class MatchPageStore {
   resetMatch(): void {
     this.executeMatchCommand(
       match => this.matchRepository.resetMatch(match.id, ALL_API_ERROR_CODES),
-      () => this.patchState({toolbarError: 'Failed to reset match'})
+      () => this.clearToolbarError('resetMatch'),
+      () => this.setToolbarError('resetMatch', 'Failed to reset match')
     );
   }
 
@@ -119,7 +118,8 @@ export class MatchPageStore {
   deleteMatch(): void {
     this.executeMatchCommand(
       match => this.matchRepository.deleteMatch(match.id, ALL_API_ERROR_CODES),
-      () => this.patchState({toolbarError: 'Failed to delete match'})
+      () => this.clearToolbarError('deleteMatch'),
+      () => this.setToolbarError('deleteMatch', 'Failed to delete match')
     );
   }
 
@@ -131,7 +131,8 @@ export class MatchPageStore {
   deleteLastTurn(): void {
     this.executeMatchCommand(
       match => this.matchRepository.deleteLastTurn(match.id, ALL_API_ERROR_CODES),
-      () => this.patchState({toolbarError: 'Failed to delete last turn'})
+      () => this.clearToolbarError('deleteLastTurn'),
+      () => this.setToolbarError('deleteLastTurn', 'Failed to delete last turn')
     );
   }
 
@@ -147,6 +148,7 @@ export class MatchPageStore {
 
     this.executeMatchCommand(
       match => this.matchRepository.editTurn(match.id, editTurnRequestDto, ALL_API_ERROR_CODES),
+      () => this.patchState({scoreInputError: null}),
       error => {
         const errorResponse = isApiErrorResponse(error) ? error : undefined;
         const errorMessage = mapToEditTurnErrorMessage(errorResponse);
@@ -167,6 +169,7 @@ export class MatchPageStore {
 
     this.executeMatchCommand(
       match => this.matchRepository.addTurn(match.id, createTurnRequestDto, ALL_API_ERROR_CODES),
+      () => this.patchState({scoreInputError: null}),
       error => {
         const errorResponse = isApiErrorResponse(error) ? error : undefined;
         const errorMessage = mapToCreateTurnErrorMessage(errorResponse);
@@ -182,14 +185,13 @@ export class MatchPageStore {
     this.patchState({checkouts: {status: 'loading'}});
 
     this.checkoutRepository.getCheckouts().pipe(
-      tap(checkouts =>
-        this.patchState({checkouts: {status: 'loaded', data: checkouts}})
-      ),
+      tap(checkouts => {
+        this.patchState({checkouts: {status: 'loaded', data: checkouts}});
+        this.clearToolbarError('checkouts');
+      }),
       catchError(() => {
-        this.patchState({
-          checkouts: {status: 'error'},
-          toolbarError: 'Failed to load checkouts'
-        });
+        this.patchState({checkouts: {status: 'error'}});
+        this.setToolbarError('checkouts', 'Failed to load checkouts');
 
         return EMPTY;
       }),
@@ -263,11 +265,15 @@ export class MatchPageStore {
     return this.localMatchSettingsRepository
       .observeMatchSettings(matchId, players)
       .pipe(
-        tap(localMatchSettings => this.patchState(
-          {localMatchSettings: {status: 'loaded', data: localMatchSettings}}
-        )),
+        tap(localMatchSettings => {
+          this.patchState(
+            {localMatchSettings: {status: 'loaded', data: localMatchSettings}}
+          );
+          this.clearToolbarError('localMatchSettings');
+        }),
         catchError(() => {
-          this.patchState({localMatchSettings: {status: 'error'}, toolbarError: 'Failed to load local match settings'});
+          this.patchState({localMatchSettings: {status: 'error'}});
+          this.setToolbarError('localMatchSettings', 'Failed to load local match settings');
           return EMPTY;
         })
       );
@@ -301,7 +307,7 @@ export class MatchPageStore {
         break;
 
       case 'connection':
-        this.patchState({streamConnectionState: event.state});
+        this.handleStreamConnectionChange(event.state);
         break;
     }
   }
@@ -318,6 +324,23 @@ export class MatchPageStore {
     }
 
     this.handleDeleteMatchMessage(message);
+  }
+
+  /**
+   * Updates the stream connection state and retries unavailable page data after the connection is restored.
+   *
+   * @param connectionState - Current match-stream connection state.
+   */
+  private handleStreamConnectionChange(connectionState: StreamConnectionState): void {
+    this.patchState({streamConnectionState: connectionState});
+    if (connectionState !== 'connected') {
+      return;
+    }
+
+    const checkoutsLoadState = this._state().checkouts.status;
+    if (checkoutsLoadState === 'idle' || checkoutsLoadState === 'error') {
+      this.loadCheckouts();
+    }
   }
 
   /**
@@ -381,15 +404,16 @@ export class MatchPageStore {
   /**
    * Executes a command against the currently loaded match.
    *
-   * The command is ignored when no match is loaded. Existing toolbar and score
-   * input errors are cleared before execution. Command-specific failures are
-   * delegated to the provided error handler.
+   * The command is ignored when no match is loaded. Successful completion and
+   * failures are delegated to their respective handlers.
    *
    * @param command - Command to execute against the currently loaded match.
+   * @param successHandler - Handler invoked when the command completes successfully.
    * @param errorHandler - Handler invoked when the command fails.
    */
   private executeMatchCommand(
     command: (match: X01Match) => Observable<unknown>,
+    successHandler: () => void,
     errorHandler: (error: unknown) => void
   ): void {
     const matchState = this._state().match;
@@ -398,15 +422,42 @@ export class MatchPageStore {
       return;
     }
 
-    this.patchState({toolbarError: null, scoreInputError: null});
-
     command(matchState.data).pipe(
+      tap({
+        complete: successHandler
+      }),
       catchError((error: unknown) => {
         errorHandler(error);
         return EMPTY;
       }),
       takeUntilDestroyed(this.destroyRef),
     ).subscribe();
+  }
+
+  /**
+   * Sets the toolbar error for the supplied source.
+   *
+   * @param source - Operation that owns the toolbar error.
+   * @param message - Error message to display.
+   */
+  private setToolbarError(source: MatchToolbarErrorSource, message: string): void {
+    this.patchState({
+      toolbarError: {
+        source: source,
+        message: message
+      }
+    });
+  }
+
+  /**
+   * Clears the toolbar error when it belongs to the supplied source.
+   *
+   * @param source - Error source permitted to clear the current toolbar error.
+   */
+  private clearToolbarError(source: MatchToolbarErrorSource): void {
+    if (this._state().toolbarError?.source === source) {
+      this.patchState({toolbarError: null});
+    }
   }
 
   /**

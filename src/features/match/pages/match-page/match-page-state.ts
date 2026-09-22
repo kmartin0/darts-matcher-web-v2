@@ -6,12 +6,26 @@ import {LocalMatchSettings} from '../../../../data/model/settings/local-match-se
 
 type MatchLoadState = LoadState<X01Match> | { status: 'deleted' };
 
+export type MatchToolbarErrorSource =
+  | 'checkouts'
+  | 'localMatchSettings'
+  | 'saveLocalMatchSettings'
+  | 'repairMatch'
+  | 'resetMatch'
+  | 'deleteMatch'
+  | 'deleteLastTurn';
+
+export interface MatchToolbarError {
+  source: MatchToolbarErrorSource;
+  message: string;
+}
+
 export interface MatchPageState {
   match: MatchLoadState;
   localMatchSettings: LoadState<LocalMatchSettings>;
   checkouts: LoadState<X01CheckoutsMap>;
   streamConnectionState: StreamConnectionState;
-  toolbarError: string | null;
+  toolbarError: MatchToolbarError | null;
   scoreInputError: string | null;
 }
 

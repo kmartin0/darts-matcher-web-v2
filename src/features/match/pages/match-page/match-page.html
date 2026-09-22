@@ -5,7 +5,7 @@
 
 <app-match-toolbar
   [menuEnabled]="matchLoadState.status === 'loaded'"
-  [error]="state.toolbarError"
+  [error]="state.toolbarError?.message ?? null"
   [loading]="toolbarLoading()"
   [matchView]="matchView()"
   (toggleMatchView)="onToggleMatchView()"
