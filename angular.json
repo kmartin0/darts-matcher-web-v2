@@ -6,7 +6,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "darts-matcher-web-v2": {
+    "darts-matcher-web": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -75,10 +75,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "prod-pi": {
-              "buildTarget": "darts-matcher-web-v2:build:prod-pi"
+              "buildTarget": "darts-matcher-web:build:prod-pi"
             },
             "development": {
-              "buildTarget": "darts-matcher-web-v2:build:development"
+              "buildTarget": "darts-matcher-web:build:development"
             }
           },
           "defaultConfiguration": "development"
