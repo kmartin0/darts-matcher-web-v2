@@ -6,6 +6,8 @@ services:
       context: .
       args:
         PROFILE: dev
+        DARTS_MATCHER_API_URL: http://localhost:8080
+        DARTS_MATCHER_WEB_SOCKET_URL: ws://localhost:8080/darts-matcher-websocket
     restart: unless-stopped
     ports:
       - "4200:80"
