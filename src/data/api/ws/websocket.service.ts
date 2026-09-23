@@ -42,7 +42,9 @@ export class WebSocketService {
   private readonly errorDialogService = inject(ErrorDialogService);
 
   private readonly publishIdHeader = 'publish-id';
-  private readonly publishTimeoutMs = 60_000;
+  private readonly publishTimeoutMs = 5_000;
+  private readonly reconnectDelayMs = 5_000;
+  private readonly heartbeatIntervalMs = 5_000;
 
   private readonly rxStomp = this.createRxStomp();
   private readonly connected$ = this.rxStomp.connected$;
@@ -382,9 +384,10 @@ export class WebSocketService {
   private createConfig(): RxStompConfig {
     return {
       brokerURL: environment.dartsMatcherWebSocketUrl,
-      reconnectDelay: 4000,
-      heartbeatIncoming: 10000,
-      heartbeatOutgoing: 10000,
+      reconnectDelay: this.reconnectDelayMs,
+      heartbeatIncoming: this.heartbeatIntervalMs,
+      heartbeatOutgoing: this.heartbeatIntervalMs,
+      discardWebsocketOnCommFailure: true,
     };
   }
 
