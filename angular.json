@@ -42,13 +42,7 @@
             }
           },
           "configurations": {
-            "prod-pi": {
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.prod-pi.ts"
-                }
-              ],
+            "production": {
               "budgets": [
                 {
                   "type": "initial",
@@ -66,16 +60,20 @@
             "development": {
               "optimization": false,
               "extractLicenses": false,
-              "sourceMap": true
+              "sourceMap": true,
+              "define": {
+                "DARTS_MATCHER_API_URL": "'http://localhost:8080'",
+                "DARTS_MATCHER_WEB_SOCKET_URL": "'ws://localhost:8080/darts-matcher-websocket'"
+              }
             }
           },
-          "defaultConfiguration": "prod-pi"
+          "defaultConfiguration": "production"
         },
         "serve": {
           "builder": "@angular/build:dev-server",
           "configurations": {
-            "prod-pi": {
-              "buildTarget": "darts-matcher-web:build:prod-pi"
+            "production": {
+              "buildTarget": "darts-matcher-web:build:production"
             },
             "development": {
               "buildTarget": "darts-matcher-web:build:development"
