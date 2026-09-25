@@ -1,9 +1,5 @@
 import {isWinOrDrawResult} from '../../../data/model/base-match/result-type';
-import {
-  getDartsUsedForPlayerInRound,
-  getLastTurnForPlayerInLeg,
-  X01Leg
-} from '../../../data/model/x01/leg/x01-leg';
+import {getDartsUsedForPlayerInRound, getLastTurnForPlayerInLeg, X01Leg} from '../../../data/model/x01/leg/x01-leg';
 import {X01LegEntry} from '../../../data/model/x01/leg/x01-leg-entry';
 import {X01Match} from '../../../data/model/x01/match/x01-match';
 import {isLastLegInSet, X01Set} from '../../../data/model/x01/set/x01-set';

@@ -13,7 +13,8 @@ export type MatchToolbarErrorSource =
   | 'repairMatch'
   | 'resetMatch'
   | 'deleteMatch'
-  | 'deleteLastTurn';
+  | 'deleteLastTurn'
+  | 'rematch';
 
 export interface MatchToolbarError {
   source: MatchToolbarErrorSource;
@@ -27,6 +28,7 @@ export interface MatchPageState {
   streamConnectionState: StreamConnectionState;
   toolbarError: MatchToolbarError | null;
   scoreInputError: string | null;
+  rematchPrompt: { rematchId: string } | null;
 }
 
 export const INITIAL_MATCH_PAGE_STATE: MatchPageState = {
@@ -35,5 +37,6 @@ export const INITIAL_MATCH_PAGE_STATE: MatchPageState = {
   checkouts: {status: 'idle'},
   streamConnectionState: 'disconnected',
   toolbarError: null,
-  scoreInputError: null
+  scoreInputError: null,
+  rematchPrompt: null
 };

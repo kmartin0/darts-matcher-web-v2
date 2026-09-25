@@ -21,6 +21,7 @@ export const DARTS_MATCHER_WS_DESTINATIONS = {
       DELETE_MATCH: (matchId: string): string => `${WsDestinationType.PUBLISH}/matches/x01/${matchId}/delete`,
       RESET_MATCH: (matchId: string): string => `${WsDestinationType.PUBLISH}/matches/x01/${matchId}/reset`,
       REPROCESS_MATCH: (matchId: string): string => `${WsDestinationType.PUBLISH}/matches/x01/${matchId}/reprocess`,
+      REMATCH: (matchId: string): string => `${WsDestinationType.PUBLISH}/matches/x01/${matchId}/rematch`
     },
   },
 

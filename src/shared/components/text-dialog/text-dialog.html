@@ -35,8 +35,21 @@
       </button>
     }
 
-    <button mat-button [mat-dialog-close]="confirmedResult" cdkFocusInitial>
-      {{ confirmText }}
-    </button>
+    @if (confirmLink) {
+      <a
+        mat-button
+        [routerLink]="confirmLink"
+        [mat-dialog-close]="confirmedResult"
+        cdkFocusInitial>
+        {{ confirmText }}
+      </a>
+    } @else {
+      <button
+        mat-button
+        [mat-dialog-close]="confirmedResult"
+        cdkFocusInitial>
+        {{ confirmText }}
+      </button>
+    }
   </mat-dialog-actions>
 </div>

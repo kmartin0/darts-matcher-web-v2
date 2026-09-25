@@ -9,6 +9,7 @@ export interface BaseMatch<TPlayer extends MatchPlayer> {
   startDate: number; // Unix timestamp in seconds
   endDate: number | null; // Unix timestamp in seconds
   matchStatus: MatchStatus;
+  rematchId: string | null;
   players: TPlayer[];
   matchType: MatchType;
 }

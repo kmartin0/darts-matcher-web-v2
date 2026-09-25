@@ -6,4 +6,5 @@ export interface TextDialogData {
   cancelText?: string;
   isCancelable?: boolean;
   matIcon?: string;
+  confirmLink?: string;
 }

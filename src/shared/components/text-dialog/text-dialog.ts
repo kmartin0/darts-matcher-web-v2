@@ -10,6 +10,7 @@ import {
 import {MatIcon} from '@angular/material/icon';
 import {DialogResult} from '../../types/dialog-result';
 import {TextDialogData} from './text-dialog-data';
+import {RouterLink} from '@angular/router';
 
 @Component({
   selector: 'app-text-dialog',
@@ -19,7 +20,8 @@ import {TextDialogData} from './text-dialog-data';
     MatDialogActions,
     MatButton,
     MatDialogClose,
-    MatDialogTitle
+    MatDialogTitle,
+    RouterLink
   ],
   templateUrl: './text-dialog.html',
   styleUrl: './text-dialog.scss'
@@ -34,6 +36,7 @@ export class TextDialog {
   protected readonly cancelText = this.data.cancelText ?? 'Cancel';
   protected readonly isCancelable = this.data.isCancelable ?? false;
   protected readonly matIcon = this.data.matIcon ?? null;
+  protected readonly confirmLink = this.data.confirmLink ?? null;
 
   protected readonly dismissedResult: DialogResult<undefined> = {
     status: 'dismissed'

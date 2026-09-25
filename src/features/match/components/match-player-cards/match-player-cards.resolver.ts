@@ -1,9 +1,5 @@
 import {isWinOrDrawResult} from '../../../../data/model/base-match/result-type';
-import {
-  isCheckoutPossible,
-  X01Checkout,
-  X01CheckoutsMap
-} from '../../../../data/model/x01/checkout/x01-checkout';
+import {isCheckoutPossible, X01Checkout, X01CheckoutsMap} from '../../../../data/model/x01/checkout/x01-checkout';
 import {isLastLegInMatch, X01Match} from '../../../../data/model/x01/match/x01-match';
 import {X01MatchPlayer} from '../../../../data/model/x01/match/x01-match-player';
 import {calculateX01Average} from '../../../../data/model/x01/statistics/x01-average-statistics';

@@ -14,10 +14,7 @@ import {
   MatTable
 } from '@angular/material/table';
 import {X01BestOfType} from '../../../../data/model/x01/rules/x01-best-of-type';
-import {
-  MatchTimelineLegCardData,
-  MatchTimelineLegCardPlayerData
-} from './match-timeline-leg-card-data';
+import {MatchTimelineLegCardData, MatchTimelineLegCardPlayerData} from './match-timeline-leg-card-data';
 
 interface MatchTimelineLegCardRow {
   playerId: string;

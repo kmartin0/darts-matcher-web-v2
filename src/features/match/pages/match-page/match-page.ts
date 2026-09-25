@@ -2,7 +2,7 @@ import {Component, computed, inject, signal, viewChild} from '@angular/core';
 import {Clipboard} from '@angular/cdk/clipboard';
 import {MatButton} from '@angular/material/button';
 import {MatSnackBar} from '@angular/material/snack-bar';
-import {RouterLink} from '@angular/router';
+import {Router, RouterLink} from '@angular/router';
 import {AppEndpoints} from '../../../../app/app-endpoints';
 import {X01Match} from '../../../../data/model/x01/match/x01-match';
 import {PageError} from '../../../../shared/components/page-error/page-error';
@@ -15,6 +15,7 @@ import {MatchPageStore} from './match-page-store';
 import {MatchDialogService} from '../../services/match-dialog-service';
 import {MatchView} from '../../model/match-view';
 import {MatchSummary} from '../../components/match-summary/match-summary';
+import {observeSignalProperty} from '../../../../shared/utils/signal.util';
 
 @Component({
   selector: 'app-match-page',
@@ -66,6 +67,10 @@ export class MatchPage {
     return isMatchLoading || isWaitingForStream;
   });
 
+  constructor() {
+    this.registerRematchPromptObserver();
+  }
+
   /**
    * Toggles the match page between the board and summary views.
    */
@@ -86,6 +91,10 @@ export class MatchPage {
    */
   protected onRepairMatch(): void {
     this.store.repairMatch();
+  }
+
+  protected onRequestRematch(): void {
+    this.store.createRematch();
   }
 
   /**
@@ -224,6 +233,27 @@ export class MatchPage {
 
     this.matchBoard()?.clearScoreInput();
     this.store.addTurn(createTurnInput);
+  }
+
+  private registerRematchPromptObserver(): void {
+    observeSignalProperty(
+      () => this.uiState().rematchPrompt,
+      rematchPrompt => {
+        if (rematchPrompt !== null) {
+          void this.handleRematchPrompt(rematchPrompt.rematchId);
+        }
+      }
+    );
+  }
+
+  /**
+   * Handles a pending rematch prompt.
+   *
+   * @param rematchId - ID of the rematch to open.
+   */
+  private async handleRematchPrompt(rematchId: string): Promise<void> {
+    this.store.clearRematchPrompt();
+    await this.matchDialogService.openRematchCreatedDialog(rematchId);
   }
 
   /**

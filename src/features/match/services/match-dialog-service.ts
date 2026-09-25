@@ -19,6 +19,9 @@ import {
   MatchLocalSettingsFormDialogData
 } from '../components/match-local-settings-form-dialog/match-local-settings-form-dialog-data';
 import {LocalMatchSettings} from '../../../data/model/settings/local-match-settings';
+import {TextDialogData} from '../../../shared/components/text-dialog/text-dialog-data';
+import {TextDialog} from '../../../shared/components/text-dialog/text-dialog';
+import {AppEndpoints} from '../../../app/app-endpoints';
 
 @Injectable({providedIn: 'root'})
 export class MatchDialogService {
@@ -42,8 +45,7 @@ export class MatchDialogService {
   /**
    * Opens the checkout darts used dialog.
    *
-   * Uses the checkout's minimum darts to determine the available options,
-   * defaulting to one dart when no checkout is available.
+   * Uses the checkout's minimum darts to determine the available options.
    *
    * @param checkout - Checkout used to determine the minimum number of darts.
    * @param stackable - Whether the dialog can be opened while another dialog is already open.
@@ -99,6 +101,31 @@ export class MatchDialogService {
   openLocalMatchSettingsDialog(data: MatchLocalSettingsFormDialogData, stackable: boolean = false): Promise<DialogResult<LocalMatchSettings>> {
     return this.dialogManagerService.open<MatchLocalSettingsFormDialog, MatchLocalSettingsFormDialogData, LocalMatchSettings>(
       MatchLocalSettingsFormDialog,
+      {data: data},
+      stackable
+    );
+  }
+
+  /**
+   * Opens a dialog with a link to the available rematch.
+   *
+   * @param rematchId - ID of the rematch to open.
+   * @param stackable - Whether the dialog can open while another dialog is already open.
+   * @returns Result of the dialog.
+   */
+  openRematchCreatedDialog(rematchId: string, stackable: boolean = false): Promise<DialogResult<undefined>> {
+    const data: TextDialogData = {
+      title: 'Rematch created',
+      contentText: 'A rematch has been created for this match.',
+      confirmText: 'Open rematch',
+      cancelText: 'Stay here',
+      isCancelable: true,
+      matIcon: 'repeat',
+      confirmLink: AppEndpoints.match(rematchId)
+    };
+
+    return this.dialogManagerService.open<TextDialog, TextDialogData, undefined>(
+      TextDialog,
       {data: data},
       stackable
     );

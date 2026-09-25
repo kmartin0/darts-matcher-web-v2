@@ -89,6 +89,21 @@
     <span>Repair match</span>
   </button>
 
+  @if (displayedRematchLink(); as rematchLink) {
+    <a mat-menu-item [routerLink]="rematchLink">
+      <mat-icon>open_in_browser</mat-icon>
+      <span>Open rematch</span>
+    </a>
+  } @else if (displayedMatchStatus() === MatchStatus.CONCLUDED) {
+    <button
+      mat-menu-item
+      type="button"
+      (click)="requestRematch.emit()">
+      <mat-icon>repeat</mat-icon>
+      <span>Request rematch</span>
+    </button>
+  }
+
   <button
     mat-menu-item
     type="button"

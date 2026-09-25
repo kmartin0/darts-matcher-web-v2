@@ -2,14 +2,20 @@
 @let matchLoadState = state.match;
 @let localMatchSettingsLoadState = state.localMatchSettings;
 @let checkoutsLoadState = state.checkouts;
+@let rematchLink = matchLoadState.status === 'loaded' && matchLoadState.data.rematchId
+  ? AppEndpoints.match(matchLoadState.data.rematchId)
+  : null;
 
 <app-match-toolbar
   [menuEnabled]="matchLoadState.status === 'loaded'"
   [error]="state.toolbarError?.message ?? null"
   [loading]="toolbarLoading()"
   [matchView]="matchView()"
+  [matchStatus]="matchLoadState.status === 'loaded' ? matchLoadState.data.matchStatus : null"
+  [rematchLink]="rematchLink"
   (toggleMatchView)="onToggleMatchView()"
   (repairMatch)="onRepairMatch()"
+  (requestRematch)="onRequestRematch()"
   (resetMatch)="onResetMatch()"
   (deleteMatch)="onDeleteMatch()"
   (copyMatchId)="onCopyMatchId()"

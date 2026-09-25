@@ -84,8 +84,7 @@ export class MatchPageStore {
   /**
    * Repairs the currently loaded match.
    *
-   * Clears existing command errors before execution and exposes a toolbar error
-   * when the repair operation fails.
+   * Clears this operation's toolbar error on success and displays an error when it fails.
    */
   repairMatch(): void {
     this.executeMatchCommand(
@@ -95,11 +94,18 @@ export class MatchPageStore {
     );
   }
 
+  createRematch(): void {
+    this.executeMatchCommand(
+      match => this.matchRepository.createRematch(match.id, ALL_API_ERROR_CODES),
+      () => this.clearToolbarError('rematch'),
+      () => this.setToolbarError('rematch', 'Failed to create a rematch')
+    );
+  }
+
   /**
    * Resets the currently loaded match.
    *
-   * Clears existing command errors before execution and exposes a toolbar error
-   * when the reset operation fails.
+   * Clears this operation's toolbar error on success and displays an error when it fails.
    */
   resetMatch(): void {
     this.executeMatchCommand(
@@ -112,8 +118,7 @@ export class MatchPageStore {
   /**
    * Deletes the currently loaded match.
    *
-   * Clears existing command errors before execution and exposes a toolbar error
-   * when the delete operation fails.
+   * Clears this operation's toolbar error on success and displays an error when it fails.
    */
   deleteMatch(): void {
     this.executeMatchCommand(
@@ -176,6 +181,13 @@ export class MatchPageStore {
         this.patchState({scoreInputError: errorMessage});
       }
     );
+  }
+
+  /**
+   * Clears the pending rematch prompt.
+   */
+  clearRematchPrompt(): void {
+    this.patchState({rematchPrompt: null});
   }
 
   /**
@@ -366,6 +378,10 @@ export class MatchPageStore {
     }
 
     this.patchState({match: {status: 'loaded', data: match}});
+
+    if (message.messageType === MatchMessageType.REMATCH && match.rematchId) {
+      this.patchState({rematchPrompt: {rematchId: match.rematchId}});
+    }
   }
 
   /**

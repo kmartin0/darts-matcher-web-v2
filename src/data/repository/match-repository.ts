@@ -15,6 +15,7 @@ import {
   EditTurnMessage,
   MatchMessageUnion,
   ProcessMatchMessage,
+  RematchMessage,
   ResetMatchMessage
 } from '../api/ws/match-message';
 import {handledLocallyHttpContext} from '../api/http/http-api-error-context';
@@ -149,5 +150,17 @@ export class MatchRepository {
   addTurn(matchId: string, body: X01CreateTurnRequestDto, handleLocally: ApiErrorCodes = []): Observable<AddHumanTurnMessage> {
     const destination = DARTS_MATCHER_WS_DESTINATIONS.X01.PUBLISH.ADD_TURN(matchId);
     return this.webSocket.publish<AddHumanTurnMessage>(destination, body, handleLocally);
+  }
+
+  /**
+   * Returns the existing rematch or creates one using the original match's configuration.
+   *
+   * @param matchId - ID of the original match.
+   * @param handleLocally - API error codes handled locally by the caller.
+   * @returns Observable containing a message whose payload is the existing or newly created rematch.
+   */
+  createRematch(matchId: string, handleLocally: ApiErrorCodes = []): Observable<RematchMessage> {
+    const destination = DARTS_MATCHER_WS_DESTINATIONS.X01.PUBLISH.REMATCH(matchId);
+    return this.webSocket.publish<RematchMessage>(destination, undefined, handleLocally);
   }
 }
